@@ -1,8 +1,16 @@
+import { Main } from "./components/main/Main"
 function App() {
 
   return (
     <>
-    <div><h1>Hola mundo</h1></div>
+      <div id="wrapper">
+        <Main></Main>
+      </div>
+
+      <a className="scroll-to-top rounded" href="#page-top">
+        <i className="bi bi-arrow-up"></i>
+      </a>
+
     </>
   )
 }
