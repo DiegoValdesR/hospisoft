@@ -1,6 +1,6 @@
 import { Footer } from "../footer/footer"
 
-export const MainContent = () =>{
+export const MainContent = (content) =>{
     return(<>
 
     <div id="content-wrapper" className="d-flex flex-column">
@@ -41,12 +41,9 @@ export const MainContent = () =>{
             {/**END NAVBAR */} 
 
             {/**Aqui va el contenido principal de la pagina*/}
-            <main className="container-fluid">
-                <h1>Hospisoft</h1>
+            <main className="container-fluid" >
             </main>
-            {/**END MAIN CONTENT */}
-
-            
+            {/**END MAIN CONTENT */}            
         </div>
 
         {/**FOOTER */}

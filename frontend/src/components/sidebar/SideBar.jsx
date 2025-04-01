@@ -5,7 +5,7 @@ export const SideBar = () =>{
 
             <a className="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div className="sidebar-brand-icon rotate-n-15">
-                    <i class="bi bi-emoji-smile-fill"></i>
+                    <i className="bi bi-emoji-smile-fill"></i>
                 </div>
                 <div className="sidebar-brand-text mx-3">Hospisoft</div>
             </a>
