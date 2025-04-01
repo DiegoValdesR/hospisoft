@@ -46,10 +46,12 @@ export const MainContent = () =>{
             </main>
             {/**END MAIN CONTENT */}
 
-            {/**FOOTER */}
-            <Footer></Footer>
-            {/**END FOOTER */}
+            
         </div>
+
+        {/**FOOTER */}
+        <Footer></Footer>
+        {/**END FOOTER */}
     </div>
         
     </>)
