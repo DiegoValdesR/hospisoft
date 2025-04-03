@@ -38,4 +38,4 @@ const User = Schema(
     }
 )
 
-export const UserModel = model("users",User)
+export const UsersModel = model("users",User)

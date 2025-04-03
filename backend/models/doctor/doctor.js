@@ -10,18 +10,26 @@ const Doctor = Schema(
             type:String,
             required:true
         },
-        doctor_medico:{
-            type:String,
-            required:true
-        },
         doctor_speciality:{
             type:String,
             required:true
-        }
+        },
+        doctor_email:{
+            type:String,
+            required:true
+        },
+        doctor_password:{
+            type:String,
+            required:true
+        },
+        doctor_phone_number:{
+            type:String,
+            required:true
+        },
     },
     {
         collection:"doctors"
     }
 )
 
-export const DoctorScheme = model("doctors",Doctor)
+export const DoctorsModel = model("doctors",Doctor)

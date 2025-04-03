@@ -1,9 +1,9 @@
-import { UserModel } from "../../models/user/user.js";
+import { UsersModel } from "../../models/user/user.js";
 import bcrypt from 'bcryptjs'
 
 const AllUsers = async(req,res) =>{
     try {
-        const users = await UserModel.find().exec()
+        const users = await UsersModel.find().exec()
         return res.status(200).send({
             data: users
         })
@@ -25,7 +25,7 @@ const InsertUser = async(req,res) =>{
         user_role : req.body.user_role,
     }
     try {
-        const userExists = await UserModel.findOne({ user_email: data.user_email });
+        const userExists = await UsersModel.findOne({ user_email: data.user_email });
         
         if (userExists) {
             return res.send({
@@ -33,7 +33,7 @@ const InsertUser = async(req,res) =>{
             })
         }
 
-        const insert = new UserModel(data)
+        const insert = new UsersModel(data)
         await insert.save()
     
         return res.status(200).send({

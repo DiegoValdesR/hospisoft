@@ -24,4 +24,4 @@ const Details = Schema(
     }
 )
 
-export const DetailsScheme = model("details",Details)
+export const DetailsModel = model("details",Details)
