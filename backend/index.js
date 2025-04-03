@@ -11,9 +11,9 @@ app.use(json())
 //llamamos al metodo que ejecuta la conexion con la base de datos
 MongoDbConnection()
 //RUTAS
-//
-app.listen(serverPort,()=>{
-    console.log("Server running in: "+serverPort);
-})
+import userRoute from './routes/user/user.js'
 
+app.use('/api',userRoute)
 
+//FIN RUTAS
+app.listen(serverPort)
