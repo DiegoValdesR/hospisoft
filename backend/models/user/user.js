@@ -14,6 +14,10 @@ const User = Schema(
             type:String,
             required:true
         },
+        user_password:{
+            type:String,
+            required:true
+        },
         user_phone_number:{
             type:String,
             required:true

@@ -11,9 +11,11 @@ app.use(json())
 //llamamos al metodo que ejecuta la conexion con la base de datos
 MongoDbConnection()
 //RUTAS
-import userRoute from './routes/user/user.js'
+import UserRoutes from './routes/user/user.js'
+import DoctorRoutes from './routes/doctor/doctor.js'
 
-app.use('/api',userRoute)
+app.use('/api',UserRoutes)
+app.use('/api',DoctorRoutes)
 
 //FIN RUTAS
 app.listen(serverPort)

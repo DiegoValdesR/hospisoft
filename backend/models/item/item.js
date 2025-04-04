@@ -13,6 +13,7 @@ const Item = Schema(
         item_stock:{
             type:Number,
             required:true,
+            min:0
         },
     },
     {

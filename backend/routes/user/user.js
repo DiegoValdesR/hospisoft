@@ -1,10 +1,12 @@
 import express from 'express'
 const router = express.Router()
-import { Methods } from '../../controllers/user/user.js'
+import { UserMethods } from '../../controllers/user/user.js'
 
 //routes
-router.get("/users/all",Methods.AllUsers)
-router.post("/users/new",Methods.InsertUser)
+router.get("/users/all",UserMethods.AllUsers)
+router.post("/users/byid/:id",UserMethods.UserById)
+router.post("/users/new",UserMethods.InsertUser)
+router.post("/users/login",UserMethods.LogIn)
 //end routes
 
 export default router
