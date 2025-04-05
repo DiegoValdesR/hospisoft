@@ -71,7 +71,7 @@ const InsertUser = async(req,res) =>{
 }
 
 const UpdateUser = async(req,res)=>{
-    const id = req.params
+    const id = req.params.id
 
     const data = {
         user_name : req.body.user_name,
@@ -82,23 +82,73 @@ const UpdateUser = async(req,res)=>{
         user_eps : req.body.user_eps,
     }
 
+    for (const key in data) {
+        if (data[key] === "") {
+            return res.status(400).send({
+                message:"Faltan datos"
+            })
+        }
+    }
+
+    if (!id) {
+        return res.status(400).send({
+            message:"No se envío el id del usuario"
+        })
+    }
+
     try {
-       const findEmail = await UsersModel.findOne({"_id":id,"user_email":data.user_email})
+        //si encuentra un registro que tenga el mismo email que el del body del request y no es el mismo id que el
+        //del usuario retorna un objeto, sino null
+       const findEmail = await UsersModel.findOne({"_id":{"$ne":id},"user_email":data.user_email})
 
        if (findEmail) {
             return res.status(409).send({
-                message:"Ese correo ya esta "
+                message:"Ese correo ya ha sido registrado por otro usuario"
             })
        }
+
+        await UsersModel.findOneAndUpdate({"_id":id},{
+            user_name:data.user_name,
+            user_last_name : data.user_last_name,
+            user_email : data.user_email,
+            user_phone_number: data.user_phone_number,
+            user_birthday : data.user_birthday,
+            user_eps : data.user_eps,
+        })
+        
+       return res.status(200).send({
+        message:"Usuario actualizado correctamente!",
+       })
         
         
     } catch (error) {
 
         return res.status(400).send({
-            message:"Ocurrió un error: "+error
+            message:"No se pudo actualizar el usuario, por favor intentelo más tarde"
         })
     }
 
+}
+
+const DeleteUser = async(req,res)=>{
+    const id = req.params.id
+
+    if (!id) {
+        return res.status(400).send({
+            message:"No se envio el id del usuario"
+        })
+    }
+
+    try {
+        await UsersModel.findOneAndDelete({"_id":id})
+        return res.status(200).send({
+            message:"Usuario eliminado correctamente!"
+        })
+    } catch (error) {
+        return res.status(400).send({
+            message:"No se encontró el usuario"
+        })
+    }
 }
 
 const LogIn = async(req,res) =>{
@@ -146,5 +196,6 @@ export const UserMethods = {
     UserById,
     InsertUser,
     UpdateUser,
+    DeleteUser,
     LogIn
 }

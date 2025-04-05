@@ -6,6 +6,8 @@ import { UserMethods } from '../../controllers/user/user.js'
 router.get("/users/all",UserMethods.AllUsers)
 router.post("/users/byid/:id",UserMethods.UserById)
 router.post("/users/new",UserMethods.InsertUser)
+router.put("/users/update/:id",UserMethods.UpdateUser)
+router.delete("/users/delete/:id",UserMethods.DeleteUser)
 router.post("/users/login",UserMethods.LogIn)
 //end routes
 
