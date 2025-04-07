@@ -14,10 +14,12 @@ MongoDbConnection()
 import UserRoutes from './routes/user/user.js'
 import DoctorRoutes from './routes/doctor/doctor.js'
 import ItemsRoutes from './routes/item/item.js'
+import DetailsRoutes from './routes/detailsFormula/details.js'
 
 app.use('/api',UserRoutes)
 app.use('/api',DoctorRoutes)
 app.use('/api',ItemsRoutes)
+app.use('/api',DetailsRoutes)
 
 //FIN RUTAS
 app.listen(serverPort)
