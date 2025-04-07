@@ -1,21 +1,35 @@
-import { UsersModel } from "../../models/user/user.js";
+import { UsersModel, UserSchema} from "../../models/user/user.js";
 //solo para el login
 import { DoctorsModel } from "../../models/doctor/doctor.js";
 import bcrypt from 'bcryptjs'
+import { Validations } from "../../validations/validate.js";
 
 const AllUsers = async(req,res) =>{
-    const users = await UsersModel.find()
-    return res.status(200).send({
-        data: users
-    })
+    try {
+        const users = await UsersModel.find()
+        return res.status(200).send({
+            data: users
+        })
+    } catch (error) {
+        return res.status(500).send({
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+    
 }
 
 const UserById = async(req,res)=>{
     const {id} = req.params
 
-    if (!id) {
+    if (!id || id.length !== 24) {
         return res.status(400).send({
-            message:"No se ha enviado el id"
+            message:"No se ha enviado el id, o el enviado es incorrecto."
+        })
+    }
+
+    if (!Validations.IdExists(id,UsersModel)) {
+        return res.status(404).send({
+            message:"No se encontró el usuario asociado a ese id."
         })
     }
 
@@ -27,23 +41,41 @@ const UserById = async(req,res)=>{
         })
 
     } catch (error) {
-        return res.status(404).send({
-            message:"No se encontró algún usuario con el id provicionado"
+        return res.status(500).send({
+            message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
     
 }
 
 const InsertUser = async(req,res) =>{
+    //destructuring al request body, trayendo todos los valores esperados
+    const {user_name,
+        user_last_name,
+        user_email,
+        user_password,
+        user_phone_number,
+        user_birthday,
+        user_eps,
+        user_role
+    } = req.body
+
     const data = {
-        user_name : req.body.user_name,
-        user_last_name : req.body.user_last_name,
-        user_email : req.body.user_email,
-        user_password : bcrypt.hashSync(req.body.user_password), //encriptar contraseña antes de guardarla
-        user_phone_number: req.body.user_phone_number,
-        user_birthday : req.body.user_birthday,
-        user_eps : req.body.user_eps,
-        user_role : req.body.user_role,
+        user_name : user_name,
+        user_last_name : user_last_name,
+        user_email : user_email,
+        user_password : user_password, 
+        user_phone_number: user_phone_number,
+        user_birthday : user_birthday,
+        user_eps : user_eps,
+        user_role : user_role
+    }
+
+    const validation = Validations.IsObjectValid(UserSchema,data)
+    if (validation.length !== 0) {
+        return res.status(400).send({
+            message:validation
+        })
     }
 
     try {
@@ -51,10 +83,11 @@ const InsertUser = async(req,res) =>{
         
         if (userExists) {
             return res.status(409).send({
-                message: "El correo ingresado ya existe"
+                message: "El correo ingresado ya ha sido registrado por otro usuario."
             })
         }
 
+        data.user_password = bcrypt.hashSync(data.user_password)
         const insert = new UsersModel(data)
         await insert.save()
     
@@ -63,36 +96,51 @@ const InsertUser = async(req,res) =>{
         })
 
     } catch (error) {
-        return res.status(400).send({
-            message:"Datos incorrectos / faltan datos"
+        return res.status(500).send({
+            message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
 
 }
 
 const UpdateUser = async(req,res)=>{
-    const id = req.params.id
+    const {id} = req.params
+
+    if (!id || id.length !== 24) {
+        return res.status(400).send({
+            message:"No se envío el id, o el enviado es incorrecto."
+        })
+    }
+
+    if (!Validations.IdExists(id,UsersModel)) {
+        return res.status(404).send({
+            message:"No se encontró un usuario asociado con el id enviado."
+        })
+    }
+
+    const {user_name,
+        user_last_name,
+        user_email,
+        user_phone_number,
+        user_birthday,
+        user_eps,
+        user_role
+    } = req.body
 
     const data = {
-        user_name : req.body.user_name,
-        user_last_name : req.body.user_last_name,
-        user_email : req.body.user_email,
-        user_phone_number: req.body.user_phone_number,
-        user_birthday : req.body.user_birthday,
-        user_eps : req.body.user_eps,
+        user_name : user_name,
+        user_last_name : user_last_name,
+        user_email : user_email,
+        user_phone_number: user_phone_number,
+        user_birthday : user_birthday,
+        user_eps : user_eps,
+        user_role : user_role,
     }
 
-    for (const key in data) {
-        if (data[key] === "") {
-            return res.status(400).send({
-                message:"Faltan datos"
-            })
-        }
-    }
-
-    if (!id) {
+    const validation = Validations.IsObjectValid(UserSchema,data)
+    if (validation.length !== 0) {
         return res.status(400).send({
-            message:"No se envío el id del usuario"
+            message:validation
         })
     }
 
@@ -103,39 +151,37 @@ const UpdateUser = async(req,res)=>{
 
        if (findEmail) {
             return res.status(409).send({
-                message:"Ese correo ya ha sido registrado por otro usuario"
+                message:"Ese correo ya ha sido registrado por otro usuario."
             })
        }
 
-        await UsersModel.findOneAndUpdate({"_id":id},{
-            user_name:data.user_name,
-            user_last_name : data.user_last_name,
-            user_email : data.user_email,
-            user_phone_number: data.user_phone_number,
-            user_birthday : data.user_birthday,
-            user_eps : data.user_eps,
-        })
+       await UsersModel.findOneAndUpdate({"_id":id},data)
         
        return res.status(200).send({
         message:"Usuario actualizado correctamente!",
        })
         
-        
     } catch (error) {
 
-        return res.status(400).send({
-            message:"No se pudo actualizar el usuario, por favor intentelo más tarde"
+        return res.status(500).send({
+            message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
 
 }
 
 const DeleteUser = async(req,res)=>{
-    const id = req.params.id
+    const {id} = req.params
 
-    if (!id) {
+    if (!id || id.length !== 24) {
         return res.status(400).send({
-            message:"No se envio el id del usuario"
+            message:"No se envío el id, o el enviado es incorrecto."
+        })
+    }
+
+    if (!Validations.IdExists(id,UsersModel)) {
+        return res.status(404).send({
+            message:"No se encontró un usuario asociado con el id enviado."
         })
     }
 
@@ -144,9 +190,10 @@ const DeleteUser = async(req,res)=>{
         return res.status(200).send({
             message:"Usuario eliminado correctamente!"
         })
+
     } catch (error) {
-        return res.status(400).send({
-            message:"No se encontró el usuario"
+        return res.status(500).send({
+            message:"Erro interno del servidor, por favor intentelo más tarde."
         })
     }
 }
@@ -156,7 +203,7 @@ const LogIn = async(req,res) =>{
 
     if (!email || !password) {
         return res.status(400).send({
-            message:"Faltan datos"
+            message:"No se ingresaron todos los datos requeridos."
         })
     }
 
@@ -186,7 +233,7 @@ const LogIn = async(req,res) =>{
         
     } catch (error) {
         res.status(500).send({
-            message:"Error del servidor, por favor vuelvalo a intentar"
+            message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
 }

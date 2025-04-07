@@ -1,6 +1,6 @@
 import {Schema, model } from "mongoose";
 
-const User = Schema(
+export const UserSchema = Schema(
     {
         user_name:{
             type:String,
@@ -32,8 +32,8 @@ const User = Schema(
         },
         user_role:{
             type:String,
-            required:true,
-            default:"patient"
+            required:false,
+            default:"paciente"
         }
         
     },
@@ -42,4 +42,4 @@ const User = Schema(
     }
 )
 
-export const UsersModel = model("users",User)
+export const UsersModel = model("users",UserSchema)

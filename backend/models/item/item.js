@@ -1,6 +1,6 @@
 import {Schema, model } from "mongoose";
 
-const Item = Schema(
+export const ItemSchema = Schema(
     {
         item_name:{
             type:String,
@@ -13,7 +13,7 @@ const Item = Schema(
         item_stock:{
             type:Number,
             required:true,
-            min:0
+            min:0,
         },
     },
     {
@@ -21,4 +21,4 @@ const Item = Schema(
     }
 )
 
-export const ItemsModel = model("items",Item)
+export const ItemsModel = model("items",ItemSchema)

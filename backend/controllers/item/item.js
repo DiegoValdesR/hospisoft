@@ -1,4 +1,4 @@
-import { ItemsModel } from "../../models/item/item.js";
+import { ItemSchema, ItemsModel } from "../../models/item/item.js";
 import { Validations } from "../../validations/validate.js";
 
 const GetItems = async(req,res) =>{
@@ -17,23 +17,25 @@ const GetItems = async(req,res) =>{
 const GetItemById = async(req,res)=>{
     const {id} = req.params
 
-    if (!id) {
+    if (!id || id.length !== 24) {
         return res.status(400).send({
-            message:"No se envío el id"
+            message:"No se envío el id o el enviado es incorrecto."
+        })
+    }
+
+    if(!Validations.IdExists(id)){
+        return res.status(404).send({
+            message:"No se pudo encontrar el item."
         })
     }
 
     try {
         const findOne = await ItemsModel.findOne({"_id":id})
 
-        if (!findOne) {
-            return res.status(404).send({
-                message:"No se encontró el item"
-            })
-        }
         return res.status(200).send({
             data:findOne
         })
+
     } catch (error) {
         return res.status(500).send({
             message:"Error del servidor, por favor intentelo más tarde"
@@ -42,15 +44,20 @@ const GetItemById = async(req,res)=>{
 }
 
 const InsertItem = async(req,res)=>{
+
+    const {item_name,item_description,item_stock} = req.body
+
     const data = {
-        item_name : req.body.item_name,
-        item_description : req.body.item_description,
-        item_stock : req.body.item_stock
+        item_name : item_name,
+        item_description : item_description,
+        item_stock : item_stock
     }
 
-    if (Validations.HasEmptyValues(data)) {
+
+    const validation = Validations.IsObjectValid(ItemSchema,data)
+    if (validation.length !== 0) {
         return res.status(400).send({
-            message:"Faltan datos"
+            message:validation
         })
     }
 
@@ -63,8 +70,8 @@ const InsertItem = async(req,res)=>{
         })
 
     } catch (error) {
-        return res.status(400).send({
-            message:error
+        return res.status(500).send({
+            message:"Error interno del servidor, por favor intentelo más tarde." 
         })
     }
 }
@@ -78,33 +85,23 @@ const UpdateItem = async(req,res)=>{
         item_stock : req.body.item_stock
     }
 
-    const types = {
-        item_name : "string",
-        item_description : "string",
-        item_stock : "number"
-    }
 
     if (!id || id.length !== 24) {
         return res.status(400).send({
-            message:"No se envío el id del item, o el enviado es incorrecto"
+            message:"No se envío el id, o el enviado es incorrecto"
         })
     }
-
+    //Validaciones del modulo validate
     if (!await Validations.IdExists(id,ItemsModel)) {
         return res.status(404).send({
             message:"No se pudo encontrar el item"
         })
     }
 
-    if (Validations.HasEmptyValues(data)) {
+    const validation = Validations.IsObjectValid(ItemSchema,data)
+    if (validation.length !== 0) {
         return res.status(400).send({
-            message:"Faltan datos"
-        })
-    }
-
-    if (!Validations.IsCorrectType(data,types)) {
-        return res.status(400).send({
-            message:"Uno o varios datos no tienen el tipo correcto"
+            message:validation
         })
     }
 
@@ -134,7 +131,7 @@ const DeleteItem = async(req,res)=>{
 
     if (!id || id.length !== 24) {
         return res.status(400).send({
-            message:"No se envío el id del item, o el enviado es incorrecto"
+            message:"No se envío el id, o el enviado es incorrecto."
         })
     }
 
@@ -142,7 +139,7 @@ const DeleteItem = async(req,res)=>{
         const deleteItem = await ItemsModel.findOneAndDelete({"_id":id})
         if (!deleteItem) {
             return res.status(404).send({
-                message:"No se pudo encontrar el item a eliminar"
+                message:"No se pudo encontrar el item."
             })
         }
 
@@ -152,7 +149,7 @@ const DeleteItem = async(req,res)=>{
 
     } catch (error) {
         return res.status(500).send({
-            message:"Error del servidor, por favor intentelo más tarde"
+            message:"Error del servidor, por favor intentelo más tarde."
         })
     }
 }
