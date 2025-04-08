@@ -1,6 +1,6 @@
 import { Validations } from "./all/validate.js"
 
-export const IsObjectValid = (schema,objectData)=>{
+export const IsObjectValid = async(schema,objectData)=>{
     const schema_obj = schema.obj
     const errors = []
 
@@ -38,7 +38,7 @@ export const IsObjectValid = (schema,objectData)=>{
 
             //validamos que el array enviado sea correcto
             case "array":
-                const arrayErrors = Validations.IsArrayValid(schema,key,objectData[key])
+                const arrayErrors = await Validations.IsArrayValid(schema,key,objectData[key])
 
                 if (arrayErrors.length > 0) {
                     arrayErrors.forEach(error =>{

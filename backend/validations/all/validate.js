@@ -1,3 +1,4 @@
+import { DetailsModel } from "../../models/detailsFormula/details.js"
 
 const HasRequiredValues = (schema_obj,key,objectData)=>{
     
@@ -34,7 +35,7 @@ const HasMinValue = (schema_obj,key,objectData)=>{
     return true
 }
 
-const IsArrayValid = (schema,arrayKey,array)=>{
+const IsArrayValid = async(schema,arrayKey,array)=>{
     const response = []
     //revisamos si se envío algun dato
     if (!array) {
@@ -53,9 +54,10 @@ const IsArrayValid = (schema,arrayKey,array)=>{
     //y extramos el subschema (el objeto)
     const subSchema = path.schema
     const subSchema_obj = subSchema.obj
-    
+
     //recorremos el array
-    array.forEach(item =>{
+    array.map(async(item)=>{
+
         const objectItem = array[array.indexOf(item)]
         const data = {
             id_item:objectItem.id_item,
@@ -68,17 +70,31 @@ const IsArrayValid = (schema,arrayKey,array)=>{
             }
 
             const types = subSchema.paths[key].instance.toLowerCase()
+            //revisamos que tiene los tipos correctos
             if (!HasCorrectTypes(types,data[key])) {
                 response.push(`${key} en la posición ${array.indexOf(item)} de items tiene el tipo incorrecto.`);
             }
 
+            //revisamos que el id sea correcto
+            if (data.id_item.length !== 24) {
+                response.push(`${key} en la posición ${array.indexOf(item)} de items es incorrecto.`)
+                return response
+            }
+
+            //y que exista en la base de datos
+            if (!IdExists(data.id_item,DetailsModel)) {
+                response.push(`${key} en la posición ${array.indexOf(item)} de items es incorrecto.`)
+            }
+
+            //revisamos que el valor numérico sea mayor que el mínimo establecido
             if (!HasMinValue(subSchema_obj,key,data)) {
                 response.push(`${key} debe ser mayor que ${subSchema_obj[key].min}`)
             }
+            
+            //Revisamos que el stock no sea menor que la cantidad ingresada
         }
-        
     })
-
+    
     return response
 }
 
@@ -162,16 +178,27 @@ const IsDateValid = (value)=>{
     return response
 }
 
+const HasCorrectStock = async(model,id,amount)=>{
+    const findOne = await model.findOne({"_id":id})
+    console.log(findOne);
+    
+    return true
+}
+
 const IdExists = async(id,model)=>{
     //hacemos una consulta que nos traiga un registro asociado a un id especifico,
     //si retorna null ingresó un id que no esta registrado
     let findOne = {}
     findOne = await model.findOne({"_id":id})
+    console.log(findOne);
+    
     if (!findOne) {
         return false
     }
+
     return true
 }
+
 
 export const Validations = {
     HasRequiredValues,

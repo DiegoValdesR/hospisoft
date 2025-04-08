@@ -1,5 +1,7 @@
+
 import { ItemSchema, ItemsModel } from "../../models/item/item.js";
 import { Validations } from "../../validations/all/validate.js";
+import { IsObjectValid } from "../../validations/objectValidation.js";
 
 const GetItems = async(req,res) =>{
     try {
@@ -54,7 +56,7 @@ const InsertItem = async(req,res)=>{
     }
 
 
-    const validation = Validations.IsObjectValid(ItemSchema,data)
+    const validation = IsObjectValid(ItemSchema,data)
     if (validation.length !== 0) {
         return res.status(400).send({
             message:validation
@@ -98,7 +100,7 @@ const UpdateItem = async(req,res)=>{
         })
     }
 
-    const validation = Validations.IsObjectValid(ItemSchema,data)
+    const validation = IsObjectValid(ItemSchema,data)
     if (validation.length !== 0) {
         return res.status(400).send({
             message:validation
