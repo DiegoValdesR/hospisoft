@@ -1,5 +1,6 @@
 import { DetailsModel, DetailSchema } from "../../models/detailsFormula/details.js";
-import { Validations } from "../../validations/validate.js";
+import { Validations } from "../../validations/all/validate.js";
+import { IsObjectValid } from "../../validations/objectValidation.js";
 
 const AllFormulas = async(req,res) =>{
     try {
@@ -23,7 +24,7 @@ const FormulaById = async(req,res) =>{
         })
     }
 
-    if (!Validations.IdExists(id,DetailSchema)) {
+    if (!Validations.IdExists(id,DetailsModel)) {
         return res.status(404).send({
             message:"No se encontró la formula asociada al id enviado."
         })
@@ -46,17 +47,17 @@ const InsertFormula = async(req,res)=>{
     const {
         details_posology,
         details_consecutive,
-        item 
+        items
     } = req.body
 
 
     const data = {
         details_posology:details_posology,
         details_consecutive:details_consecutive,
-        item:item
+        items:items
     }
 
-    const validation = Validations.IsObjectValid(DetailSchema,data)
+    const validation = IsObjectValid(DetailSchema,data)
     if (validation.length !== 0) {
         return res.status(400).send({
             message:validation

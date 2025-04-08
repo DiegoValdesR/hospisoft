@@ -1,6 +1,6 @@
 import {Schema, model } from "mongoose";
 
-export const DetailSchema = Schema(
+export const DetailSchema = new Schema(
     {
         details_posology:{
             type:String,
@@ -10,7 +10,7 @@ export const DetailSchema = Schema(
             type:String,
             required:true
         },
-        item:[
+        items:[
             {
                 id_item:{
                     type:String,
@@ -18,7 +18,8 @@ export const DetailSchema = Schema(
                 },
                 amount_item:{
                     type:Number,
-                    required:true
+                    required:true,
+                    min:1
                 }
             }
         ]

@@ -2,7 +2,9 @@ import { UsersModel, UserSchema} from "../../models/user/user.js";
 //solo para el login
 import { DoctorsModel } from "../../models/doctor/doctor.js";
 import bcrypt from 'bcryptjs'
-import { Validations } from "../../validations/validate.js";
+
+import { Validations } from "../../validations/all/validate.js";
+import { IsObjectValid } from "../../validations/objectValidation.js";
 
 const AllUsers = async(req,res) =>{
     try {
@@ -71,7 +73,7 @@ const InsertUser = async(req,res) =>{
         user_role : user_role
     }
 
-    const validation = Validations.IsObjectValid(UserSchema,data)
+    const validation = IsObjectValid(UserSchema,data)
     if (validation.length !== 0) {
         return res.status(400).send({
             message:validation
@@ -137,7 +139,7 @@ const UpdateUser = async(req,res)=>{
         user_role : user_role,
     }
 
-    const validation = Validations.IsObjectValid(UserSchema,data)
+    const validation = IsObjectValid(UserSchema,data)
     if (validation.length !== 0) {
         return res.status(400).send({
             message:validation
