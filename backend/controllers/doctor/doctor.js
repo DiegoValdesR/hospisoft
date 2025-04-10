@@ -1,6 +1,6 @@
 import { DoctorSchema, DoctorsModel } from "../../models/doctor/doctor.js";
 import bcrypt from "bcryptjs";
-import { Validations } from "../../validations/all/validate.js";
+
 
 const AllDoctors = async(req,res)=>{
     try {

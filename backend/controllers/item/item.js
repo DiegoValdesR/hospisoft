@@ -1,7 +1,5 @@
 
 import { ItemSchema, ItemsModel } from "../../models/item/item.js";
-import { Validations } from "../../validations/all/validate.js";
-import { IsObjectValid } from "../../validations/objectValidation.js";
 
 const GetItems = async(req,res) =>{
     try {

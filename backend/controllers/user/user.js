@@ -1,10 +1,8 @@
 import { UsersModel, UserSchema} from "../../models/user/user.js";
 //solo para el login
 import { DoctorsModel } from "../../models/doctor/doctor.js";
+import { Validations } from "../../validations/index.js";
 import bcrypt from 'bcryptjs'
-
-import { Validations } from "../../validations/all/validate.js";
-import { IsObjectValid } from "../../validations/objectValidation.js";
 
 const AllUsers = async(req,res) =>{
     try {
@@ -23,13 +21,7 @@ const AllUsers = async(req,res) =>{
 const UserById = async(req,res)=>{
     const {id} = req.params
 
-    if (!id || id.length !== 24) {
-        return res.status(400).send({
-            message:"No se ha enviado el id, o el enviado es incorrecto."
-        })
-    }
-
-    if (!Validations.IdExists(id,UsersModel)) {
+    if (!await Validations.IsIdValid(id,UsersModel)) {
         return res.status(404).send({
             message:"No se encontró el usuario asociado a ese id."
         })
@@ -51,37 +43,16 @@ const UserById = async(req,res)=>{
 }
 
 const InsertUser = async(req,res) =>{
-    //destructuring al request body, trayendo todos los valores esperados
-    const {user_name,
-        user_last_name,
-        user_email,
-        user_password,
-        user_phone_number,
-        user_birthday,
-        user_eps,
-        user_role
-    } = req.body
-
-    const data = {
-        user_name : user_name,
-        user_last_name : user_last_name,
-        user_email : user_email,
-        user_password : user_password, 
-        user_phone_number: user_phone_number,
-        user_birthday : user_birthday,
-        user_eps : user_eps,
-        user_role : user_role
-    }
-
-    const validation = IsObjectValid(UserSchema,data)
-    if (validation.length !== 0) {
+    const objectErrors = Validations.IsRequestValid(UserSchema,req.body)
+    if (objectErrors.length !== 0) {
         return res.status(400).send({
-            message:validation
+            status:"error",
+            errors:objectErrors
         })
     }
 
     try {
-        const userExists = await UsersModel.findOne({ user_email: data.user_email });
+        const userExists = await UsersModel.findOne({ user_email: req.body.user_email });
         
         if (userExists) {
             return res.status(409).send({
@@ -89,8 +60,8 @@ const InsertUser = async(req,res) =>{
             })
         }
 
-        data.user_password = bcrypt.hashSync(data.user_password)
-        const insert = new UsersModel(data)
+        req.body.user_password = bcrypt.hashSync(req.body.user_password)
+        const insert = new UsersModel(req.body)
         await insert.save()
     
         return res.status(201).send({

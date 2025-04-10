@@ -1,6 +1,6 @@
 import { DetailsModel, DetailSchema } from "../../models/detailsFormula/details.js";
-import { Validations } from "../../validations/all/validate.js";
-import { IsObjectValid } from "../../validations/objectValidation.js";
+import { ItemsModel } from "../../models/item/item.js";
+import { Validations } from "../../validations/index.js";
 
 const AllFormulas = async(req,res) =>{
     try {
@@ -18,13 +18,7 @@ const AllFormulas = async(req,res) =>{
 const FormulaById = async(req,res) =>{
     const {id} = req.params
 
-    if (!id || id.length !== 24) {
-        return res.status(400).send({
-            message:"No se envío el id, o el enviado es incorrecto."
-        })
-    }
-
-    if (!Validations.IdExists(id,DetailsModel)) {
+    if (!await Validations.IsIdValid(id,DetailsModel)) {
         return res.status(404).send({
             message:"No se encontró la formula asociada al id enviado."
         })
@@ -44,28 +38,29 @@ const FormulaById = async(req,res) =>{
 }
 
 const InsertFormula = async(req,res)=>{
-    const {
-        details_posology,
-        details_consecutive,
-        items
-    } = req.body
 
-
-    const data = {
-        details_posology:details_posology,
-        details_consecutive:details_consecutive,
-        items:items
-    }
-
-    const validation = IsObjectValid(DetailSchema,data)
-    if (validation.length !== 0) {
+    const objectErrors = Validations.IsRequestValid(DetailSchema,req.body)
+    
+    if (objectErrors.length > 0) {
         return res.status(400).send({
-            message:validation
+            status:"error",
+            errors:objectErrors
         })
     }
 
+    //esta pinche validacion no se pudo hacer en el modulo de validaciones o al menos yo no pude
+    // for(const item of data.items){
+    //     if(!await Validations.IdExists(item.id_item,ItemsModel)){
+    //         return res.status(404).send({
+    //             message:"No se encontró el item asociado a ese id."
+    //         })
+    //     }
+
+    //     await Validations.
+    // }
+
     try {
-        const insert = new DetailsModel(data)
+        const insert = new DetailsModel(req.body)
         // await insert.save()
         return res.status(201).send({
             message:"Formula insertada!"
