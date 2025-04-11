@@ -1,63 +1,69 @@
-export const IsValidArray = (schema,key,array)=>{
+import { Validations } from "./index.js"
+import { ItemsModel } from "../models/item/item.js"
+
+export const IsValidArray = async(path,schemaObj,key,array)=>{
     let response = {}
 
-    //si no es array tiramos error de una
-    if (!Array.isArray(array)) {
-        response = {
-            type:"Valor requerido no enviado",
-            message:`${key} debe ser un array.`
+    if (Array.isArray(array)) {
+        //si esta vacío pues sisas
+        if (array.length === 0){
+            response = {
+                type:"Array inválido",
+                message:`${key} está vacío.`
+            }
+            return response
         }
-        return response
-    }
 
-    //si esta vacío pues sisas
-    if (array.length === 0){
-        response = {
-            type:"Array inválido",
-            message:`${key} está vacío.`
-        }
-        return response
-    }
-
-    // //traemos el schema del array
-    // const path = schema.paths[arrayKey]
-    // //y extramos el subschema (el objeto)
-    // const subSchema = path.schema
-    // const subSchema_obj = subSchema.obj
-
-    // //recorremos el array
-    // array.forEach((item)=>{
-
-    //     const objectItem = array[array.indexOf(item)]
-    //     const data = {
-    //         id_item:objectItem.id_item,
-    //         amount_item:objectItem.amount_item
-    //     }
-
-    //     for(const key in data){
-    //         if (!HasRequiredValues(subSchema_obj,key,data) && typeof data[key] !== "number") {
-    //             response.push(`${key} es requerido en la posicion ${array.indexOf(item)} de items.`);
-    //         }
-
-    //         const types = subSchema.paths[key].instance.toLowerCase()
-    //         //revisamos que tiene los tipos correctos
-    //         if (!HasCorrectTypes(types,data[key])) {
-    //             response.push(`${key} en la posición ${array.indexOf(item)} de items tiene el tipo incorrecto.`);
-    //         }
-
-    //         //revisamos que el id sea correcto
-    //         if (data.id_item.length !== 24) {
-    //             response.push(`${key} en la posición ${array.indexOf(item)} de items es incorrecto.`)
-    //             return response
-    //         }
-
-    //         //revisamos que el valor numérico sea mayor que el mínimo establecido
-    //         if (!HasMinValue(subSchema_obj,key,data)) {
-    //             response.push(`${key} debe ser mayor que ${subSchema_obj[key].min}`)
-    //         }
+        const subSchema = path.schema
+        const arrayErrors = []
+        for (const object of array){
             
-    //     }
-    // })
+            //validamos todos los datos ingresados
+            for (const keyObject in schemaObj) {
+                const type = subSchema.paths[keyObject].instance.toLowerCase()
+                //Hay que hacerle todas las validaciones a cada objeto dentro del array
+                const errorValues = Validations.HasRequiredValues(type,schemaObj[keyObject],keyObject,object)
+                if(errorValues.hasOwnProperty("type")) arrayErrors.push(errorValues)
+                
+                const errorTypes = Validations.HasCorrectTypes(type,keyObject,object[keyObject])
+                if(errorTypes.hasOwnProperty("type")) arrayErrors.push(errorTypes)
+
+                const errorMinValue = Validations.HasMinValue(schemaObj[keyObject],keyObject,object[keyObject])
+                if(errorMinValue.hasOwnProperty("type")) arrayErrors.push(errorMinValue) 
+            }
+            
+            if (arrayErrors.length === 0) {
+                
+                const data = {
+                    id_item:object.id_item,
+                    amount_item:object.amount_item
+                }
+
+                switch (await Validations.IsIdValid(data.id_item,ItemsModel)) {
+                    case true:
+                        
+                        break;
+                
+                    default:
+                        arrayErrors.push({
+                            type:"Error de id",
+                            message:`No se encontró el item asociado a ese id.`
+                        })
+                        break;
+                }
+                
+            }
+            
+        }
+
+        if (arrayErrors.length > 0) {
+            response = {
+                type:"Errores en el array",
+                errors:arrayErrors
+            }
+        }
+    }
+    
     
     return response
 }

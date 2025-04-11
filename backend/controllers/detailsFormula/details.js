@@ -39,7 +39,7 @@ const FormulaById = async(req,res) =>{
 
 const InsertFormula = async(req,res)=>{
 
-    const objectErrors = Validations.IsRequestValid(DetailSchema,req.body)
+    const objectErrors = await Validations.IsRequestValid(DetailSchema,req.body)
     
     if (objectErrors.length > 0) {
         return res.status(400).send({
@@ -47,17 +47,6 @@ const InsertFormula = async(req,res)=>{
             errors:objectErrors
         })
     }
-
-    //esta pinche validacion no se pudo hacer en el modulo de validaciones o al menos yo no pude
-    // for(const item of data.items){
-    //     if(!await Validations.IdExists(item.id_item,ItemsModel)){
-    //         return res.status(404).send({
-    //             message:"No se encontró el item asociado a ese id."
-    //         })
-    //     }
-
-    //     await Validations.
-    // }
 
     try {
         const insert = new DetailsModel(req.body)

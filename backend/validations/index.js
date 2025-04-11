@@ -1,6 +1,6 @@
 import { IsIdValid } from "./validID.js"
 import { HasRequiredValues } from "./requiredValues.js"
-import { HasCorrectTypes } from "./ValidTypes.js"
+import { HasCorrectTypes } from "./validTypes.js"
 import { HasMinValue } from "./minValue.js"
 import { IsValidDate } from "./validDate.js"
 import { IsValidArray } from "./validArray.js"

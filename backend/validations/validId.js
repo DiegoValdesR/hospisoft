@@ -6,6 +6,7 @@ export const IsIdValid = async(id,model)=>{
 
     let findOne = {}
     findOne = await model.findOne({"_id":id})
+    
     //verificamos que si existe ese id
     if (!findOne) {
         return false

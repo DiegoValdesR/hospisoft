@@ -59,7 +59,7 @@ export const IsValidDate = (date)=>{
             if (dateObject[key] > options[key].max) {
                 response = {
                     type:"Fecha inválida",
-                    message:`No eres mayor de edad.`
+                    message:`${dateObject[key]} no puede ser mayor que ${options[key].max}.`
                 }
                 return response
             }
@@ -80,15 +80,20 @@ export const IsValidDate = (date)=>{
 
         //calculando si cumplió 18 años el dia de hoy (puta madre)
         const today = new Date()
-
+        let age = today.getFullYear() - birthDate.getFullYear()
         const monthsDiff = today.getMonth() - birthDate.getMonth()
 
         if (monthsDiff < 0 || (monthsDiff === 0 && today.getDate() < birthDate.getDate()) ) {
+            age --
+        }
+        
+        if(age < 18){
             response = {
                 type:"Fecha inválida",
                 message:`No eres mayor de edad.`
             }
         }
+
     }
 
     return response

@@ -1,16 +1,31 @@
 export const HasCorrectTypes = (type,key,value)=>{
-    const specialTypes = ["date","array"]
     let response = {}
-    //necesario porque javascript y sus tipos bien raros
-    if (value !== undefined 
-        && value !== null
-        && typeof value !== type 
-        && !specialTypes.includes(type)) {
+    const typesNull = ["null","undefined"]
 
-        response = {
-            type:"Tipo incorrecto",
-            message:`${key} deberia ser ${type}, ${typeof value} enviado.`
-        } 
+    //necesario porque javascript y sus tipos bien raros
+    if (typesNull.includes(typeof value)) {
+        return response
+    }
+    
+    if (type !== "array") {
+
+        if (typeof value !== type 
+            && type !== "date") {
+    
+            response = {
+                type:"Tipo incorrecto",
+                message:`${key} deberia ser ${type}, ${typeof value} enviado.`
+            } 
+        }
+
+    }else{
+        
+        if (!Array.isArray(value)) {
+            response = {
+                type:"Tipo incorrecto",
+                message:`${key} deberia ser array, ${typeof value} enviado.`
+            } 
+        }
     }
 
     return response

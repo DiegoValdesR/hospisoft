@@ -1,6 +1,6 @@
 import { Validations } from "../validations/index.js"
 
-export const Middleware = (schema,requestBody)=>{
+export const Middleware = async(schema,requestBody)=>{
     const schemaObj = schema.obj
     const errors = []
 
@@ -28,11 +28,11 @@ export const Middleware = (schema,requestBody)=>{
 
         //validamos arrays
         if (type === "array") {
-            const errorArray = Validations.IsValidArray(schema,key,requestBody[key])
+            const errorArray = await Validations.IsValidArray(schema.paths[key],schemaObj[key][0],key,requestBody[key])
             if(errorArray.hasOwnProperty("type")) errors.push(errorArray)
         }
     
     }
-
+    
     return errors
 }
