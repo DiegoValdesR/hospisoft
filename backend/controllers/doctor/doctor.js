@@ -1,17 +1,18 @@
 import { DoctorSchema, DoctorsModel } from "../../models/doctor/doctor.js";
+import { Validations } from "../../validations/index.js";
 import bcrypt from "bcryptjs";
-
 
 const AllDoctors = async(req,res)=>{
     try {
-        const doctors = await DoctorsModel.find()
-
+        const doctors = await DoctorsModel.find({"doctor_state":"active"})
         return res.status(200).send({
+            status:"completed",
             data:doctors
         })
 
     } catch (error) {
         res.status(500).send({
+            status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
@@ -19,16 +20,11 @@ const AllDoctors = async(req,res)=>{
 
 const DoctorById = async(req,res)=>{
     const {id} = req.params
-    
-        if (!id || id.length !== 24) {
-            return res.status(400).send({
-                message:"No se ha enviado el id o el enviado es incorrecto."
-            })
-        }
 
-        if (!await Validations.IdExists(id,ItemsModel)) {
+        if (!await Validations.IsIdValid(id,DoctorsModel)) {
             return res.status(404).send({
-                message:"No se pudo encontrar el médico."
+                status:"error",
+                message:"No se pudo encontrar el médico asociado con ese id."
             })
         }
     
@@ -36,34 +32,34 @@ const DoctorById = async(req,res)=>{
             const findOne = await DoctorsModel.findOne({"_id":id})
     
             return res.status(200).send({
+                status:"completed",
                 data: findOne
             })
     
         } catch (error) {
             return res.status(500).send({
+                status:"error",
                 message:"Error interno del servidor, por favor intentelo más tarde."
             })
         }
 }
 
 const InsertDoctor = async(req,res) =>{
-
-    const {doctor_name,doctor_last_name,doctor_speciality,doctor_email,doctor_password,doctor_phone_number} = req.body
-
-    const data ={
-        doctor_name:doctor_name,
-        doctor_last_name:doctor_last_name,
-        doctor_speciality:doctor_speciality,
-        doctor_email:doctor_email,
-        doctor_password:doctor_password,
-        doctor_phone_number:doctor_phone_number
+    const data = {
+        doctor_name:req.body.doctor_name,
+        doctor_last_name:req.body.doctor_last_name,
+        doctor_speciality:req.body.doctor_speciality,
+        doctor_email:req.body.doctor_email,
+        doctor_password:req.body.doctor_password,
+        doctor_phone_number:req.body.doctor_phone_number
     }
 
-    const validation = Validations.IsObjectValid(DoctorSchema,data)
+    const objectErrors = await Validations.IsRequestValid(DoctorSchema,DoctorsModel,data)
 
-    if (validation.length !== 0) {
+    if (objectErrors.length !== 0) {
         return res.status(400).send({
-            message:validation
+            status:"error",
+            message:objectErrors
         })
     }
 
@@ -72,6 +68,7 @@ const InsertDoctor = async(req,res) =>{
         
         if (doctorExists) {
             return res.status(409).send({
+                status:"error",
                 message: "El correo ingresado ya ha sido registrado por otro médico."
             })
         }
@@ -82,11 +79,13 @@ const InsertDoctor = async(req,res) =>{
         await insert.save()
         
         return res.status(201).send({
+            status:"completed",
             message:"Médico insertado!"
         })
 
     } catch (error) {
         return res.status(500).send({
+            status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
@@ -95,36 +94,26 @@ const InsertDoctor = async(req,res) =>{
 
 const UpdateDoctor = async(req,res)=>{
     const {id} = req.params
-
-    if (!id || id.length !== 24) {
-        return res.status(400).send({
-            message:"No se envío el id, o el enviado es incorrecto."
-        })
-    }
-
-    //Validaciones del modulo validate
-    if (!await Validations.IdExists(id,DoctorsModel)) {
-        return res.status(404).send({
-            message:"No se pudo encontrar el médico."
-        })
-    }
-
-    const {doctor_name,doctor_last_name,doctor_speciality,
-        doctor_email,doctor_phone_number
-    } = req.body
-
     const data = {
-        doctor_name : doctor_name,
-        doctor_last_name : doctor_last_name,
-        doctor_speciality : doctor_speciality,
-        doctor_email : doctor_email,
-        doctor_phone_number : doctor_phone_number
+        doctor_name:req.body.doctor_name,
+        doctor_last_name:req.body.doctor_last_name,
+        doctor_speciality:req.body.doctor_speciality,
+        doctor_email:req.body.doctor_email,
+        doctor_phone_number:req.body.doctor_phone_number
     }
 
-    const validation = Validations.IsObjectValid(DoctorSchema,data)
-    if (validation.length !== 0) {
+    if (!await Validations.IsIdValid(id,DoctorsModel)) {
+        return res.status(404).send({
+            status:"error",
+            message:"No se pudo encontrar el médico asociado a ese id."
+        })
+    }
+
+    const objectErrors = await Validations.IsRequestValid(DoctorSchema,DoctorsModel,data)
+    if (objectErrors.length !== 0) {
         return res.status(400).send({
-            message:validation
+            status:"error",
+            message:objectErrors
         })
     }
 
@@ -135,6 +124,7 @@ const UpdateDoctor = async(req,res)=>{
 
        if (findEmail) {
             return res.status(409).send({
+                status:"error",
                 message:"Ese correo ya ha sido registrado por otro médico."
             })
        }
@@ -142,12 +132,14 @@ const UpdateDoctor = async(req,res)=>{
         await DoctorsModel.findOneAndUpdate({"_id":id},data)
         
         return res.status(200).send({
+            status:"completed",
             message:"Médico actualizado correctamente!",
         })
         
     } catch (error) {
 
         return res.status(500).send({
+            status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
@@ -156,28 +148,25 @@ const UpdateDoctor = async(req,res)=>{
 
 const DeleteDoctor = async(req,res)=>{
     const {id} = req.params
-    
-    if (!id || id.length !== 24) {
-        return res.status(400).send({
-            message:"No se envío el id o el enviado es incorrecto."
-        })
-    }
 
-    if (!Validations.IdExists(id)) {
+    if (!await Validations.IsIdValid(id,DoctorsModel)) {
         return res.status(404).send({
-            message:"No se pudo encontrar el médico."
+            status:"error",
+            message:"No se pudo encontrar el médico asociado a ese id."
         })
     }
 
     try {
-        await DoctorsModel.findOneAndDelete({"_id":id})
+        await DoctorsModel.findOneAndUpdate({"_id":id},{"doctor_state":"inactive"})
         
         return res.status(200).send({
+            status:"completed",
             message:"Médico eliminado correctamente!"
         })
 
     } catch (error) {
         return res.status(500).send({
+            status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde"
         })
     }

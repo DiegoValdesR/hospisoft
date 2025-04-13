@@ -32,8 +32,11 @@ export const UserSchema = Schema(
         },
         user_role:{
             type:String,
-            required:false,
             default:"paciente"
+        },
+        user_state:{
+            type:String,
+            default:"active"
         }
         
     },

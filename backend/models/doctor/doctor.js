@@ -26,6 +26,10 @@ export const DoctorSchema = Schema(
             type:String,
             required:true
         },
+        doctor_state:{
+            type:String,
+            default:"active"
+        }
     },
     {
         collection:"doctors"

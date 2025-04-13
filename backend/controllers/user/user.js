@@ -1,17 +1,18 @@
-import { UsersModel, UserSchema} from "../../models/user/user.js";
-//solo para el login
-import { DoctorsModel } from "../../models/doctor/doctor.js";
-import { Validations } from "../../validations/index.js";
+import { UsersModel, UserSchema} from "../../models/user/user.js"
+import { DoctorsModel } from "../../models/doctor/doctor.js" //solo para el login
+import { Validations } from "../../validations/index.js"
 import bcrypt from 'bcryptjs'
 
 const AllUsers = async(req,res) =>{
     try {
-        const users = await UsersModel.find()
+        const users = await UsersModel.find({"user_state":"active"})
         return res.status(200).send({
+            status:"completed",
             data: users
         })
     } catch (error) {
         return res.status(500).send({
+            status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
@@ -23,6 +24,7 @@ const UserById = async(req,res)=>{
 
     if (!await Validations.IsIdValid(id,UsersModel)) {
         return res.status(404).send({
+            status:"error",
             message:"No se encontró el usuario asociado a ese id."
         })
     }
@@ -31,11 +33,13 @@ const UserById = async(req,res)=>{
         const findOne = await UsersModel.findOne({"_id":id})
 
         return res.status(200).send({
+            status:"completed",
             data: findOne
         })
 
     } catch (error) {
         return res.status(500).send({
+            status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
@@ -43,7 +47,20 @@ const UserById = async(req,res)=>{
 }
 
 const InsertUser = async(req,res) =>{
-    const objectErrors = Validations.IsRequestValid(UserSchema,req.body)
+    
+    const data ={
+        user_name:req.body.user_name,
+        user_last_name:req.body.user_last_name,
+        user_email:req.body.user_email,
+        user_password:req.body.user_password,
+        user_phone_number:req.body.user_phone_number,
+        user_birthday:req.body.user_birthday,
+        user_eps:req.body.user_eps,
+        user_role:req.body.user_role
+    }
+
+    const objectErrors = await Validations.IsRequestValid(UserSchema,UsersModel,data)
+
     if (objectErrors.length !== 0) {
         return res.status(400).send({
             status:"error",
@@ -52,24 +69,27 @@ const InsertUser = async(req,res) =>{
     }
 
     try {
-        const userExists = await UsersModel.findOne({ user_email: req.body.user_email });
+        const userExists = await UsersModel.findOne({ user_email: data.user_email });
         
         if (userExists) {
             return res.status(409).send({
+                status:"error",
                 message: "El correo ingresado ya ha sido registrado por otro usuario."
             })
         }
 
-        req.body.user_password = bcrypt.hashSync(req.body.user_password)
-        const insert = new UsersModel(req.body)
+        data.user_password = bcrypt.hashSync(data.user_password)
+        const insert = new UsersModel(data)
         await insert.save()
     
         return res.status(201).send({
+            status:"completed",
             message:"Usuario insertado!"
         })
 
     } catch (error) {
         return res.status(500).send({
+            status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
@@ -78,41 +98,27 @@ const InsertUser = async(req,res) =>{
 
 const UpdateUser = async(req,res)=>{
     const {id} = req.params
-
-    if (!id || id.length !== 24) {
-        return res.status(400).send({
-            message:"No se envío el id, o el enviado es incorrecto."
-        })
+    const data ={
+        user_name:req.body.user_name,
+        user_last_name:req.body.user_last_name,
+        user_email:req.body.user_email,
+        user_phone_number:req.body.user_phone_number,
+        user_birthday:req.body.user_birthday,
+        user_eps:req.body.user_eps,
+        user_role:req.body.user_role
     }
 
-    if (!Validations.IdExists(id,UsersModel)) {
+    if (!await Validations.IsIdValid(id,UsersModel)) {
         return res.status(404).send({
+            status:"error",
             message:"No se encontró un usuario asociado con el id enviado."
         })
     }
 
-    const {user_name,
-        user_last_name,
-        user_email,
-        user_phone_number,
-        user_birthday,
-        user_eps,
-        user_role
-    } = req.body
-
-    const data = {
-        user_name : user_name,
-        user_last_name : user_last_name,
-        user_email : user_email,
-        user_phone_number: user_phone_number,
-        user_birthday : user_birthday,
-        user_eps : user_eps,
-        user_role : user_role,
-    }
-
-    const validation = IsObjectValid(UserSchema,data)
+    const validation = await Validations.IsRequestValid(UserSchema,UsersModel,data)
     if (validation.length !== 0) {
         return res.status(400).send({
+            status:"error",
             message:validation
         })
     }
@@ -120,23 +126,26 @@ const UpdateUser = async(req,res)=>{
     try {
         //si encuentra un registro que tenga el mismo email que el del body del request y no es el mismo id que el
         //del usuario retorna un objeto, sino null
-       const findEmail = await UsersModel.findOne({"_id":{"$ne":id},"user_email":data.user_email})
+        const findEmail = await UsersModel.findOne({"_id":{"$ne":id},"user_email":data.user_email})
 
-       if (findEmail) {
-            return res.status(409).send({
-                message:"Ese correo ya ha sido registrado por otro usuario."
-            })
-       }
+        if (findEmail) {
+                return res.status(409).send({
+                    status:"error",
+                    message:"Ese correo ya ha sido registrado por otro usuario."
+                })
+        }
 
-       await UsersModel.findOneAndUpdate({"_id":id},data)
-        
-       return res.status(200).send({
-        message:"Usuario actualizado correctamente!",
-       })
+        await UsersModel.findOneAndUpdate({"_id":id},data)
+            
+        return res.status(200).send({
+            status:"completed",
+            message:"Usuario actualizado correctamente!",
+        })
         
     } catch (error) {
 
         return res.status(500).send({
+            status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
@@ -146,26 +155,23 @@ const UpdateUser = async(req,res)=>{
 const DeleteUser = async(req,res)=>{
     const {id} = req.params
 
-    if (!id || id.length !== 24) {
-        return res.status(400).send({
-            message:"No se envío el id, o el enviado es incorrecto."
-        })
-    }
-
-    if (!Validations.IdExists(id,UsersModel)) {
+    if (!await Validations.IsIdValid(id,UsersModel)) {
         return res.status(404).send({
+            status:"error",
             message:"No se encontró un usuario asociado con el id enviado."
         })
     }
 
     try {
-        await UsersModel.findOneAndDelete({"_id":id})
+        await UsersModel.findOneAndUpdate({"_id":id},{"user_state":"inactive"})
         return res.status(200).send({
+            status:"completed",
             message:"Usuario eliminado correctamente!"
         })
 
     } catch (error) {
         return res.status(500).send({
+            status:"error",
             message:"Erro interno del servidor, por favor intentelo más tarde."
         })
     }
@@ -176,6 +182,7 @@ const LogIn = async(req,res) =>{
 
     if (!email || !password) {
         return res.status(400).send({
+            status:"error",
             message:"No se ingresaron todos los datos requeridos."
         })
     }
@@ -190,22 +197,26 @@ const LogIn = async(req,res) =>{
 
         if (!user) {
             return res.status(404).send({
+                status:"error",
                 message:"El correo proporcionado no existe"
             })
         }
 
         if (!bcrypt.compareSync(password,user.user_password || user.doctor_password)) {
             return res.status(400).send({
+                status:"error",
                 message:"Contraseña incorrecta"
             })
         }
 
         return res.status(200).send({
+            status:"completed",
             message:"Sesión iniciada correctamente"
         })
         
     } catch (error) {
         res.status(500).send({
+            status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }

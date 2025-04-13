@@ -1,9 +1,13 @@
-import { IsIdValid } from "./validID.js"
+import { IsIdValid } from "./validateId.js"
 import { HasRequiredValues } from "./requiredValues.js"
-import { HasCorrectTypes } from "./validTypes.js"
-import { HasMinValue } from "./minValue.js"
-import { IsValidDate } from "./validDate.js"
-import { IsValidArray } from "./validArray.js"
+import { HasCorrectTypes } from "./validateTypes.js"
+import { HasMinValue } from "./validateMinValue.js"
+import { IsValidDate } from "./validateDate.js"
+import { IsValidArray } from "./validateArray.js"
+import { HasCorrectStock } from "./validateStock.js"
+import { IsFormulaValid } from "./validateFormula/validateFormula.js"
+import { IsConsecutiveValid } from "./validateDetails/validateDetails.js"
+import { IsAppointmentValid } from "./validateAppointments/validateAppointments.js"
 import { IsRequestValid } from "./requestValidation.js"
 
 //exportamos todas las validaciones como un solo modulo
@@ -14,5 +18,9 @@ export const Validations = {
     HasMinValue,
     IsValidDate,
     IsValidArray,
+    HasCorrectStock,
+    IsFormulaValid,
+    IsConsecutiveValid,
+    IsAppointmentValid,
     IsRequestValid
 }

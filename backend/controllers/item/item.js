@@ -1,4 +1,3 @@
-
 import { ItemSchema, ItemsModel } from "../../models/item/item.js";
 import { Validations } from "../../validations/index.js";
 
@@ -18,15 +17,9 @@ const GetItems = async(req,res) =>{
 const GetItemById = async(req,res)=>{
     const {id} = req.params
 
-    if (!id || id.length !== 24) {
-        return res.status(400).send({
-            message:"No se envío el id o el enviado es incorrecto."
-        })
-    }
-
-    if(!Validations.IdExists(id)){
+    if(!await Validations.IsIdValid(id,ItemsModel)){
         return res.status(404).send({
-            message:"No se pudo encontrar el item."
+            message:"No se pudo encontrar el item asociado a ese id."
         })
     }
 
@@ -46,19 +39,17 @@ const GetItemById = async(req,res)=>{
 
 const InsertItem = async(req,res)=>{
 
-    const {item_name,item_description,item_stock} = req.body
-
     const data = {
-        item_name : item_name,
-        item_description : item_description,
-        item_stock : item_stock
+        item_name : req.body.item_name,
+        item_description : req.body.item_description,
+        item_stock : req.body.item_stock,
     }
 
-
-    const validation = IsObjectValid(ItemSchema,data)
-    if (validation.length !== 0) {
+    const objectErrors = await Validations.IsRequestValid(ItemSchema,ItemsModel,data)
+    if (objectErrors.length !== 0) {
         return res.status(400).send({
-            message:validation
+            status:"error",
+            message:objectErrors
         })
     }
 
@@ -79,39 +70,28 @@ const InsertItem = async(req,res)=>{
 
 const UpdateItem = async(req,res)=>{
     const {id} = req.params
-
     const data = {
         item_name : req.body.item_name,
         item_description : req.body.item_description,
-        item_stock : req.body.item_stock
+        item_stock : req.body.item_stock,
     }
 
-
-    if (!id || id.length !== 24) {
-        return res.status(400).send({
-            message:"No se envío el id, o el enviado es incorrecto"
-        })
-    }
-    //Validaciones del modulo validate
-    if (!await Validations.IdExists(id,ItemsModel)) {
+    if (!await Validations.IsIdValid(id,ItemsModel)) {
         return res.status(404).send({
-            message:"No se pudo encontrar el item"
+            message:"No se pudo encontrar el item asociado a ese id."
         })
     }
 
-    const validation = IsObjectValid(ItemSchema,data)
-    if (validation.length !== 0) {
+    const objectErrors = await Validations.IsRequestValid(ItemSchema,ItemsModel,data)
+    if (objectErrors.length !== 0) {
         return res.status(400).send({
-            message:validation
+            status:"error",
+            message:objectErrors
         })
     }
 
     try {
-        await ItemsModel.findOneAndUpdate({"_id":id},{
-            item_name : data.item_name,
-            item_description : data.item_description,
-            item_stock : data.item_stock
-        })
+        await ItemsModel.findOneAndUpdate({"_id":id},data)
         
        return res.status(200).send({
         message:"Item actualizado correctamente!",
@@ -130,19 +110,14 @@ const UpdateItem = async(req,res)=>{
 const DeleteItem = async(req,res)=>{
     const {id} = req.params
 
-    if (!id || id.length !== 24) {
-        return res.status(400).send({
-            message:"No se envío el id, o el enviado es incorrecto."
+    if (!await Validations.IsIdValid(id,ItemsModel)) {
+        return res.status(404).send({
+            message:"No se encontró el item asociado a ese id."
         })
     }
 
     try {
-        const deleteItem = await ItemsModel.findOneAndDelete({"_id":id})
-        if (!deleteItem) {
-            return res.status(404).send({
-                message:"No se pudo encontrar el item."
-            })
-        }
+        await ItemsModel.findOneAndDelete({"_id":id})
 
         return res.status(200).send({
             message:"Item eliminado correctamente!"

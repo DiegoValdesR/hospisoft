@@ -1,9 +1,7 @@
 export const HasCorrectTypes = (type,key,value)=>{
     let response = {}
-    const typesNull = ["null","undefined"]
-
     //necesario porque javascript y sus tipos bien raros
-    if (typesNull.includes(typeof value)) {
+    if (typeof value === "undefined" || value === null) {
         return response
     }
     

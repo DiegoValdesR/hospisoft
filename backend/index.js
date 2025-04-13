@@ -15,11 +15,15 @@ import UserRoutes from './routes/user/user.js'
 import DoctorRoutes from './routes/doctor/doctor.js'
 import ItemsRoutes from './routes/item/item.js'
 import DetailsRoutes from './routes/detailsFormula/details.js'
+import FormulaRoutes from './routes/formula/formula.js'
+import AppointmentsRoutes from './routes/appointments/appointments.js'
 
 app.use('/api',UserRoutes)
 app.use('/api',DoctorRoutes)
 app.use('/api',ItemsRoutes)
 app.use('/api',DetailsRoutes)
+app.use('/api',FormulaRoutes)
+app.use('/api',AppointmentsRoutes)
 
 //FIN RUTAS
 app.listen(serverPort)

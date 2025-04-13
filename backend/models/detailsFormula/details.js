@@ -22,7 +22,11 @@ export const DetailSchema = new Schema(
                     min:1
                 }
             }
-        ]
+        ],
+        details_state:{
+            type:String,
+            default:"active"
+        }
         
     },
     {
