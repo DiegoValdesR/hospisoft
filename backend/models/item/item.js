@@ -7,8 +7,7 @@ export const ItemSchema = Schema(
             required:true
         },
         item_description:{
-            type:String,
-            required:true
+            type:String
         },
         item_stock:{
             type:Number,

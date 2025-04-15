@@ -1,15 +1,17 @@
-import { ItemSchema, ItemsModel } from "../../models/item/item.js";
-import { Validations } from "../../validations/index.js";
+import { ItemsModel } from "../../models/item/item.js";
+import mongoose from "mongoose";
 
 const GetItems = async(req,res) =>{
     try {
         const findItems = await ItemsModel.find();
         return res.status(200).send({
+            status:"completed",
             data:findItems
         })
     } catch (error) {
         return res.status(500).send({
-            message:"Ocurrió un error en el servidor, por favor intentelo más tarde"
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
 }
@@ -17,22 +19,27 @@ const GetItems = async(req,res) =>{
 const GetItemById = async(req,res)=>{
     const {id} = req.params
 
-    if(!await Validations.IsIdValid(id,ItemsModel)){
-        return res.status(404).send({
-            message:"No se pudo encontrar el item asociado a ese id."
-        })
-    }
-
     try {
-        const findOne = await ItemsModel.findOne({"_id":id})
+        const findOne = await ItemsModel.findOne({
+            "_id":mongoose.Types.ObjectId.createFromHexString(id)
+        })
+
+        if (!findOne) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se pudo encontrar el item."
+            })
+        }
 
         return res.status(200).send({
+            status:"completed",
             data:findOne
         })
 
     } catch (error) {
-        return res.status(500).send({
-            message:"Error del servidor, por favor intentelo más tarde"
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
         })
     }
 }
@@ -45,25 +52,19 @@ const InsertItem = async(req,res)=>{
         item_stock : req.body.item_stock,
     }
 
-    const objectErrors = await Validations.IsRequestValid(ItemSchema,ItemsModel,data)
-    if (objectErrors.length !== 0) {
-        return res.status(400).send({
-            status:"error",
-            message:objectErrors
-        })
-    }
-
     try {
         const insert = new ItemsModel(data)
         await insert.save()
     
         return res.status(201).send({
+            status:"completed",
             message:"Item insertado!"
         })
 
     } catch (error) {
-        return res.status(500).send({
-            message:"Error interno del servidor, por favor intentelo más tarde." 
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
         })
     }
 }
@@ -76,32 +77,22 @@ const UpdateItem = async(req,res)=>{
         item_stock : req.body.item_stock,
     }
 
-    if (!await Validations.IsIdValid(id,ItemsModel)) {
-        return res.status(404).send({
-            message:"No se pudo encontrar el item asociado a ese id."
-        })
-    }
-
-    const objectErrors = await Validations.IsRequestValid(ItemSchema,ItemsModel,data)
-    if (objectErrors.length !== 0) {
-        return res.status(400).send({
-            status:"error",
-            message:objectErrors
-        })
-    }
-
     try {
-        await ItemsModel.findOneAndUpdate({"_id":id},data)
+        await ItemsModel.findOneAndUpdate({
+            "_id":mongoose.Types.ObjectId.createFromHexString(id)
+        },data)
         
        return res.status(200).send({
-        message:"Item actualizado correctamente!",
+            status:"completed",
+            message:"Item actualizado correctamente!"
        })
         
         
     } catch (error) {
 
-        return res.status(500).send({
-            message:"Error del servidor, por favor intentelo más tarde"
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
         })
     }
 
@@ -110,22 +101,27 @@ const UpdateItem = async(req,res)=>{
 const DeleteItem = async(req,res)=>{
     const {id} = req.params
 
-    if (!await Validations.IsIdValid(id,ItemsModel)) {
-        return res.status(404).send({
-            message:"No se encontró el item asociado a ese id."
-        })
-    }
-
     try {
-        await ItemsModel.findOneAndDelete({"_id":id})
+        const deleteOne = await ItemsModel.findOneAndDelete({
+            "_id":mongoose.Types.ObjectId.createFromHexString(id)
+        })
+
+        if (!deleteOne) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el item."
+            })
+        }
 
         return res.status(200).send({
+            status:"completed",
             message:"Item eliminado correctamente!"
         })
 
     } catch (error) {
-        return res.status(500).send({
-            message:"Error del servidor, por favor intentelo más tarde."
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
         })
     }
 }

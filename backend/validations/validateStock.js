@@ -1,16 +1,12 @@
 import { ItemsModel } from "../models/item/item.js"
 
-export const HasCorrectStock = async(key,position,idItem,amount)=>{
-    let response = {}
+export const HasCorrectStock = async(itemId,amountItem)=>{
+    let response = ""
     
-    const findOne = await ItemsModel.findOne({"_id":idItem})
+    const findOne = await ItemsModel.findOne({"_id":itemId})
 
-    if (findOne.item_stock < amount){
-        response = {
-            type:"Error de cantidad",
-            position:position,
-            message:`${key} no puede sobrepasar el stock del item (${findOne.item_stock})`
-        }
+    if (findOne.item_stock < amountItem){
+        response = `No se puede sobrepasar el stock del item ${findOne.item_name} (${findOne.item_stock})`
     }
 
     return response

@@ -1,16 +1,14 @@
-export const IsValidDate = (date,typeOfDate)=>{
-    let response = {}
+export const IsDateValid = (date,typeOfDate)=>{
+    let response = ""
     
-    if (date) {
+    if (date && typeof date === "string") {
         //dividimos en un arreglo la fecha por cada '-', tienen que haber 3 posiciones si o si
         const splitDate = date.split('-')
 
         //sino pues chao
         if(splitDate.length < 3){
-            return response = {
-                type:"Fecha inválida",
-                message:`${date} no es una fecha válida.`
-            }
+            response = `${date} no es una fecha válida.`
+            return response
         }
 
         //que todos sean números, sino chao
@@ -18,10 +16,8 @@ export const IsValidDate = (date,typeOfDate)=>{
             isNaN(splitDate[1]) || 
             isNaN(splitDate[2])
         ) {
-            return response = {
-                type:"Fecha inválida",
-                message:`${date} no es una fecha válida.`
-            }
+            response = `${date} no es una fecha válida.`
+            return response
         }
 
         const dateObject = {
@@ -30,13 +26,34 @@ export const IsValidDate = (date,typeOfDate)=>{
             day:parseInt(splitDate[2])
         }
 
+        let min,max
         const today = new Date()
+
+        switch (typeOfDate) {
+            case "birthdate_user":
+                min = today.getFullYear() - 90
+                max = today.getFullYear() - 18
+                break
+            case "birthdate_employee":
+                min = today.getFullYear() - 60
+                max = today.getFullYear() - 18
+                break
+            case "appointment":
+                min = today.getFullYear()
+                max = today.getFullYear() + 1
+                break
+            case "schedule":
+                min = today.getFullYear()
+                max = today.getFullYear() + 5
+                break
+            default:
+                break;
+        }
+
         const options = {
             year:{
-                min:typeOfDate === "birthdate" ? today.getFullYear() - 90
-                : today.getFullYear(),
-                max:typeOfDate === "birthdate" ? today.getFullYear() - 18
-                : today.getFullYear() + 1
+                min:min,
+                max:max
             },
             month:{
                 min:1,
@@ -49,27 +66,55 @@ export const IsValidDate = (date,typeOfDate)=>{
         }
 
         for(const key in dateObject){
+
             if (dateObject[key] < options[key].min) {
-                response = {
-                    type:"Fecha inválida",
-                    message:`${dateObject[key]}(${key}) no puede ser menor que ${options[key].min}.`
+
+                if (key === "year") {
+                    switch (typeOfDate) {
+                        case "schedule":
+                            response = "No puede registrar un horario para un año anterior."
+                            break
+                    
+                        default:
+                            break;
+                    }
                 }
+
+                if (key === "month") {
+                    response = `El mes no puede ser menor que 1.`
+                }
+
+                if (key === "day") {
+                    response = `El día no puede ser menor que 1.`
+                }
+
                 return response
             }
-
+            
             if (dateObject[key] > options[key].max) {
+                
+                if (key === "year") {
+                    switch (typeOfDate) {
+                        case "birthdate_user":
+                        case "birthdate_employee":
+                            response = "No eres mayor de edad."
+                            break;
 
-                if (typeOfDate === "birthdate" && key === "year") {
-                    response = {
-                        type:"Fecha inválida",
-                        message:`No eres mayor de edad.`
+                        case "schedule":
+                            response = "No puede registrar un horario para 5 años en el futuro."
+                            break
+                    
+                        default:
+                            break;
                     }
-                       
-                }else{
-                    response = {
-                        type:"Fecha inválida",
-                        message:`${dateObject[key]}(${key}) no puede ser mayor que ${options[key].max}.`
-                    }
+                }
+
+                if (key === "month") {
+                    response = `El mes no puede ser mayor que 12.`
+                }
+
+                if (key === "day") {
+                    response = `El dia no puede ser mayor que 31.`
                 }
 
                 return response
@@ -82,15 +127,12 @@ export const IsValidDate = (date,typeOfDate)=>{
             || newDate.getMonth() + 1  !== dateObject.month
             || newDate.getDate() !== dateObject.day 
         ) {
-            response = {
-                type:"Fecha inválida",
-                message:`${date} no es una fecha válida.`
-            }
+            response = `${date} no es una fecha válida.`
             return response
         }
 
         //calculando si cumplió 18 años el dia de hoy (puta madre)
-        if (typeOfDate === "birthdate") {
+        if (typeOfDate === "birthdate_user" ||  typeOfDate === "birthdate_employee") {
             let age = today.getFullYear() - newDate.getFullYear()
             const monthsDiff = today.getMonth() - newDate.getMonth()
 
@@ -99,13 +141,12 @@ export const IsValidDate = (date,typeOfDate)=>{
             }
             
             if(age < 18){
-                response = {
-                    type:"Fecha inválida",
-                    message:`No eres mayor de edad.`
-                }
+                response = `No eres mayor de edad.`
             }
         }
 
+    }else{
+        response = `${date} no es una fecha válida.`
     }
 
     return response

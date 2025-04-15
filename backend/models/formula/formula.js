@@ -1,4 +1,4 @@
-import { Schema,Model, model } from "mongoose";
+import mongoose, { Schema,model } from "mongoose";
 
 export const FormulaSchema = Schema(
     {
@@ -6,12 +6,14 @@ export const FormulaSchema = Schema(
             type:Date,
             default:new Date()
         },
-        id_patient:{
-            type:String,
+        patient_id:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"users",
             required:true
         },
-        id_doctor:{
-            type:String,
+        doctor_id:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"employees",
             required:true
         },
         formula_state:{

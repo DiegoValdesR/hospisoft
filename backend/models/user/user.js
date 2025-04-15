@@ -22,17 +22,13 @@ export const UserSchema = Schema(
             type:String,
             required:true
         },
-        user_birthday:{
+        user_birthdate:{
             type:Date,
             required:true
         },
         user_eps:{
             type:String,
             required:true
-        },
-        user_role:{
-            type:String,
-            default:"paciente"
         },
         user_state:{
             type:String,

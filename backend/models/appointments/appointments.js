@@ -1,4 +1,4 @@
-import {Schema, model } from "mongoose";
+import mongoose,{Schema, model } from "mongoose";
 
 export const AppointmentSchema = Schema(
     {
@@ -10,12 +10,14 @@ export const AppointmentSchema = Schema(
             type:String,
             required:true
         },
-        id_patient:{
-            type:String,
+        patient_id:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"users",
             required:true
         },
-        id_doctor:{
-            type:String,
+        doctor_id:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"employees",
             required:true
         },
         appointment_state:{

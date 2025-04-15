@@ -1,9 +1,12 @@
-import { UsersModel, UserSchema} from "../../models/user/user.js"
-import { DoctorsModel } from "../../models/doctor/doctor.js" //solo para el login
+import { UsersModel} from "../../models/user/user.js"
+import { EmployeeModel } from "../../models/employees/employees.js" //solo para el login
 import { Validations } from "../../validations/index.js"
+import mongoose from "mongoose"
 import bcrypt from 'bcryptjs'
 
 const AllUsers = async(req,res) =>{
+    
+
     try {
         const users = await UsersModel.find({"user_state":"active"})
         return res.status(200).send({
@@ -22,15 +25,15 @@ const AllUsers = async(req,res) =>{
 const UserById = async(req,res)=>{
     const {id} = req.params
 
-    if (!await Validations.IsIdValid(id,UsersModel)) {
-        return res.status(404).send({
-            status:"error",
-            message:"No se encontró el usuario asociado a ese id."
-        })
-    }
-
     try {
-        const findOne = await UsersModel.findOne({"_id":id})
+        const findOne = await UsersModel.findOne({"_id":mongoose.Types.ObjectId.createFromHexString(id)})
+
+        if (!findOne) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el usuario."
+            })
+        }
 
         return res.status(200).send({
             status:"completed",
@@ -38,33 +41,30 @@ const UserById = async(req,res)=>{
         })
 
     } catch (error) {
-        return res.status(500).send({
+        return res.status(400).send({
             status:"error",
-            message:"Error interno del servidor, por favor intentelo más tarde."
+            message:error.toString()
         })
     }
     
 }
 
 const InsertUser = async(req,res) =>{
-    
     const data ={
         user_name:req.body.user_name,
         user_last_name:req.body.user_last_name,
         user_email:req.body.user_email,
         user_password:req.body.user_password,
         user_phone_number:req.body.user_phone_number,
-        user_birthday:req.body.user_birthday,
-        user_eps:req.body.user_eps,
-        user_role:req.body.user_role
+        user_birthdate:req.body.user_birthdate,
+        user_eps:req.body.user_eps
     }
 
-    const objectErrors = await Validations.IsRequestValid(UserSchema,UsersModel,data)
-
-    if (objectErrors.length !== 0) {
+    const errorDate = Validations.IsDateValid(data.user_birthdate,"birthdate_user")
+    if(errorDate.length !== 0){
         return res.status(400).send({
             status:"error",
-            errors:objectErrors
+            message:errorDate
         })
     }
 
@@ -88,9 +88,9 @@ const InsertUser = async(req,res) =>{
         })
 
     } catch (error) {
-        return res.status(500).send({
+        return res.status(400).send({
             status:"error",
-            message:"Error interno del servidor, por favor intentelo más tarde."
+            message:error.toString()
         })
     }
 
@@ -103,39 +103,27 @@ const UpdateUser = async(req,res)=>{
         user_last_name:req.body.user_last_name,
         user_email:req.body.user_email,
         user_phone_number:req.body.user_phone_number,
-        user_birthday:req.body.user_birthday,
-        user_eps:req.body.user_eps,
-        user_role:req.body.user_role
-    }
-
-    if (!await Validations.IsIdValid(id,UsersModel)) {
-        return res.status(404).send({
-            status:"error",
-            message:"No se encontró un usuario asociado con el id enviado."
-        })
-    }
-
-    const validation = await Validations.IsRequestValid(UserSchema,UsersModel,data)
-    if (validation.length !== 0) {
-        return res.status(400).send({
-            status:"error",
-            message:validation
-        })
+        user_eps:req.body.user_eps
     }
 
     try {
         //si encuentra un registro que tenga el mismo email que el del body del request y no es el mismo id que el
         //del usuario retorna un objeto, sino null
-        const findEmail = await UsersModel.findOne({"_id":{"$ne":id},"user_email":data.user_email})
+        const findEmail = await UsersModel.findOne({
+            "_id":{"$ne":mongoose.Types.ObjectId.createFromHexString(id)},
+            "user_email":data.user_email
+        })
 
         if (findEmail) {
-                return res.status(409).send({
-                    status:"error",
-                    message:"Ese correo ya ha sido registrado por otro usuario."
-                })
+            return res.status(409).send({
+                status:"error",
+                message:"Ese correo ya ha sido registrado por otro usuario."
+            })
         }
 
-        await UsersModel.findOneAndUpdate({"_id":id},data)
+        await UsersModel.findOneAndUpdate({
+        "_id":mongoose.Types.ObjectId.createFromHexString(id)
+        },data)
             
         return res.status(200).send({
             status:"completed",
@@ -144,9 +132,9 @@ const UpdateUser = async(req,res)=>{
         
     } catch (error) {
 
-        return res.status(500).send({
+        return res.status(400).send({
             status:"error",
-            message:"Error interno del servidor, por favor intentelo más tarde."
+            message:error.toString()
         })
     }
 
@@ -155,24 +143,27 @@ const UpdateUser = async(req,res)=>{
 const DeleteUser = async(req,res)=>{
     const {id} = req.params
 
-    if (!await Validations.IsIdValid(id,UsersModel)) {
-        return res.status(404).send({
-            status:"error",
-            message:"No se encontró un usuario asociado con el id enviado."
-        })
-    }
-
     try {
-        await UsersModel.findOneAndUpdate({"_id":id},{"user_state":"inactive"})
+        const deleteOne = await UsersModel.findOneAndUpdate(
+            {"_id":mongoose.Types.ObjectId.createFromHexString(id)},
+            {"user_state":"inactive"}
+        )
+        if (!deleteOne) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el registro a eliminar"
+            })
+        }
+
         return res.status(200).send({
             status:"completed",
             message:"Usuario eliminado correctamente!"
         })
 
     } catch (error) {
-        return res.status(500).send({
+        return res.status(400).send({
             status:"error",
-            message:"Erro interno del servidor, por favor intentelo más tarde."
+            message:error.toString()
         })
     }
 }
@@ -188,30 +179,30 @@ const LogIn = async(req,res) =>{
     }
 
     try {
-        const [findUser,findDoctor] = await Promise.all([
-            UsersModel.findOne({"user_email":email}),
-            DoctorsModel.findOne({"doctor_email":email})
+        const [findUser,findEmployee] = await Promise.all([
+            UsersModel.findOne({"user_email":email,"user_state":"active"}),
+            EmployeeModel.findOne({"employee_email":email,"employee_state":"active"})
         ])
 
-        const user = findUser || findDoctor
+        const user = findUser || findEmployee
 
         if (!user) {
             return res.status(404).send({
                 status:"error",
-                message:"El correo proporcionado no existe"
+                message:"El correo proporcionado no existe dentro de nuestra base de datos."
             })
         }
 
-        if (!bcrypt.compareSync(password,user.user_password || user.doctor_password)) {
+        if (!bcrypt.compareSync(password,user.user_password || user.employee_password)) {
             return res.status(400).send({
                 status:"error",
-                message:"Contraseña incorrecta"
+                message:"Contraseña incorrecta."
             })
         }
 
         return res.status(200).send({
             status:"completed",
-            message:"Sesión iniciada correctamente"
+            message:"Sesión iniciada correctamente."
         })
         
     } catch (error) {

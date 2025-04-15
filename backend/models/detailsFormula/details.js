@@ -1,4 +1,4 @@
-import {Schema, model } from "mongoose";
+import mongoose, {Schema, model } from "mongoose";
 
 export const DetailSchema = new Schema(
     {
@@ -7,16 +7,18 @@ export const DetailSchema = new Schema(
             required:true
         },
         details_consecutive:{
-            type:String,
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"formula",
             required:true
         },
         items:[
             {
-                id_item:{
-                    type:String,
+                item_id:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref:"items",
                     required:true
                 },
-                amount_item:{
+                item_amount:{
                     type:Number,
                     required:true,
                     min:1
