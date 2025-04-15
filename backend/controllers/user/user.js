@@ -60,7 +60,7 @@ const InsertUser = async(req,res) =>{
         user_eps:req.body.user_eps
     }
 
-    const errorDate = Validations.IsDateValid(data.user_birthdate,"birthdate_user")
+    const errorDate = Validations.IsDateValid(data.user_birthdate,"birthdate")
     if(errorDate.length !== 0){
         return res.status(400).send({
             status:"error",

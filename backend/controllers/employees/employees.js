@@ -60,7 +60,7 @@ const InsertEmployee = async(req,res) =>{
         employee_speciality:req.body.employee_speciality
     }
 
-    const errorDate = Validations.IsDateValid(data.employee_birthdate,"birthdate_employee")
+    const errorDate = Validations.IsDateValid(data.employee_birthdate,"birthdate")
     if (errorDate.length !== 0) {
         return res.status(400).send({
             status:"error",

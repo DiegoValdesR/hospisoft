@@ -30,12 +30,8 @@ export const IsDateValid = (date,typeOfDate)=>{
         const today = new Date()
 
         switch (typeOfDate) {
-            case "birthdate_user":
+            case "birthdate":
                 min = today.getFullYear() - 90
-                max = today.getFullYear() - 18
-                break
-            case "birthdate_employee":
-                min = today.getFullYear() - 60
                 max = today.getFullYear() - 18
                 break
             case "appointment":
@@ -71,11 +67,16 @@ export const IsDateValid = (date,typeOfDate)=>{
 
                 if (key === "year") {
                     switch (typeOfDate) {
+                        case "appointment":
+                            response = "No puede agendar una cita para un año anterior."
+                        break;
+
                         case "schedule":
                             response = "No puede registrar un horario para un año anterior."
                             break
                     
                         default:
+                            response = `El año no puede ser menor que ${options[key].min}`
                             break;
                     }
                 }
@@ -95,16 +96,20 @@ export const IsDateValid = (date,typeOfDate)=>{
                 
                 if (key === "year") {
                     switch (typeOfDate) {
-                        case "birthdate_user":
-                        case "birthdate_employee":
+                        case "birthdate":
                             response = "No eres mayor de edad."
                             break;
 
+                        case "appointment":
+                            response = "No puede agendar una cita para más de un año."
+                            break;
+
                         case "schedule":
-                            response = "No puede registrar un horario para 5 años en el futuro."
+                            response = `No puede registrar un horario para dentro de ${options[key].max} años.`
                             break
                     
                         default:
+                            response = `El año no puede ser mayor que ${options[key].max}`
                             break;
                     }
                 }
@@ -132,7 +137,7 @@ export const IsDateValid = (date,typeOfDate)=>{
         }
 
         //calculando si cumplió 18 años el dia de hoy (puta madre)
-        if (typeOfDate === "birthdate_user" ||  typeOfDate === "birthdate_employee") {
+        if (typeOfDate === "birthdate") {
             let age = today.getFullYear() - newDate.getFullYear()
             const monthsDiff = today.getMonth() - newDate.getMonth()
 
