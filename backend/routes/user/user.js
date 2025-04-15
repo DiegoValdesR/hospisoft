@@ -8,7 +8,6 @@ router.get("/users/byid/:id",UserMethods.UserById)
 router.post("/users/new",UserMethods.InsertUser)
 router.put("/users/update/:id",UserMethods.UpdateUser)
 router.patch("/users/delete/:id",UserMethods.DeleteUser)
-router.post("/users/login",UserMethods.LogIn)
 //end routes
 
 export default router

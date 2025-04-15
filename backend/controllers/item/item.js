@@ -50,6 +50,7 @@ const InsertItem = async(req,res)=>{
         item_name : req.body.item_name,
         item_description : req.body.item_description,
         item_stock : req.body.item_stock,
+        item_price : req.body.item_price
     }
 
     try {
@@ -75,6 +76,7 @@ const UpdateItem = async(req,res)=>{
         item_name : req.body.item_name,
         item_description : req.body.item_description,
         item_stock : req.body.item_stock,
+        item_price : req.body.item_price
     }
 
     try {

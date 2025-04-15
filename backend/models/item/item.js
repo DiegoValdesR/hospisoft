@@ -14,6 +14,11 @@ export const ItemSchema = Schema(
             required:true,
             min:0,
         },
+        item_price:{
+            type:Number,
+            required:true,
+            min:1
+        }
     },
     {
         collection:"items"

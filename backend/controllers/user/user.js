@@ -1,11 +1,18 @@
 import { UsersModel} from "../../models/user/user.js"
-import { EmployeeModel } from "../../models/employees/employees.js" //solo para el login
 import { Validations } from "../../validations/index.js"
+import { AdmittedRoles } from "../../middleware/roles.js"
 import mongoose from "mongoose"
 import bcrypt from 'bcryptjs'
 
 const AllUsers = async(req,res) =>{
-    
+
+    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    if (typeof errorRole === "string") {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole
+        })
+    }
 
     try {
         const users = await UsersModel.find({"user_state":"active"})
@@ -13,16 +20,28 @@ const AllUsers = async(req,res) =>{
             status:"completed",
             data: users
         })
+
     } catch (error) {
+
         return res.status(500).send({
             status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
+
     }
     
 }
 
 const UserById = async(req,res)=>{
+
+    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    if (typeof errorRole === "string") {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole
+        })
+    }
+
     const {id} = req.params
 
     try {
@@ -50,6 +69,15 @@ const UserById = async(req,res)=>{
 }
 
 const InsertUser = async(req,res) =>{
+
+    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    if (typeof errorRole === "string") {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole
+        })
+    }
+
     const data ={
         user_name:req.body.user_name,
         user_last_name:req.body.user_last_name,
@@ -97,6 +125,15 @@ const InsertUser = async(req,res) =>{
 }
 
 const UpdateUser = async(req,res)=>{
+
+    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    if (typeof errorRole === "string") {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole
+        })
+    }
+
     const {id} = req.params
     const data ={
         user_name:req.body.user_name,
@@ -141,6 +178,15 @@ const UpdateUser = async(req,res)=>{
 }
 
 const DeleteUser = async(req,res)=>{
+
+    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    if (typeof errorRole === "string") {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole
+        })
+    }
+
     const {id} = req.params
 
     try {
@@ -168,56 +214,10 @@ const DeleteUser = async(req,res)=>{
     }
 }
 
-const LogIn = async(req,res) =>{
-    const { email,password} = req.body
-
-    if (!email || !password) {
-        return res.status(400).send({
-            status:"error",
-            message:"No se ingresaron todos los datos requeridos."
-        })
-    }
-
-    try {
-        const [findUser,findEmployee] = await Promise.all([
-            UsersModel.findOne({"user_email":email,"user_state":"active"}),
-            EmployeeModel.findOne({"employee_email":email,"employee_state":"active"})
-        ])
-
-        const user = findUser || findEmployee
-
-        if (!user) {
-            return res.status(404).send({
-                status:"error",
-                message:"El correo proporcionado no existe dentro de nuestra base de datos."
-            })
-        }
-
-        if (!bcrypt.compareSync(password,user.user_password || user.employee_password)) {
-            return res.status(400).send({
-                status:"error",
-                message:"Contraseña incorrecta."
-            })
-        }
-
-        return res.status(200).send({
-            status:"completed",
-            message:"Sesión iniciada correctamente."
-        })
-        
-    } catch (error) {
-        res.status(500).send({
-            status:"error",
-            message:"Error interno del servidor, por favor intentelo más tarde."
-        })
-    }
-}
-
 export const UserMethods = {
     AllUsers,
     UserById,
     InsertUser,
     UpdateUser,
-    DeleteUser,
-    LogIn
+    DeleteUser
 }
