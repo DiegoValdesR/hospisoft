@@ -6,13 +6,13 @@ import bcrypt from 'bcryptjs'
 
 const AllUsers = async(req,res) =>{
 
-    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    if (typeof errorRole === "string") {
-        return res.status(401).send({
-            status:"error",
-            message:errorRole
-        })
-    }
+    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    // if (typeof errorRole === "string") {
+    //     return res.status(401).send({
+    //         status:"error",
+    //         message:errorRole
+    //     })
+    // }
 
     try {
         const users = await UsersModel.find({"user_state":"active"})
@@ -34,13 +34,13 @@ const AllUsers = async(req,res) =>{
 
 const UserById = async(req,res)=>{
 
-    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    if (typeof errorRole === "string") {
-        return res.status(401).send({
-            status:"error",
-            message:errorRole
-        })
-    }
+    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    // if (typeof errorRole === "string") {
+    //     return res.status(401).send({
+    //         status:"error",
+    //         message:errorRole
+    //     })
+    // }
 
     const {id} = req.params
 
@@ -70,13 +70,13 @@ const UserById = async(req,res)=>{
 
 const InsertUser = async(req,res) =>{
 
-    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    if (typeof errorRole === "string") {
-        return res.status(401).send({
-            status:"error",
-            message:errorRole
-        })
-    }
+    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    // if (typeof errorRole === "string") {
+    //     return res.status(401).send({
+    //         status:"error",
+    //         message:errorRole
+    //     })
+    // }
 
     const data ={
         user_name:req.body.user_name,
@@ -126,13 +126,13 @@ const InsertUser = async(req,res) =>{
 
 const UpdateUser = async(req,res)=>{
 
-    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    if (typeof errorRole === "string") {
-        return res.status(401).send({
-            status:"error",
-            message:errorRole
-        })
-    }
+    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    // if (typeof errorRole === "string") {
+    //     return res.status(401).send({
+    //         status:"error",
+    //         message:errorRole
+    //     })
+    // }
 
     const {id} = req.params
     const data ={
@@ -179,13 +179,13 @@ const UpdateUser = async(req,res)=>{
 
 const DeleteUser = async(req,res)=>{
 
-    const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    if (typeof errorRole === "string") {
-        return res.status(401).send({
-            status:"error",
-            message:errorRole
-        })
-    }
+    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
+    // if (typeof errorRole === "string") {
+    //     return res.status(401).send({
+    //         status:"error",
+    //         message:errorRole
+    //     })
+    // }
 
     const {id} = req.params
 

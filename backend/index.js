@@ -27,7 +27,7 @@ app.use('/api',LogInRoutes)
 app.use('/api',EmailRoutes)
 
 //auth es el middleware que verifica que haya iniciado sesión (revisar middleware para entender)
-app.use(auth)
+//app.use(auth)
 
 //cada metodo desde aqui usa el middleware
 app.use('/api',UserRoutes)

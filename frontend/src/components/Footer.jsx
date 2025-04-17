@@ -7,12 +7,9 @@ export const Footer = ()=>{
             <footer id="footer" className="footer">
                 <div className="copyright">
                     <p>
-                        {currentYear.getFullYear()}&copy; Copyright 
-                        <strong>
-                            <span>NiceAdmin.</span>
-                        </strong>
                         
-                        Todos los derechos reservados
+                        {currentYear.getFullYear()}&copy; Copyright <strong>NiceAdmin. </strong>Todos los derechos reservados
+                        
                     </p>
                 </div>
                 <div className="credits">

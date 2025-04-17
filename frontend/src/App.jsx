@@ -1,6 +1,13 @@
-import { AsideBar } from "./components/nice_admin/aside"
-import { Footer } from "./components/nice_admin/footer"
-import { Header } from "./components/nice_admin/header"
+//MAIN COMPONENTS
+import { AsideBar } from "./components/Aside"
+import { Footer } from "./components/Footer"
+import { Header } from "./components/Header"
+//PAGES
+import { HomePage } from "./pages/home/HomePage"
+import { UsersPage } from "./pages/users/usersPage"
+//REACT-ROUTER-DOM THINGS
+import {Routes, Route} from 'react-router-dom'
+
 function App() {
 
   return (
@@ -8,17 +15,11 @@ function App() {
       <Header></Header>
       <AsideBar></AsideBar>
 
-      <main className="main" id="main">
-        <div className="pagetitle">
-            <h1>Dashboard</h1>
-            <nav>
-                <ol className="breadcrumb">
-                <li className="breadcrumb-item"><a href="index.html">Home</a></li>
-                <li className="breadcrumb-item active">Dashboard</li>
-                </ol>
-            </nav>
-        </div>
-      </main>
+      <Routes>
+        <Route path="/" element={<HomePage />}/>
+        <Route path="/users" element={<UsersPage />}/>
+      </Routes>
+      
       <Footer></Footer>
     </>
   )

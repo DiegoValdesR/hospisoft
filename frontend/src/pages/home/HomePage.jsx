@@ -1,0 +1,15 @@
+export const HomePage = ()=>{
+    return (
+        <main className="main" id="main">
+            <div className="pagetitle">
+                <h1>Dashboard</h1>
+                <nav>
+                    <ol className="breadcrumb">
+                        <li className="breadcrumb-item"><a href="/">Inicio</a></li>
+                        <li className="breadcrumb-item active">Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+        </main>
+    )
+}
