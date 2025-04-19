@@ -1,48 +1,86 @@
+import { useState,useEffect } from "react"
+import { API_URL } from "../../../API_URL"
+import Swal from "sweetalert2"
+import { Modal,ListGroup, Button} from "react-bootstrap"
+/**
+ * 
+ * @param modalInfo Bool que determina si se muestra o no la modal
+ * @param setModalInfo Metodo de 'UsersTable' que cambia el valor de 'modalInfo'
+ * @param idInfo String que representa el id del usuario
+ * @param setIdInfo Metodo de 'UsersTable' que cambia el valor de 'idInfo', lo uso para cambiar el id a vacío para
+ * que el useEffect detecte un cambio y pueda mostrar multiples veces la misma modal
+ * @returns 
+ */
+export const ShowUserModal = ({modalInfo,setModalInfo,idInfo,setIdInfo})=>{
 
-export const ShowUserModal = ({user})=>{
+    const [user,setUser] = useState({})
+
+    const GetUserById = async() =>{
+        Swal.fire({
+            title:"Cargando usuario...",
+            didOpen:()=>{
+                Swal.showLoading()
+            }
+        })
     
-    return (
-        <div className="modal fade" id="ShowUserModal" tabIndex="-1">
-            <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
-                    <div className="modal-header d-flex justify-content-between">
-                        <h1 className="modal-title fs-5">Detalles del usuario</h1>
-                        <i role="button" className="bi bi-x-circle"
-                        data-bs-dismiss="modal"></i>
-                    </div>
-                    <div className="modal-body">
-                        {console.log(user)
-                        }
-                        <ul className="list-group">
-                            <li className="list-group-item">
-                                <strong>Nombre: </strong>{user.user_name}
-                            </li>
-                            <li className="list-group-item">
-                                <strong>Apellido: </strong>{user.user_last_name}
-                            </li>
-                            <li className="list-group-item">
-                                <strong>Correo electrónico: </strong>{user.user_email}
-                            </li>
-                            <li className="list-group-item">
-                                <strong>Número telefónico: </strong>{user.user_phone_number}
-                            </li>
-                            <li className="list-group-item">
-                                <strong>Fecha de nacimiento: </strong> {user.user_birthdate}
-                            </li>
-                            <li className="list-group-item">
-                                <strong>EPS: </strong>{user.user_eps}
-                            </li>
-                            <li className="list-group-item">
-                                <strong>Estado: </strong>{user.user_state === "active" ? 'Activo' : 'Inactivo'}
-                            </li>
-                        </ul>
-                    </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        const user = await fetch(API_URL + '/users/byid/'+idInfo).then(res => res.json())
+        if (user && user.status === "completed") {
+            setUser(user.data)
+            setModalInfo(true)
+            Swal.close()
+            return
+        }
+    }
 
+    const handleHide = ()=>{
+        setModalInfo(false)
+        setIdInfo("")
+    }
+
+    useEffect(()=>{
+        if (idInfo && idInfo.length === 24) {
+            GetUserById()
+        }
+    },[idInfo])
+
+    return (
+        <Modal centered className="fade" show={modalInfo} onHide={handleHide}>
+                <Modal.Header className="d-flex justify-content-between">
+                    <Modal.Title>
+                        Detalles del usuario
+                    </Modal.Title>
+                    
+                    <i role="button" className="text-danger fs-4 bi bi-x-circle"
+                    onClick={handleHide}></i>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <ListGroup>
+                        <ListGroup.Item>
+                            <strong>Nombre: </strong>{user.user_name}
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <strong>Apellido: </strong>{user.user_last_name}
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <strong>Correo electrónico: </strong>{user.user_email}
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <strong>Número telefónico: </strong>{user.user_phone_number}
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <strong>Fecha de nacimiento: </strong>
+                            {Object.keys(user).length !== 0 ? user.user_birthdate.split("T")[0] : ""}
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <strong>EPS: </strong>{user.user_eps}
+                        </ListGroup.Item>
+                    </ListGroup>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button variant="primary" type="button" onClick={handleHide}>Aceptar</Button>
+                </Modal.Footer>
+        </Modal>
     )
 }

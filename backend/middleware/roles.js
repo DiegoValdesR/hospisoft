@@ -4,8 +4,9 @@ import { config } from "dotenv"
 config()
 
 /**
- * @req Metodo request de express
- * @roles Array que recibe los roles permitidos para esa funcion 
+ * @param req Metodo request de express
+ * @param roles Array que recibe los roles permitidos para esa funcion, en strings,
+ * ej: ["admin","secretaria"]
  */
 
 export const AdmittedRoles = (req,roles)=>{

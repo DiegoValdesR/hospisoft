@@ -1,105 +1,157 @@
 import { useState,useEffect } from "react"
 import { API_URL } from "../../API_URL.js"
 import { ShowUserModal } from "./modals/ShowUserModal.jsx"
+import { ManageUsersModal } from "./modals/ManageUsersModal.jsx"
+import Swal from 'sweetalert2'
+import { Button, Card, Row, Table } from "react-bootstrap"
+
 export const UsersTable = ()=>{
     const [users,setUsers] = useState([])
-    const [userById,setUserById] = useState({})
+    const [userId,setUserId] = useState("")
+    const [idInfo,setIdInfo] = useState("")
+    //para mostrar la modal de insertar/actualizar usuario
+    const [modalData,setModalData] = useState(false)
+    //modal para mostrar toda la informacion del usuario
+    const [modalInfo,setModalInfo] = useState(false)
     
-    const GetAllUsers = async()=>{
+    const getAllUsers = async()=>{
+        Swal.fire({
+            title:"Cargando usuarios...",
+            didOpen:()=>{
+                Swal.isLoading()
+            }
+        })
+
         const allUsers = await fetch(API_URL + '/users/all').then(res => res.json())
         if (allUsers && allUsers.status === "completed") {
             setUsers(allUsers.data)
+            Swal.close()
             return
         }
-        
     }
 
-    const GetUserById = async(user_id) =>{
-        const user = await fetch(API_URL + '/users/byid/'+user_id).then(res => res.json())
-        if (user && user.status === "completed") {
-            setUserById(user.data)
-            return
-        }
+    const deactivateUser = async(userId)=>{
+        Swal.fire({
+            title:"¿Está seguro de desactivar este usuario?",
+            showCancelButton:true,
+            showConfirmButton:true,
+            confirmButtonText:"Aceptar"
+        }).then(async result =>{
+            if (result.isConfirmed) {
+                const deleteUser = await fetch(API_URL + '/users/delete/'+userId,{
+                    method:"PATCH"
+                })
+                const responseJSON = await deleteUser.json()
+
+                if (responseJSON && responseJSON.status === "completed") {
+                    Swal.fire({
+                        title:"Completado",
+                        text:responseJSON.message
+                    })
+                    getAllUsers()
+                    return
+                }
+                console.error(responseJSON.message)
+            }
+        })
     }
 
     useEffect(()=>{
-        GetAllUsers()
+        getAllUsers()
     },[])
     
     return (
         <>
-            <ShowUserModal user={userById}></ShowUserModal>
-            <div className="card shadow p-2 mb-5 rounded-4">
-                <div className="card-title d-flex justify-content-between">
-                    <div className="ms-4">
-                        <button className="btn btn-primary">
+            <ShowUserModal
+            modalInfo={modalInfo}
+            setModalInfo={setModalInfo}
+            idInfo={idInfo}
+            setIdInfo={setIdInfo}
+            >
+            </ShowUserModal>
+
+            <ManageUsersModal
+            modalData={modalData}
+            setModalData={setModalData}
+            userId={userId}
+            setUserId={setUserId}
+            setUsers={setUsers}
+            >
+            </ManageUsersModal>
+
+            <Row className="w-100">
+            <Card>
+                <Card.Title className="d-flex">
+                    <Row className="ms-4">
+                        <Button variant="primary" type="button"
+                        onClick={()=>{setModalData(true)}}>
                             <i className="bi bi-plus-lg"></i>
                             <span className="p-1 text-white">
                                 Nuevo
                             </span>
-                        </button>
-                    </div>
-                </div>
-                
-                <div className="card-body">
-                    {users.length > 0 ? 
-                    (
-                        <div className="table-responsive text-center">
-                            <table className="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>NOMBRE</th>
-                                        <th>APELLIDO</th>
-                                        <th>ACCIONES</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {users.map(user =>{
-                                        return (
-                                        <tr key={user._id}>
-                                            <td>{user.user_name}</td>
-                                            <td>{user.user_last_name}</td>
-                                            <td>
-                                                <span className="p-1">
-                                                    <button className="btn btn-secondary" title="Ver más detalles"
-                                                    data-bs-toggle="modal" data-bs-target="#ShowUserModal"
-                                                    onClick={()=>{GetUserById(user["_id"])}}>
-                                                        <i className="bi bi-eye"></i>
-                                                    </button>
-                                                </span>
+                        </Button>
+                    </Row>
+                </Card.Title>
 
-                                                <span className="p-1">
-                                                    <button className="btn btn-primary" title="Editar usuario"
-                                                    >
-                                                        <i className="bi bi-pencil-square"></i>
-                                                    </button>
-                                                </span>
-                                                
-
-                                                <span className="p-1">
-                                                    <button className="btn btn-danger" title="Eliminar usuario"
-                                                    >
-                                                        <i className="bi bi-trash3"></i>
-                                                    </button>
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        )
-                                    })}
-                                    
-                                </tbody>
-                            </table>
-                        </div> 
-                    )
-                    :
-                    (
-                        <p className="text-center">No hay Usuarios</p>
-                    )
-
-                    }
-                    
-                </div>
-            </div>
+                <Card.Body>
+                    {users.length > 0 ? (
+                    <Row className="table-responsive text-center">
+                        <Table hover>
+                            <thead>
+                                <tr>
+                                    <th>NOMBRE</th>
+                                    <th>APELLIDO</th>
+                                    <th>ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users.map(user =>{
+                                return (
+                                <tr key={user._id}>
+                                    <td>{user.user_name}</td>
+                                    <td>{user.user_last_name}</td>
+                                    <td>
+                                    {/* VER DETALLES USUARIO */}
+                                    <span className="p-1">
+                                        <button className="btn btn-secondary" title="Ver más detalles"
+                                        onClick={()=>{
+                                            setIdInfo(user["_id"])
+                                        }}>
+                                             <i className="bi bi-eye"></i>
+                                        </button>
+                                    </span>
+                                            
+                                    {/* EDITAR USUARIO */}
+                                    <span className="p-1">
+                                        <button className="btn btn-primary" title="Editar usuario"
+                                        onClick={()=>{
+                                            setUserId(user["_id"])
+                                        }}>
+                                            <i className="bi bi-pencil-square"></i>
+                                        </button>
+                                    </span>
+                                                    
+                                    {/* DESACTIVAR USUARIO */}
+                                    <span className="p-1">
+                                        <button className="btn btn-danger" title="Eliminar usuario"
+                                        onClick={()=>{deactivateUser(user["_id"])}}>
+                                            <i className="bi bi-trash3"></i>
+                                        </button>
+                                    </span>
+                                    </td>
+                                </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </Table>
+                    </Row>
+                    ) : (
+                        <p className="text-center text-dark">No hay usuarios...</p>
+                    )}
+                </Card.Body>
+            </Card> 
+            </Row>
         </>
     )
+
 }

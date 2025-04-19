@@ -2,6 +2,15 @@ import jwt from 'jsonwebtoken'
 import { config } from 'dotenv'
 config()
 
+/**
+ * 
+ * @param {*} req Método request de express
+ * @param {*} res Método response de express
+ * @param {*} next Metodo de express, en este caso lo que hace es continuar el método más cercano si el token
+ * no es inválido
+ * @returns 
+ */
+
 export const AuthorizationToken = (req,res,next)=>{
     const authHeaders = req.headers["authorization"]
     const token = authHeaders && authHeaders.split("/")[1]
