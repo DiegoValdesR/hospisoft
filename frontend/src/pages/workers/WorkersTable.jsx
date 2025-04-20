@@ -1,20 +1,20 @@
 import { useState,useEffect } from "react"
 import { API_URL } from "../../API_URL.js"
-import { ShowUserModal } from "./modals/ShowUserModal.jsx"
-import { ManageUsersModal } from "./modals/ManageUsersModal.jsx"
+import { ShowWorkersModal } from "./modals/ShowWorkersModal.jsx"
+import { ManageWorkersModal } from "./modals/ManageWorkersModal.jsx"
 import Swal from 'sweetalert2'
 import { Button, Card, Row, Table } from "react-bootstrap"
 
-export const UsersTable = ()=>{
-    const [users,setUsers] = useState([])
-    const [userId,setUserId] = useState("")
+export const WorkersTable = ()=>{
+    const [workers,setWorkers] = useState([])
+    const [workerId,setWorkerId] = useState("")
     const [idInfo,setIdInfo] = useState("")
-    //para mostrar la modal de insertar/actualizar usuario
+    //para mostrar la modal de insertar/actualizar
     const [modalData,setModalData] = useState(false)
-    //modal para mostrar toda la informacion del usuario
+    //modal para mostrar toda la informacion del registro
     const [modalInfo,setModalInfo] = useState(false)
     
-    const getAllUsers = async()=>{
+    const getAllWorkers = async()=>{
         Swal.fire({
             title:"Cargando...",
             didOpen:()=>{
@@ -22,67 +22,66 @@ export const UsersTable = ()=>{
             }
         })
 
-        const allUsers = await fetch(API_URL + '/users/all').then(res => res.json())
-        if (allUsers && allUsers.status === "completed") {
-            setUsers(allUsers.data)
+        const allWorkers = await fetch(API_URL + '/workers/all').then(res => res.json())
+        if (allWorkers && allWorkers.status === "completed") {
+            setWorkers(allWorkers.data)
             Swal.close()
             return
         }
     }
 
-    const deactivateUser = async(userId)=>{
+    const deactivateWorker = async(workerId)=>{
         Swal.fire({
-            title:"¿Está seguro de desactivar este usuario?",
+            title:"¿Está seguro de desactivar este empleado?",
             showCancelButton:true,
             showConfirmButton:true,
             confirmButtonColor:"#dc3545",
             confirmButtonText:"Aceptar"
         }).then(async result =>{
             if (result.isConfirmed) {
-                const deleteUser = await fetch(API_URL + '/users/delete/'+userId,{
+                const deactivateWorker = await fetch(API_URL + '/workers/delete/'+workerId,{
                     method:"PATCH"
                 })
-                const responseJSON = await deleteUser.json()
-                
+                const responseJSON = await deactivateWorker.json()
+
                 if (responseJSON) {
                     if (responseJSON.status === "completed") {
-                        await getAllUsers()
+                        await getAllWorkers()
                     }
 
                     Swal.fire({
-                        title:"Completado",
+                        title:responseJSON.status === "completed" ? "Completado" : "Error",
                         text:responseJSON.message
                     })
-                    
                     return
                 }
-
+                
             }
         })
     }
 
     useEffect(()=>{
-        getAllUsers()
+        getAllWorkers()
     },[])
     
     return (
         <>
-            <ShowUserModal
+            <ShowWorkersModal
             modalInfo={modalInfo}
             setModalInfo={setModalInfo}
             idInfo={idInfo}
             setIdInfo={setIdInfo}
             >
-            </ShowUserModal>
+            </ShowWorkersModal>
 
-            <ManageUsersModal
+            <ManageWorkersModal
             modalData={modalData}
             setModalData={setModalData}
-            userId={userId}
-            setUserId={setUserId}
-            setUsers={setUsers}
+            workerId={workerId}
+            setWorkerId={setWorkerId}
+            setWorkers={setWorkers}
             >
-            </ManageUsersModal>
+            </ManageWorkersModal>
 
             <Row className="w-100">
             <Card>
@@ -99,7 +98,7 @@ export const UsersTable = ()=>{
                 </Card.Title>
 
                 <Card.Body>
-                    {users.length > 0 ? (
+                    {workers.length > 0 ? (
                     <Row className="table-responsive text-center">
                         <Table hover>
                             <thead>
@@ -110,36 +109,36 @@ export const UsersTable = ()=>{
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.map(user =>{
+                                {workers.map(worker =>{
                                 return (
-                                <tr key={user._id}>
-                                    <td>{user.user_name}</td>
-                                    <td>{user.user_last_name}</td>
+                                <tr key={worker._id}>
+                                    <td>{worker.worker_name}</td>
+                                    <td>{worker.worker_last_name}</td>
                                     <td>
-                                    {/* VER DETALLES USUARIO */}
+                                    {/* VER DETALLES EMPLEADO */}
                                     <span className="p-1">
                                         <button className="btn btn-secondary" title="Ver más detalles"
                                         onClick={()=>{
-                                            setIdInfo(user["_id"])
+                                            setIdInfo(worker["_id"])
                                         }}>
                                              <i className="bi bi-eye"></i>
                                         </button>
                                     </span>
                                             
-                                    {/* EDITAR USUARIO */}
+                                    {/* EDITAR EMPLEADO */}
                                     <span className="p-1">
-                                        <button className="btn btn-primary" title="Editar usuario"
+                                        <button className="btn btn-primary" title="Editar empleado"
                                         onClick={()=>{
-                                            setUserId(user["_id"])
+                                            setWorkerId(worker["_id"])
                                         }}>
                                             <i className="bi bi-pencil-square"></i>
                                         </button>
                                     </span>
                                                     
-                                    {/* DESACTIVAR USUARIO */}
+                                    {/* DESACTIVAR EMPLEADO */}
                                     <span className="p-1">
-                                        <button className="btn btn-danger" title="Eliminar usuario"
-                                        onClick={()=>{deactivateUser(user["_id"])}}>
+                                        <button className="btn btn-danger" title="Eliminar empleado"
+                                        onClick={()=>{deactivateWorker(worker["_id"])}}>
                                             <i className="bi bi-trash3"></i>
                                         </button>
                                     </span>
@@ -151,7 +150,7 @@ export const UsersTable = ()=>{
                         </Table>
                     </Row>
                     ) : (
-                        <p className="text-center text-dark">No hay usuarios...</p>
+                        <p className="text-center text-dark">No hay empleados...</p>
                     )}
                 </Card.Body>
             </Card> 

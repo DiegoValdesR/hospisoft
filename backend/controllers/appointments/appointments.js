@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { AppointmentModel } from "../../models/appointments/appointments.js"
 import { UsersModel } from "../../models/user/user.js"
-import { EmployeeModel } from "../../models/employees/employees.js"
+import { WorkerModel } from "../../models/workers/workers.js"
 import { Validations } from "../../validations/index.js"
 
 const AllApointments = async(req,res)=>{
@@ -87,10 +87,10 @@ const InsertAppointment = async(req,res)=>{
             })
         }
 
-        const findDoctor = await EmployeeModel.findOne({
+        const findDoctor = await WorkerModel.findOne({
             "_id":data.doctor_id,
-            "employee_role":"medico",
-            "employee_state":"active"
+            "worker_role":"medico",
+            "worker_state":"active"
         })
 
         if (!findDoctor) {
@@ -169,10 +169,10 @@ const UpdateAppointment = async(req,res)=>{
             })
         }
 
-        const findDoctor = await EmployeeModel.findOne({
+        const findDoctor = await WorkerModel.findOne({
             "_id":mongoose.Types.ObjectId.createFromHexString(data.doctor_id),
-            "employee_role":"medico",
-            "employee_state":"active"
+            "worker_role":"medico",
+            "worker_state":"active"
         })
 
         if (!findDoctor) {

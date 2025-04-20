@@ -5,6 +5,8 @@ import { Header } from "./components/Header"
 //PAGES
 import { HomePage } from "./pages/home/HomePage"
 import { UsersPage } from "./pages/users/usersPage"
+import { WorkersPage } from './pages/workers/WorkersPage'
+import { ItemsPage } from "./pages/items/ItemsPage"
 //REACT-ROUTER-DOM THINGS
 import {Routes, Route} from 'react-router-dom'
 
@@ -17,7 +19,10 @@ function App() {
 
       <Routes>
         <Route path="/" element={<HomePage />}/>
-        <Route path="/users" element={<UsersPage />}/>
+        <Route path="/usuarios" element={<UsersPage />}/>
+        <Route path="/empleados" element={<WorkersPage />}/>
+        <Route path="/medicamentos" element={<ItemsPage />}/>
+        <Route path="/formulas" element={<ItemsPage />}/>
       </Routes>
       
       <Footer></Footer>

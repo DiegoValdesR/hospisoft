@@ -1,47 +1,47 @@
 import {Schema, model } from "mongoose";
 
-const EmployeeSchema = Schema(
+const WorkerSchema = Schema(
     {
-        employee_name:{
+        worker_name:{
             type:String,
             required:true
         },
-        employee_last_name:{
+        worker_last_name:{
             type:String,
             required:true
         },
-        employee_birthdate:{
+        worker_birthdate:{
             type:Date,
             required:true
         },
-        employee_email:{
+        worker_email:{
             type:String,
             required:true
         },
-        employee_password:{
+        worker_password:{
             type:String,
             required:true
         },
-        employee_speciality:{
+        worker_speciality:{
             type:String,
             default:"No aplica"
         },
-        employee_phone_number:{
+        worker_phone_number:{
             type:String,
             required:true
         },
-        employee_role:{
+        worker_role:{
             type:String,
             default:"secretaria"
         },
-        employee_state:{
+        worker_state:{
             type:String,
             default:"active"
         }
     },
     {
-        collection:"employees"
+        collection:"workers"
     }
 )
 
-export const EmployeeModel = model("doctors",EmployeeSchema)
+export const WorkerModel = model("workers",WorkerSchema)

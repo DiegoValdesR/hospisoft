@@ -54,6 +54,9 @@ const InsertItem = async(req,res)=>{
     }
 
     try {
+        if (!data.item_description || data.item_description.length < 1) {
+            data.item_description = "No aplica."
+        }
         const insert = new ItemsModel(data)
         await insert.save()
     
@@ -80,6 +83,11 @@ const UpdateItem = async(req,res)=>{
     }
 
     try {
+
+        if (!data.item_description || data.item_description.length < 1) {
+            data.item_description = "No aplica."
+        }
+        
         await ItemsModel.findOneAndUpdate({
             "_id":mongoose.Types.ObjectId.createFromHexString(id)
         },data)

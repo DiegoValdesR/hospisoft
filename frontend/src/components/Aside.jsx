@@ -1,4 +1,4 @@
-import { useState } from "react"
+
 export const AsideBar = (select)=>{
 
     return (
@@ -16,9 +16,32 @@ export const AsideBar = (select)=>{
             <li className="nav-heading">SECCIONES</li>
 
             <li className="nav-item">
-                <a className="nav-link collapsed" href="/users">
+                <a className="nav-link collapsed" href="/usuarios">
                     <i className="bi bi-people"></i>
                     <span>Usuarios</span>
+                </a>
+            </li>
+
+            <li className="nav-item">
+                <a className="nav-link collapsed" href="/empleados">
+                    <i className="bi bi-person-vcard"></i>
+                    <span>Empleados</span>
+                </a>
+            </li>
+
+            <li className="nav-item">
+                <a className="nav-link collapsed" href="/medicamentos">
+                    <i className="bi bi-capsule"></i>
+                    <span>Medicamentos</span>
+                </a>
+            </li>
+
+            <li className="nav-heading">SESIÓN</li>
+
+            <li className="nav-item">
+                <a className="nav-link collapsed" href="/usuarios">
+                    <i className="bi bi-door-open"></i>
+                    <span>Cerrar sesión</span>
                 </a>
             </li>
 

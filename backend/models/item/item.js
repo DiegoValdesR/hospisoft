@@ -7,7 +7,8 @@ export const ItemSchema = Schema(
             required:true
         },
         item_description:{
-            type:String
+            type:String,
+            default:"No aplica."
         },
         item_stock:{
             type:Number,

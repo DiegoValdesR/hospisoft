@@ -1,15 +1,15 @@
-import { EmployeeModel } from "../../models/employees/employees.js"
+import { WorkerModel } from "../../models/workers/workers.js"
 import { Validations } from "../../validations/index.js"
 import mongoose from "mongoose"
 import bcrypt from "bcryptjs"
 
-const AllEmployees = async(req,res)=>{
+const AllWorkers = async(req,res)=>{
     
     try {
-        const employees = await EmployeeModel.find({"employee_state":"active"})
+        const workers = await WorkerModel.find({"worker_state":"active"})
         return res.status(200).send({
             status:"completed",
-            data:employees
+            data:workers
         })
 
     } catch (error) {
@@ -20,11 +20,38 @@ const AllEmployees = async(req,res)=>{
     }
 }
 
-const EmployeeById = async(req,res)=>{
+const AllDoctors = async(req,res)=>{
+    try {
+        const findOne = await WorkerModel.find({
+            "worker_state":"active",
+            "worker_role":"medico"
+        })
+
+        if (!findOne) {
+            return res.status(404).send({
+                status:"error",
+                message: "No se encontró el empleado."
+            })
+        }
+    
+        return res.status(200).send({
+            status:"completed",
+            data: findOne
+        })
+    
+    } catch (error) {
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
+        })
+    }
+}
+
+const WorkerById = async(req,res)=>{
     const {id} = req.params
     
     try {
-        const findOne = await EmployeeModel.findOne({
+        const findOne = await WorkerModel.findOne({
             "_id":mongoose.Types.ObjectId.createFromHexString(id)
         })
 
@@ -48,19 +75,19 @@ const EmployeeById = async(req,res)=>{
     }
 }
 
-const InsertEmployee = async(req,res) =>{
+const InsertWorker = async(req,res) =>{
     const data = {
-        employee_name:req.body.employee_name,
-        employee_last_name:req.body.employee_last_name,
-        employee_birthdate:req.body.employee_birthdate,
-        employee_email:req.body.employee_email,
-        employee_password:req.body.employee_password,
-        employee_phone_number:req.body.employee_phone_number,
-        employee_role:req.body.employee_role,
-        employee_speciality:req.body.employee_speciality
+        worker_name:req.body.worker_name,
+        worker_last_name:req.body.worker_last_name,
+        worker_birthdate:req.body.worker_birthdate,
+        worker_email:req.body.worker_email,
+        worker_password:req.body.worker_password,
+        worker_phone_number:req.body.worker_phone_number,
+        worker_role:req.body.worker_role,
+        worker_speciality:req.body.worker_speciality
     }
 
-    const errorDate = Validations.IsDateValid(data.employee_birthdate,"birthdate")
+    const errorDate = Validations.IsDateValid(data.worker_birthdate,"birthdate")
     if (errorDate.length !== 0) {
         return res.status(400).send({
             status:"error",
@@ -69,8 +96,8 @@ const InsertEmployee = async(req,res) =>{
     }
 
     try {
-        const emailExist = await EmployeeModel.findOne({
-            "employee_email": data.employee_email
+        const emailExist = await WorkerModel.findOne({
+            "worker_email": data.worker_email
         })
         
         if (emailExist) {
@@ -81,10 +108,10 @@ const InsertEmployee = async(req,res) =>{
         }
 
         //si no ingresa nada o es null que coloque el default
-        if (!data.employee_speciality || data.employee_speciality.length === 0) data.employee_speciality = "No aplica"
+        if (!data.worker_speciality || data.worker_speciality.length === 0) data.worker_speciality = "No aplica"
         //encriptamos la contraseña
-        data.employee_password = bcrypt.hashSync(data.employee_password)
-        const insert = new EmployeeModel(data)
+        data.worker_password = bcrypt.hashSync(data.worker_password)
+        const insert = new WorkerModel(data)
         await insert.save()
         
         return res.status(201).send({
@@ -101,23 +128,23 @@ const InsertEmployee = async(req,res) =>{
 
 }
 
-const UpdateEmployee = async(req,res)=>{
+const UpdateWorker = async(req,res)=>{
     const {id} = req.params
     const data = {
-        employee_name:req.body.employee_name,
-        employee_last_name:req.body.employee_last_name,
-        employee_email:req.body.employee_email,
-        employee_phone_number:req.body.employee_phone_number,
-        employee_role:req.body.employee_role,
-        employee_speciality:req.body.employee_speciality
+        worker_name:req.body.worker_name,
+        worker_last_name:req.body.worker_last_name,
+        worker_email:req.body.worker_email,
+        worker_phone_number:req.body.worker_phone_number,
+        worker_role:req.body.worker_role,
+        worker_speciality:req.body.worker_speciality
     }
 
     try {
         //si encuentra un registro que tenga el mismo email que el del body del request y no es el mismo id que el
         //del usuario retorna un objeto, sino null
-        const findEmail = await EmployeeModel.findOne({
+        const findEmail = await WorkerModel.findOne({
             "_id":{"$ne":mongoose.Types.ObjectId.createFromHexString(id)},
-            "employee_email":data.employee_email
+            "worker_email":data.worker_email
         })
 
        if (findEmail) {
@@ -127,9 +154,9 @@ const UpdateEmployee = async(req,res)=>{
             })
        }
 
-       if (!data.employee_speciality || data.employee_speciality.length === 0) data.employee_speciality = "No aplica"
+       if (!data.worker_speciality || data.worker_speciality.length === 0) data.worker_speciality = "No aplica"
 
-        await EmployeeModel.findOneAndUpdate({
+        await WorkerModel.findOneAndUpdate({
             "_id":mongoose.Types.ObjectId.createFromHexString(id)
         },data)
         
@@ -148,14 +175,14 @@ const UpdateEmployee = async(req,res)=>{
 
 }
 
-const DeleteEmployee = async(req,res)=>{
+const DeleteWorker = async(req,res)=>{
     const {id} = req.params
 
     try {
-        const deleteOne = await EmployeeModel.findOneAndUpdate({
+        const deleteOne = await WorkerModel.findOneAndUpdate({
             "_id":mongoose.Types.ObjectId.createFromHexString(id)
             },
-            {"employee_state":"inactive"}
+            {"worker_state":"inactive"}
         )
 
         if (!deleteOne) {
@@ -178,10 +205,11 @@ const DeleteEmployee = async(req,res)=>{
     }
 }
 
-export const EmployeesMethods = {
-    AllEmployees,
-    EmployeeById,
-    InsertEmployee,
-    UpdateEmployee,
-    DeleteEmployee
+export const WorkersMethods = {
+    AllWorkers,
+    AllDoctors,
+    WorkerById,
+    InsertWorker,
+    UpdateWorker,
+    DeleteWorker
 }

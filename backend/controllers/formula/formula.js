@@ -1,7 +1,7 @@
 import { FormulaModel } from "../../models/formula/formula.js"
 import { DetailsModel } from "../../models/detailsFormula/details.js"
 import { UsersModel } from "../../models/user/user.js"
-import { EmployeeModel } from "../../models/employees/employees.js"
+import { WorkerModel } from "../../models/workers/workers.js"
 import { config } from "dotenv"
 import mongoose from "mongoose"
 config()
@@ -62,10 +62,10 @@ const InsertFormula = async(req,res)=>{
         data.doctor_id = mongoose.Types.ObjectId.createFromHexString(data.doctor_id)
 
         const findPatient = await UsersModel.findOne({"_id":data.patient_id,"user_state":"active"})
-        const findDoctor = await EmployeeModel.findOne({
+        const findDoctor = await WorkerModel.findOne({
             "_id":data.doctor_id,
-            "employee_role":"medico",
-            "employee_state":"active"
+            "worker_role":"medico",
+            "worker_state":"active"
         })
 
         if (!findPatient) {

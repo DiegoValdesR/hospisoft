@@ -1,5 +1,5 @@
 import { UsersModel } from "../../models/user/user.js"
-import { EmployeeModel } from "../../models/employees/employees.js"
+import { WorkerModel } from "../../models/workers/workers.js"
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
 import { config } from "dotenv"
@@ -16,12 +16,12 @@ const LogIn = async(req,res) =>{
     }
 
     try {
-        const [findUser,findEmployee] = await Promise.all([
+        const [findUser,findWorker] = await Promise.all([
             UsersModel.findOne({"user_email":email,"user_state":"active"}),
-            EmployeeModel.findOne({"employee_email":email,"employee_state":"active"})
+            WorkerModel.findOne({"worker_email":email,"worker_state":"active"})
         ])
 
-        const user = findUser || findEmployee
+        const user = findUser || findWorker
 
         if (!user) {
             return res.status(404).send({
@@ -30,7 +30,7 @@ const LogIn = async(req,res) =>{
             })
         }
 
-        if (!bcrypt.compareSync(password,user.user_password || user.employee_password)) {
+        if (!bcrypt.compareSync(password,user.user_password || user.worker_password)) {
             return res.status(400).send({
                 status:"error",
                 message:"Contraseña incorrecta."
@@ -38,11 +38,11 @@ const LogIn = async(req,res) =>{
         }
 
         const objectUser = {
-            id:findUser !== null ? findUser._id : findEmployee._id,
-            name:findUser !== null ? findUser.user_name : findEmployee.employee_name,
-            last_name:findUser !== null ? findUser.user_last_name : findEmployee.employee_last_name,
-            email:findUser !== null ? findUser.user_email : findEmployee.employee_email,
-            role: findUser !== null ? 'usuario' : findEmployee.employee_role
+            id:findUser !== null ? findUser._id : findWorker._id,
+            name:findUser !== null ? findUser.user_name : findWorker.worker_name,
+            last_name:findUser !== null ? findUser.user_last_name : findWorker.worker_last_name,
+            email:findUser !== null ? findUser.user_email : findWorker.worker_email,
+            role: findUser !== null ? 'usuario' : findWorker.worker_role
         }
 
         const token = jwt.sign(objectUser,process.env.SECRET,{

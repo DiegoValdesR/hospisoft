@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 import { ScheduleModel } from "../../models/schedule/schedule.js"
-import { EmployeeModel } from "../../models/employees/employees.js"
+import { WorkerModel } from "../../models/workers/workers.js"
 import { Validations } from "../../validations/index.js"
 
 const AllSchedules = async(req,res)=>{
@@ -18,7 +18,7 @@ const AllSchedules = async(req,res)=>{
     }
 }
 
-const ScheduleByEmployee = async(req,res)=>{
+const ScheduleByWorker = async(req,res)=>{
     const {id} = req.params
 
     try {
@@ -48,7 +48,7 @@ const ScheduleByEmployee = async(req,res)=>{
 
 const InsertSchedule = async(req,res)=>{
     const data = {
-        employee_id:req.body.employee_id,
+        worker_id:req.body.worker_id,
         schedule_date:req.body.schedule_date,
         hour_start:req.body.hour_start,
         hour_end:req.body.hour_end,
@@ -76,13 +76,13 @@ const InsertSchedule = async(req,res)=>{
     }
 
     try {
-        data.employee_id = mongoose.Types.ObjectId.createFromHexString(data.employee_id)
-        const findEmployee = await EmployeeModel.findOne({
-            "_id":data.employee_id,
+        data.worker_id = mongoose.Types.ObjectId.createFromHexString(data.worker_id)
+        const findWorker = await WorkerModel.findOne({
+            "_id":data.worker_id,
             "employee_state":"active"
         })
 
-        if (!findEmployee) {
+        if (!findWorker) {
             return res.status(404).send({
                 status:"error",
                 message:"No se encontró el empleado."
@@ -107,7 +107,7 @@ const InsertSchedule = async(req,res)=>{
 const UpdateSchedule = async(req,res)=>{
     let {id} = req.params
     const data = {
-        employee_id:req.body.employee_id,
+        worker_id:req.body.worker_id,
         schedule_date:req.body.schedule_date,
         hour_start:req.body.hour_start,
         hour_end:req.body.hour_end,
@@ -124,14 +124,14 @@ const UpdateSchedule = async(req,res)=>{
 
     try {
         id = mongoose.Types.ObjectId.createFromHexString(id)
-        data.employee_id = mongoose.Types.ObjectId.createFromHexString(data.employee_id)
+        data.worker_id = mongoose.Types.ObjectId.createFromHexString(data.worker_id)
 
-        const findEmployee = await EmployeeModel.findOne({
-            "_id":data.employee_id,
+        const findWorker = await WorkerModel.findOne({
+            "_id":data.worker_id,
             "employee_state":"active"
         })
 
-        if (!findEmployee) {
+        if (!findWorker) {
             return res.status(404).send({
                 status:"error",
                 message:"No se encontró el empleado."
@@ -185,7 +185,7 @@ const DeactivateSchedule = async(req,res)=>{
 
 export const ScheduleMethods = {
     AllSchedules,
-    ScheduleByEmployee,
+    ScheduleByWorker,
     InsertSchedule,
     UpdateSchedule,
     DeactivateSchedule

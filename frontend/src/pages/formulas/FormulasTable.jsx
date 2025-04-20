@@ -1,20 +1,16 @@
 import { useState,useEffect } from "react"
 import { API_URL } from "../../API_URL.js"
-import { ShowUserModal } from "./modals/ShowUserModal.jsx"
-import { ManageUsersModal } from "./modals/ManageUsersModal.jsx"
+import { ManageItemsModal } from "./modals/ManageItemsModal.jsx"
 import Swal from 'sweetalert2'
 import { Button, Card, Row, Table } from "react-bootstrap"
 
-export const UsersTable = ()=>{
-    const [users,setUsers] = useState([])
-    const [userId,setUserId] = useState("")
-    const [idInfo,setIdInfo] = useState("")
-    //para mostrar la modal de insertar/actualizar usuario
+export const FormulasTable = ()=>{
+    const [formulas,setFormulas] = useState([])
+    const [formulaId,setFormulaId] = useState("")
+    //para mostrar la modal de insertar/actualizar
     const [modalData,setModalData] = useState(false)
-    //modal para mostrar toda la informacion del usuario
-    const [modalInfo,setModalInfo] = useState(false)
-    
-    const getAllUsers = async()=>{
+
+    const getAllFormulas = async()=>{
         Swal.fire({
             title:"Cargando...",
             didOpen:()=>{
@@ -22,67 +18,66 @@ export const UsersTable = ()=>{
             }
         })
 
-        const allUsers = await fetch(API_URL + '/users/all').then(res => res.json())
-        if (allUsers && allUsers.status === "completed") {
-            setUsers(allUsers.data)
+        const allFormulas = await fetch(API_URL + '/formulas/all').then(res => res.json())
+        if (allFormulas && allFormulas.status === "completed") {
+            const arrayFormulas = []
+            
+            allFormulas.map((element)=>{
+                const data = {
+                    formula_date : element.formula_date.split("T")[0]
+                }
+            })
+
             Swal.close()
             return
         }
     }
 
-    const deactivateUser = async(userId)=>{
+    const deactivateFormula = async(itemId)=>{
         Swal.fire({
-            title:"¿Está seguro de desactivar este usuario?",
+            title:"¿Está seguro de eliminar esta fórmula?",
             showCancelButton:true,
             showConfirmButton:true,
             confirmButtonColor:"#dc3545",
             confirmButtonText:"Aceptar"
+
         }).then(async result =>{
             if (result.isConfirmed) {
-                const deleteUser = await fetch(API_URL + '/users/delete/'+userId,{
+                const deleteItems = await fetch(API_URL + '/formulas/delete/'+itemId,{
                     method:"PATCH"
                 })
-                const responseJSON = await deleteUser.json()
-                
+                const responseJSON = await deleteItems.json()
+
                 if (responseJSON) {
                     if (responseJSON.status === "completed") {
-                        await getAllUsers()
+                        await getAllFormulas()
                     }
 
                     Swal.fire({
-                        title:"Completado",
+                        title:responseJSON.status === "completed" ? "Completado" : "Error",
                         text:responseJSON.message
                     })
-                    
+
                     return
                 }
-
             }
         })
     }
 
     useEffect(()=>{
-        getAllUsers()
+        getAllFormulas()
     },[])
     
     return (
         <>
-            <ShowUserModal
-            modalInfo={modalInfo}
-            setModalInfo={setModalInfo}
-            idInfo={idInfo}
-            setIdInfo={setIdInfo}
-            >
-            </ShowUserModal>
-
-            <ManageUsersModal
+            <ManageItemsModal
             modalData={modalData}
             setModalData={setModalData}
-            userId={userId}
-            setUserId={setUserId}
-            setUsers={setUsers}
+            itemId={itemId}
+            setItemId={setItemId}
+            setItems={setItems}
             >
-            </ManageUsersModal>
+            </ManageItemsModal>
 
             <Row className="w-100">
             <Card>
@@ -99,47 +94,42 @@ export const UsersTable = ()=>{
                 </Card.Title>
 
                 <Card.Body>
-                    {users.length > 0 ? (
+                    {items.length > 0 ? (
                     <Row className="table-responsive text-center">
                         <Table hover>
                             <thead>
                                 <tr>
                                     <th>NOMBRE</th>
-                                    <th>APELLIDO</th>
+                                    <th>DESCRIPCIÓN</th>
+                                    <th>STOCK</th>
+                                    <th>PRECIO</th>
                                     <th>ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.map(user =>{
+                                {items.map(item =>{
                                 return (
-                                <tr key={user._id}>
-                                    <td>{user.user_name}</td>
-                                    <td>{user.user_last_name}</td>
+                                <tr key={item._id}>
+                                    <td>{item.item_name}</td>
+                                    <td>{item.item_description}</td>
+                                    <td>{item.item_stock}</td>
+                                    <td>{item.item_price}</td>
                                     <td>
-                                    {/* VER DETALLES USUARIO */}
+                                      
+                                    {/* EDITAR ITEM */}
                                     <span className="p-1">
-                                        <button className="btn btn-secondary" title="Ver más detalles"
+                                        <button className="btn btn-primary" title="Editar medicamento"
                                         onClick={()=>{
-                                            setIdInfo(user["_id"])
-                                        }}>
-                                             <i className="bi bi-eye"></i>
-                                        </button>
-                                    </span>
-                                            
-                                    {/* EDITAR USUARIO */}
-                                    <span className="p-1">
-                                        <button className="btn btn-primary" title="Editar usuario"
-                                        onClick={()=>{
-                                            setUserId(user["_id"])
+                                            setItemId(item["_id"])
                                         }}>
                                             <i className="bi bi-pencil-square"></i>
                                         </button>
                                     </span>
                                                     
-                                    {/* DESACTIVAR USUARIO */}
+                                    {/* ELIMINAR ITEM */}
                                     <span className="p-1">
-                                        <button className="btn btn-danger" title="Eliminar usuario"
-                                        onClick={()=>{deactivateUser(user["_id"])}}>
+                                        <button className="btn btn-danger" title="Eliminar medicamento"
+                                        onClick={()=>{deleteItem(item["_id"])}}>
                                             <i className="bi bi-trash3"></i>
                                         </button>
                                     </span>
@@ -151,7 +141,7 @@ export const UsersTable = ()=>{
                         </Table>
                     </Row>
                     ) : (
-                        <p className="text-center text-dark">No hay usuarios...</p>
+                        <p className="text-center text-dark">No hay medicamentos...</p>
                     )}
                 </Card.Body>
             </Card> 

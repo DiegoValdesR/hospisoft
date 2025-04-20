@@ -3,7 +3,7 @@ import express from 'express'
 const router = express.Router()
 
 router.get('/schedules/all',ScheduleMethods.AllSchedules)
-router.get('/schedules/byemployee/:id',ScheduleMethods.ScheduleByEmployee)
+router.get('/schedules/byemployee/:id',ScheduleMethods.ScheduleByWorker)
 router.post('/schedules/new',ScheduleMethods.InsertSchedule)
 router.put('/schedules/update/:id',ScheduleMethods.UpdateSchedule)
 router.patch('/schedules/deactivate/:id',ScheduleMethods.DeactivateSchedule)

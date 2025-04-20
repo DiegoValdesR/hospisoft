@@ -1,6 +1,6 @@
 import { MedicalModel } from "../../models/medicalHistory/medicalHistory.js"
 import { UsersModel } from "../../models/user/user.js"
-import { EmployeeModel } from "../../models/employees/employees.js"
+import { WorkerModel } from "../../models/workers/workers.js"
 import { Types } from "mongoose"
 const AllMedicalHistory = async(req,res)=>{
     try {
@@ -79,10 +79,10 @@ const InsertMedicalHistory = async(req,res)=>{
             })
         }
 
-        const findDoctor  = await EmployeeModel.findOne({
+        const findDoctor  = await WorkerModel.findOne({
             "_id":data.doctor_id,
-            "employee_role":"medico",
-            "employee_state":"active"
+            "worker_role":"medico",
+            "worker_state":"active"
         })
 
         if (!findDoctor) {

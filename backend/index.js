@@ -13,7 +13,7 @@ MongoDbConnection()
 
 //RUTAS
 import UserRoutes from './routes/user/user.js'
-import EmployeesRoutes from './routes/employees/employees.js'
+import WorkersRoutes from './routes/workers/workers.js'
 import ItemsRoutes from './routes/item/item.js'
 import DetailsRoutes from './routes/detailsFormula/details.js'
 import FormulaRoutes from './routes/formula/formula.js'
@@ -31,7 +31,7 @@ app.use('/api',EmailRoutes)
 
 //cada metodo desde aqui usa el middleware
 app.use('/api',UserRoutes)
-app.use('/api',EmployeesRoutes)
+app.use('/api',WorkersRoutes)
 app.use('/api',ItemsRoutes)
 app.use('/api',DetailsRoutes)
 app.use('/api',FormulaRoutes)

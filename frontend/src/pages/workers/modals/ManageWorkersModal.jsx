@@ -5,25 +5,26 @@ import {Modal,Button,ModalBody,ModalHeader,Form,Row} from 'react-bootstrap'
 /**
  * @param modalData Variable bool que maneja si se muestra o no la modal
  * @param setModalData Funcion que cambia de true a false y viceversa la variable 'showModal'
- * @param userId self explanatory
- * @param setUserId Método de 'UsersTable' que cambia el id del usuario, lo uso para cuando cierro la modal
- * @param setUsers Método de 'UsersTable', la uso 
+ * @param workerId self explanatory
+ * @param setworkerId Método de 'WorkersTable' que cambia el id del empleado, lo uso para cuando cierro la modal
+ * @param setWorkers Método de 'WorkersTable', la uso 
  * para volver a cargar la tabla con los nuevos cambios
  */
-export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserId, setUsers})=>{
-    const [userById,setUserById] = useState({})
+export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setWorkerId, setWorkers})=>{
+    const [workerById,setWorkerById] = useState({})
+    const [disabled,setDisabled] = useState(true)
 
-    const GetUserById = async() =>{
+    const GetWorkerById = async() =>{
         Swal.fire({
-            title:"Cargando usuario...",
+            title:"Cargando empleado...",
             didOpen:()=>{
                 Swal.isLoading()
             }
         })
 
-        const user = await fetch(API_URL + '/users/byid/'+userId).then(res => res.json())
-        if (user && user.status === "completed") {
-            setUserById(user.data)
+        const worker = await fetch(API_URL + '/workers/byid/'+workerId).then(res => res.json())
+        if (worker && worker.status === "completed") {
+            setWorkerById(worker.data)
             setModalData(true)
             Swal.close()
             return
@@ -32,16 +33,33 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
 
     const handleHide = ()=>{
         setModalData(false)
-        setUserId("")
-        
+        setWorkerId("")
         return
     }
 
-    useEffect(()=>{
-        if (userId.length === 24) {
-            GetUserById()
+    const handleShow = ()=>{
+        if (workerId.length === 24 && workerById.worker_role === "medico") {
+            setDisabled(false)
+            return
         }
-    },[userId])
+        setDisabled(true)
+    }
+
+    const handleRole = (e)=>{
+        const role = e.target.value
+        if(role === "medico"){
+            setDisabled(false)
+            return 
+        }
+
+        setDisabled(true)
+    }
+
+    useEffect(()=>{
+        if (workerId.length === 24) {
+            GetWorkerById()
+        }
+    },[workerId])
 
     const handleSubmit = async(e)=>{
         e.preventDefault()
@@ -49,16 +67,17 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
         const formData = new FormData(form)
 
         const data = {
-            user_name:formData.get("user_name"),
-            user_last_name:formData.get("user_last_name"),
-            user_email:formData.get("user_email"),
-            user_password:formData.get("user_password"),
-            user_phone_number:formData.get("user_phone_number"),
-            user_birthdate:formData.get("user_birthdate"),
-            user_eps:formData.get("user_eps"),
+            worker_name:formData.get("worker_name"),
+            worker_last_name:formData.get("worker_last_name"),
+            worker_email:formData.get("worker_email"),
+            worker_password:formData.get("worker_password"),
+            worker_phone_number:formData.get("worker_phone_number"),
+            worker_birthdate:formData.get("worker_birthdate"),
+            worker_role:formData.get("worker_role"),
+            worker_speciality:formData.get("worker_speciality")
         }
 
-        switch (userId.length) {
+        switch (workerId.length) {
             case 0:
                 Swal.fire({
                     title:"Procesando información...",
@@ -66,7 +85,7 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
                         Swal.isLoading()
                     }
                 })
-                const insert = await fetch(API_URL + `/users/new`,{
+                const insert = await fetch(API_URL + `/workers/new`,{
                     method:"POST",
                     headers:{
                         "Content-Type":"application/json"
@@ -84,9 +103,9 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
                     })
 
                     if (insertJSON.status === "completed") {
-                        const allUsers = await fetch(API_URL + '/users/all').then(res => res.json())
-                        if (allUsers && allUsers.status === "completed") {
-                            setUsers(allUsers.data)
+                        const allWorkers = await fetch(API_URL + '/workers/all').then(res => res.json())
+                        if (allWorkers && allWorkers.status === "completed") {
+                            setWorkers(allWorkers.data)
                             handleHide()
                             return
                         }
@@ -95,15 +114,15 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
                 break;
             
             case 24:
-                delete data.user_password
-                delete data.user_birthdate
+                delete data.worker_password
+                delete data.worker_birthdate
                 Swal.fire({
                     title:"Procesando información...",
                     didOpen:()=>{
                         Swal.isLoading()
                     }
                 })
-                const update = await fetch(API_URL + `/users/update/${userId}`,{
+                const update = await fetch(API_URL + `/workers/update/${workerId}`,{
                     method:"PUT",
                     headers:{
                         "Content-Type":"application/json"
@@ -121,9 +140,9 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
                     })
 
                     if (updateJSON.status === "completed") {
-                        const allUsers = await fetch(API_URL + '/users/all').then(res => res.json())
-                        if (allUsers && allUsers.status === "completed") {
-                            setUsers(allUsers.data)
+                        const allWorkers = await fetch(API_URL + '/workers/all').then(res => res.json())
+                        if (allWorkers && allWorkers.status === "completed") {
+                            setWorkers(allWorkers.data)
                             handleHide()
                             return
                         }
@@ -145,108 +164,120 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
     }
 
     return (
-        <Modal centered className="fade" onHide={handleHide} show={modalData}>
+        <Modal centered className="fade" onHide={handleHide} show={modalData}
+        onShow={handleShow}>
             <ModalHeader className="d-flex flex-row justify-content-between">
                 <Modal.Title>
-                    {userId === "" ? "Insertar" : "Actualizar"} usuario
+                    {workerId === "" ? "Insertar" : "Actualizar"} empleado
                 </Modal.Title>
                 <i role="button" className="text-danger fs-4 bi bi-x-circle"
                 onClick={handleHide}></i>
             </ModalHeader>
             <ModalBody>
-                <Form onSubmit={handleSubmit} id="userForm">
+                <Form onSubmit={handleSubmit}>
                     <Row className="mb-3">
                         <Form.Group>
-                            <Form.Label className="text-dark">Nombre del usuario</Form.Label>
+                            <Form.Label className="text-dark">Nombre del empleado</Form.Label>
                             <Form.Control
                             required
-                            name="user_name"
+                            name="worker_name"
                             type="text"
-                            placeholder="Ej: Hannah"
-                            defaultValue={userId !== "" ? userById.user_name : ""} 
+                            placeholder="Ej: Paco"
+                            defaultValue={workerId !== "" ? workerById.worker_name : ""} 
                             ></Form.Control>
                         </Form.Group>
                     </Row>
 
                     <Row className="mb-3">
                         <Form.Group>
-                            <Form.Label className="text-dark">Apellido del usuario</Form.Label>
+                            <Form.Label className="text-dark">Apellido del empleado</Form.Label>
                             <Form.Control
                             required
-                            name="user_last_name"
+                            name="worker_last_name"
                             type="text"
-                            placeholder="Ej: Montana"
-                            defaultValue={userId !== "" ? userById.user_last_name : ""} 
+                            placeholder="Ej: García"
+                            defaultValue={workerId !== "" ? workerById.worker_last_name : ""} 
                             ></Form.Control>
                         </Form.Group>
                     </Row>
 
+                    {workerId.length === 0 ? (
+                        <Row className="mb-3">
+                            <Form.Group>
+                                <Form.Label className="text-dark">Fecha de nacimiento del empleado</Form.Label>
+                                <Form.Control
+                                required
+                                name="worker_birthdate"
+                                type="date"
+                                ></Form.Control>
+                            </Form.Group>
+                        </Row>
+                    ) : ""}
+
                     <Row className="mb-3">
                         <Form.Group>
-                            <Form.Label className="text-dark">Correo del usuario</Form.Label>
+                            <Form.Label className="text-dark">Correo del empleado</Form.Label>
                             <Form.Control
                             required
-                            name="user_email"
+                            name="worker_email"
                             type="email"
                             placeholder="Ej: example@gmail.com"
-                            defaultValue={userId !== "" ? userById.user_email : ""} 
+                            defaultValue={workerId !== "" ? workerById.worker_email : ""} 
                             ></Form.Control>
                         </Form.Group>
                     </Row>
 
-                    {userId.length === 0 ? (
+                    {workerId.length === 0 ? (
                         <Row className="mb-3">
                         <Form.Group>
-                            <Form.Label className="text-dark">Contraseña del usuario</Form.Label>
+                            <Form.Label className="text-dark">Contraseña del empleado</Form.Label>
                             <Form.Control
                             required
                             minLength={6}
-                            name="user_password"
+                            name="worker_password"
                             type="password"
                             ></Form.Control>
                             <small className="mt-2">Debe tener al menos 6 digitos.</small>
                         </Form.Group>
                         </Row>
                     ) : ""}
-                    
+                   
                     <Row className="mb-3">
                         <Form.Group>
-                            <Form.Label className="text-dark">Número telefónico del usuario</Form.Label>
+                            <Form.Label className="text-dark">Número telefónico del empleado</Form.Label>
                             <Form.Control
                             required
-                            name="user_phone_number"
+                            name="worker_phone_number"
                             type="text"
                             minLength={10}
                             maxLength={10}
                             placeholder="Ej: 321801****"
-                            defaultValue={userId !== "" ? userById.user_phone_number : ""} 
+                            defaultValue={workerId !== "" ? workerById.worker_phone_number : ""} 
                             ></Form.Control>
                         </Form.Group>
                     </Row>
-
-                    {userId.length === 0 ? (
-                        <Row className="mb-3">
-                            <Form.Group>
-                                <Form.Label className="text-dark">Fecha de nacimiento del usuario</Form.Label>
-                                <Form.Control
-                                required
-                                name="user_birthdate"
-                                type="date"
-                                ></Form.Control>
-                            </Form.Group>
-                        </Row>
-                    ) : ""}
                     
                     <Row className="mb-3">
                         <Form.Group>
-                            <Form.Label className="text-dark">EPS del usuario</Form.Label>
-                            <Form.Control
-                            required
-                            name="user_eps"
-                            type="text"
-                            placeholder="Ej: Coosalud"
-                            defaultValue={userId !== "" ? userById.user_eps : ""} 
-                            ></Form.Control>
+                            <Form.Label className="text-dark">Rol del empleado</Form.Label>
+                            <Form.Select name="worker_role"
+                            defaultValue={workerId.length === 24 ? workerById.worker_role : ''}
+                            onChange={handleRole}>
+                                <option value="" selected>Seleccione un rol</option>
+                                <option value="medico">Médico</option>
+                                <option value="secretaria">Secretaria</option>
+                                <option value="farmaceutico">Farmacéutico </option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Row>
+
+                    <Row className="mb-3">
+                        <Form.Group>
+                            <Form.Label className="text-dark">Especialidad</Form.Label>
+                            <Form.Control disabled={disabled} type="text" placeholder="..."
+                            defaultValue={workerId.length === 24 ? workerById.worker_speciality : ''}
+                            name="worker_speciality">
+                            </Form.Control>
                         </Form.Group>
                     </Row>
 
