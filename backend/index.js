@@ -15,7 +15,6 @@ MongoDbConnection()
 import UserRoutes from './routes/user/user.js'
 import WorkersRoutes from './routes/workers/workers.js'
 import ItemsRoutes from './routes/item/item.js'
-import DetailsRoutes from './routes/detailsFormula/details.js'
 import FormulaRoutes from './routes/formula/formula.js'
 import AppointmentsRoutes from './routes/appointments/appointments.js'
 import SchedulesRoutes from './routes/schedules/schedules.js'
@@ -33,7 +32,6 @@ app.use('/api',EmailRoutes)
 app.use('/api',UserRoutes)
 app.use('/api',WorkersRoutes)
 app.use('/api',ItemsRoutes)
-app.use('/api',DetailsRoutes)
 app.use('/api',FormulaRoutes)
 app.use('/api',AppointmentsRoutes)
 app.use('/api',SchedulesRoutes)

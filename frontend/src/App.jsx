@@ -7,6 +7,7 @@ import { HomePage } from "./pages/home/HomePage"
 import { UsersPage } from "./pages/users/usersPage"
 import { WorkersPage } from './pages/workers/WorkersPage'
 import { ItemsPage } from "./pages/items/ItemsPage"
+import { FormulasPage } from "./pages/formulas/FormulasPage"
 //REACT-ROUTER-DOM THINGS
 import {Routes, Route} from 'react-router-dom'
 
@@ -22,7 +23,7 @@ function App() {
         <Route path="/usuarios" element={<UsersPage />}/>
         <Route path="/empleados" element={<WorkersPage />}/>
         <Route path="/medicamentos" element={<ItemsPage />}/>
-        <Route path="/formulas" element={<ItemsPage />}/>
+        <Route path="/formulas" element={<FormulasPage />}/>
       </Routes>
       
       <Footer></Footer>

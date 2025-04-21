@@ -1,10 +1,10 @@
 import { FormulaModel } from "../../models/formula/formula.js"
-import { DetailsModel } from "../../models/detailsFormula/details.js"
 import { UsersModel } from "../../models/user/user.js"
 import { WorkerModel } from "../../models/workers/workers.js"
-import { config } from "dotenv"
+import { ItemsModel } from "../../models/item/item.js"
+//validaciones
+import { Validations } from "../../validations/index.js"
 import mongoose from "mongoose"
-config()
 
 const AllFormulas = async(req,res)=>{
     try {
@@ -54,7 +54,9 @@ const FormulaById = async(req,res)=>{
 const InsertFormula = async(req,res)=>{
     const data = {
         patient_id : req.body.patient_id,
-        doctor_id : req.body.doctor_id
+        doctor_id : req.body.doctor_id,
+        items:req.body.items,
+        posology:req.body.posology
     }
 
     try {
@@ -82,8 +84,29 @@ const InsertFormula = async(req,res)=>{
             })
         }
 
+        //restar el stock a los items puestos en la formula
+        for(const object of data.items){
+            let {item_id,item_amount} = object
+            item_id = mongoose.Types.ObjectId.createFromHexString(item_id)
+            const findStock = await ItemsModel.findOne({
+                "_id":item_id
+            },'item_stock')
+            
+            const errorStock = await Validations.HasCorrectStock(item_id,item_amount)
+            if (errorStock.length !== 0) {
+                return res.status(400).send({
+                    status:"error",
+                    message:errorStock
+                })
+            }
+            
+            await ItemsModel.findOneAndUpdate({"_id":item_id},{"item_stock":findStock.item_stock - item_amount})
+        }
+
         const insert = new FormulaModel(data)
-        await insert.save()  
+        await insert.save()
+        
+
         return res.status(201).send({
             status:"completed",
             message:"Fórmula insertada!"
@@ -99,20 +122,17 @@ const InsertFormula = async(req,res)=>{
 
 const DeleteFormula = async(req,res)=>{
     const {id} = req.params
-
     try {
+        const formula = await FormulaModel.findOne({"_id":mongoose.Types.ObjectId.createFromHexString(id)})
 
-        const findDetails = await DetailsModel.findOne({
-            "details_consecutive":mongoose.Types.ObjectId.createFromHexString(id)
-        })
-        
-        if (findDetails) {
-            const API_URL = process.env.API_URL
-            await fetch(API_URL + `/details/delete/${findDetails._id.toString()}`,{
-                method:"PATCH"
-            })
+        for(const object of formula.items){
+            let {item_id,item_amount} = object
+            item_id = mongoose.Types.ObjectId.createFromHexString(item_id)
+            const findItem = await ItemsModel.findOne({"_id":item_id})
+
+            await ItemsModel.findOneAndUpdate({"_id":item_id},{"item_stock":findItem.item_stock + item_amount})
         }
-        
+
         await FormulaModel.findOneAndUpdate({
             "_id":mongoose.Types.ObjectId.createFromHexString(id)
         },{"formula_state":"inactive"})

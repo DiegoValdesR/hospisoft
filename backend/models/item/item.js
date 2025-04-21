@@ -1,6 +1,6 @@
 import {Schema, model } from "mongoose";
 
-export const ItemSchema = Schema(
+const ItemSchema = Schema(
     {
         item_name:{
             type:String,

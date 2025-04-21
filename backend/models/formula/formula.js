@@ -16,6 +16,24 @@ export const FormulaSchema = Schema(
             ref:"employees",
             required:true
         },
+        items:[
+            {
+                item_id:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref:"items",
+                    required:true   
+                },
+                item_amount:{
+                    type:Number,
+                    required:true,
+                    min:1
+                }
+            }
+        ],
+        posology:{
+            type:String,
+            required:true
+        },
         formula_state:{
             type:String,
             default:"active"
