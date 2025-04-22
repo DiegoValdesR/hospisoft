@@ -109,7 +109,7 @@ const InsertFormula = async(req,res)=>{
 
         return res.status(201).send({
             status:"completed",
-            message:"Fórmula insertada!"
+            message:"Fórmula creada correctamente!"
         })
 
     } catch (error) {
@@ -124,10 +124,10 @@ const DeleteFormula = async(req,res)=>{
     const {id} = req.params
     try {
         const formula = await FormulaModel.findOne({"_id":mongoose.Types.ObjectId.createFromHexString(id)})
-
+    
         for(const object of formula.items){
             let {item_id,item_amount} = object
-            item_id = mongoose.Types.ObjectId.createFromHexString(item_id)
+
             const findItem = await ItemsModel.findOne({"_id":item_id})
 
             await ItemsModel.findOneAndUpdate({"_id":item_id},{"item_stock":findItem.item_stock + item_amount})

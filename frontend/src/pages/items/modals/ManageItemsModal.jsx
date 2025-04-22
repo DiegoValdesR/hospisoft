@@ -17,7 +17,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
         Swal.fire({
             title:"Cargando medicamento...",
             didOpen:()=>{
-                Swal.isLoading()
+                Swal.showLoading()
             }
         })
 
@@ -58,7 +58,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
         Swal.fire({
             title:"Procesando información...",
             didOpen:()=>{
-                Swal.isLoading()
+                Swal.showLoading()
             }
         })
 

@@ -18,7 +18,7 @@ export const UsersTable = ()=>{
         Swal.fire({
             title:"Cargando...",
             didOpen:()=>{
-                Swal.isLoading()
+                Swal.showLoading()
             }
         })
 
@@ -39,11 +39,19 @@ export const UsersTable = ()=>{
             confirmButtonText:"Aceptar"
         }).then(async result =>{
             if (result.isConfirmed) {
+                Swal.fire({
+                    title:"Procesando...",
+                    didOpen:()=>{
+                        Swal.showLoading()
+                    }
+                })
+
                 const deleteUser = await fetch(API_URL + '/users/delete/'+userId,{
                     method:"PATCH"
                 })
                 const responseJSON = await deleteUser.json()
                 
+                Swal.close()
                 if (responseJSON) {
                     if (responseJSON.status === "completed") {
                         await getAllUsers()
@@ -53,8 +61,6 @@ export const UsersTable = ()=>{
                         title:"Completado",
                         text:responseJSON.message
                     })
-                    
-                    return
                 }
 
             }
@@ -84,7 +90,6 @@ export const UsersTable = ()=>{
             >
             </ManageUsersModal>
 
-            <Row className="w-100">
             <Card>
                 <Card.Title className="d-flex">
                     <Row className="ms-4">
@@ -155,7 +160,6 @@ export const UsersTable = ()=>{
                     )}
                 </Card.Body>
             </Card> 
-            </Row>
         </>
     )
 

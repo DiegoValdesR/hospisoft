@@ -18,7 +18,7 @@ export const WorkersTable = ()=>{
         Swal.fire({
             title:"Cargando...",
             didOpen:()=>{
-                Swal.isLoading()
+                Swal.showLoading()
             }
         })
 
@@ -39,11 +39,18 @@ export const WorkersTable = ()=>{
             confirmButtonText:"Aceptar"
         }).then(async result =>{
             if (result.isConfirmed) {
+                Swal.fire({
+                    title:"Procesando...",
+                     didOpen:()=>{
+                        Swal.showLoading()
+                    }
+                })
                 const deactivateWorker = await fetch(API_URL + '/workers/delete/'+workerId,{
                     method:"PATCH"
                 })
                 const responseJSON = await deactivateWorker.json()
-
+                Swal.close()
+                
                 if (responseJSON) {
                     if (responseJSON.status === "completed") {
                         await getAllWorkers()
@@ -53,7 +60,7 @@ export const WorkersTable = ()=>{
                         title:responseJSON.status === "completed" ? "Completado" : "Error",
                         text:responseJSON.message
                     })
-                    return
+                    
                 }
                 
             }
@@ -83,7 +90,6 @@ export const WorkersTable = ()=>{
             >
             </ManageWorkersModal>
 
-            <Row className="w-100">
             <Card>
                 <Card.Title className="d-flex">
                     <Row className="ms-4">
@@ -154,7 +160,6 @@ export const WorkersTable = ()=>{
                     )}
                 </Card.Body>
             </Card> 
-            </Row>
         </>
     )
 

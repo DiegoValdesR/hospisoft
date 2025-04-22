@@ -18,7 +18,7 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
         Swal.fire({
             title:"Cargando empleado...",
             didOpen:()=>{
-                Swal.isLoading()
+                Swal.showLoading()
             }
         })
 
@@ -82,7 +82,7 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                 Swal.fire({
                     title:"Procesando información...",
                     didOpen:()=>{
-                        Swal.isLoading()
+                        Swal.showLoading()
                     }
                 })
                 const insert = await fetch(API_URL + `/workers/new`,{
@@ -119,7 +119,7 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                 Swal.fire({
                     title:"Procesando información...",
                     didOpen:()=>{
-                        Swal.isLoading()
+                        Swal.showLoading()
                     }
                 })
                 const update = await fetch(API_URL + `/workers/update/${workerId}`,{

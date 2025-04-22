@@ -4,7 +4,7 @@ export const FormulaSchema = Schema(
     {
         formula_date:{
             type:Date,
-            default:new Date()
+            default:Date.now
         },
         patient_id:{
             type:mongoose.Schema.Types.ObjectId,

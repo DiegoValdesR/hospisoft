@@ -3,6 +3,7 @@ import { API_URL } from "../../API_URL.js"
 import Swal from 'sweetalert2'
 import { Button, Card, Row, Table } from "react-bootstrap"
 import { ManageFormulaModal } from "./modals/ManageFormulaModal.jsx"
+import { ShowFormula } from "./modals/ShowFormula.jsx"
 //libreria para manejar fechas, se llama momentjs
 import moment from 'moment'
 
@@ -11,34 +12,37 @@ export const FormulasTable = ()=>{
     const [formulaId,setFormulaId] = useState("")
     //para mostrar la modal de insertar/actualizar
     const [modalData,setModalData] = useState(false)
+    const [modalInfo,setModalInfo] = useState(false)
 
     const getAllFormulas = async()=>{
         Swal.fire({
             title:"Cargando...",
             didOpen:()=>{
-                Swal.isLoading()
+                Swal.showLoading()
             }
         })
 
         const allFormulas = await fetch(API_URL + '/formulas/all').then(res => res.json())
+        const arrayFormulas = []
+
         if (allFormulas && allFormulas.status === "completed") {
 
             if (allFormulas.data.length > 0) {
-                const arrayFormulas = []
-            
-                allFormulas.data.map(async(element)=>{
+
+                for(const object of allFormulas.data){
                     //información del paciente
-                    const paciente = await fetch(API_URL + `/users/byid/${element.patient_id}`)
+                    const paciente = await fetch(API_URL + `/users/byid/${object.patient_id}`)
                     const pacienteJSON = await paciente.json()
                     //información del médico encargado
-                    const medico = await fetch(API_URL + `/workers/byid/${element.doctor_id}`)
+                    const medico = await fetch(API_URL + `/workers/byid/${object.doctor_id}`)
                     const medicoJSON = await medico.json()
 
-                    const formulaDate = moment(element.formula_date).format('YYYY/MM/DD')
-                    const hourDate = moment(element.formula_date).format('LT')
+                    const formulaDate = moment(object.formula_date).format('DD/MM/YYYY')
+                    
+                    const hourDate = moment(object.formula_date).format('LT')
 
                     const data = {
-                        _id:element._id,
+                        _id:object._id,
                         date : formulaDate,
                         time : hourDate,
                         patient:`${pacienteJSON.data.user_name} ${pacienteJSON.data.user_last_name}`,
@@ -47,20 +51,19 @@ export const FormulasTable = ()=>{
     
                     //Añadimos el objeto al array
                     arrayFormulas.push(data)
-                    setFormulas(arrayFormulas)
-                    
-                })
-    
-                Swal.close()
+                }
             }
-           
-            return
         }
+
+        setFormulas(arrayFormulas)
+
+        Swal.close()
+        return
     }
 
     const deactivateFormula = async(formulaId)=>{
         Swal.fire({
-            title:"¿Está seguro de eliminar esta fórmula?",
+            title:"¿Está seguro de desactivar esta fórmula?",
             showCancelButton:true,
             showConfirmButton:true,
             confirmButtonColor:"#dc3545",
@@ -68,10 +71,19 @@ export const FormulasTable = ()=>{
 
         }).then(async result =>{
             if (result.isConfirmed) {
+                
+                Swal.fire({
+                    title:"Procesando...",
+                    didOpen:()=>{
+                        Swal.showLoading()
+                    }
+                })
+
                 const deactivateFormula = await fetch(API_URL + '/formulas/delete/'+formulaId,{
                     method:"PATCH"
                 })
                 const responseJSON = await deactivateFormula.json()
+                Swal.close()
 
                 if (responseJSON) {
                     if (responseJSON.status === "completed") {
@@ -82,8 +94,6 @@ export const FormulasTable = ()=>{
                         title:responseJSON.status === "completed" ? "Completado" : "Error",
                         text:responseJSON.message
                     })
-
-                    return
                 }
             }
         })
@@ -100,6 +110,12 @@ export const FormulasTable = ()=>{
             setModalData={setModalData}
             getAllFormulas={getAllFormulas}>
             </ManageFormulaModal>
+
+            <ShowFormula formulaId={formulaId} 
+            setFormulaId={setFormulaId}
+            modalInfo={modalInfo} setModalInfo={setModalInfo}>
+            </ShowFormula>
+
             <Card>
                 <Card.Title className="d-flex">
                     <Row className="ms-4">
@@ -137,7 +153,8 @@ export const FormulasTable = ()=>{
                                         <td>
                                             <span className="p-1">
                                                 <Button variant="secondary"
-                                                title="Ver detalles de la formula">
+                                                title="Ver detalles de la formula"
+                                                onClick={()=>{setFormulaId(formula["_id"])}}>
                                                     <i className="bi bi-eye"></i>
                                                 </Button>
                                             </span>

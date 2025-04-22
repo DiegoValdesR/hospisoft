@@ -14,7 +14,7 @@ export const ItemsTable = ()=>{
         Swal.fire({
             title:"Cargando...",
             didOpen:()=>{
-                Swal.isLoading()
+                Swal.showLoading()
             }
         })
 
@@ -36,10 +36,18 @@ export const ItemsTable = ()=>{
             confirmButtonText:"Aceptar"
         }).then(async result =>{
             if (result.isConfirmed) {
+                Swal.fire({
+                    title:"Procesando...",
+                    didOpen:()=>{
+                        Swal.showLoading()
+                    }
+                })
+
                 const deleteItems = await fetch(API_URL + '/items/delete/'+itemId,{
                     method:"DELETE"
                 })
                 const responseJSON = await deleteItems.json()
+                Swal.close()
 
                 if (responseJSON) {
                     if (responseJSON.status === "completed") {
@@ -72,7 +80,6 @@ export const ItemsTable = ()=>{
             >
             </ManageItemsModal>
 
-            <Row className="w-100">
             <Card>
                 <Card.Title className="d-flex">
                     <Row className="ms-4">
@@ -138,7 +145,6 @@ export const ItemsTable = ()=>{
                     )}
                 </Card.Body>
             </Card> 
-            </Row>
         </>
     )
 

@@ -17,7 +17,7 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
         Swal.fire({
             title:"Cargando usuario...",
             didOpen:()=>{
-                Swal.isLoading()
+                Swal.showLoading()
             }
         })
 
@@ -26,15 +26,12 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
             setUserById(user.data)
             setModalData(true)
             Swal.close()
-            return
         }
     }
 
     const handleHide = ()=>{
         setModalData(false)
         setUserId("")
-        
-        return
     }
 
     useEffect(()=>{
@@ -63,7 +60,7 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
                 Swal.fire({
                     title:"Procesando información...",
                     didOpen:()=>{
-                        Swal.isLoading()
+                        Swal.showLoading()
                     }
                 })
                 const insert = await fetch(API_URL + `/users/new`,{
@@ -100,7 +97,7 @@ export const ManageUsersModal = ({modalData, setModalData, userId = "", setUserI
                 Swal.fire({
                     title:"Procesando información...",
                     didOpen:()=>{
-                        Swal.isLoading()
+                        Swal.showLoading()
                     }
                 })
                 const update = await fetch(API_URL + `/users/update/${userId}`,{
