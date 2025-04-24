@@ -5,7 +5,7 @@ import { Button, Card, Row, Table } from "react-bootstrap"
 import { ManageFormulaModal } from "./modals/ManageFormulaModal.jsx"
 import { ShowFormula } from "./modals/ShowFormula.jsx"
 //libreria para manejar fechas, se llama momentjs
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 export const FormulasTable = ()=>{
     const [formulas,setFormulas] = useState([])
@@ -39,7 +39,7 @@ export const FormulasTable = ()=>{
 
                     const formulaDate = moment(object.formula_date).format('DD/MM/YYYY')
                     
-                    const hourDate = moment(object.formula_date).format('LT')
+                    const hourDate = moment(object.formula_date).format('hh:mm a')
 
                     const data = {
                         _id:object._id,

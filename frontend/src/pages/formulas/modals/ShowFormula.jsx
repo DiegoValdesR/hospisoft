@@ -1,69 +1,81 @@
 import { useState,useEffect } from "react"
 import { API_URL } from "../../../API_URL.js"
-import { Modal,ListGroup, Button, Row } from "react-bootstrap"
-import moment from "moment"
+import { Modal,ListGroup, Button } from "react-bootstrap"
+import moment from "moment-timezone"
 import Swal from "sweetalert2"
 
 export const ShowFormula = ({modalInfo,setModalInfo,formulaId = "",setFormulaId})=>{
+    
     const [formula,setFormula] = useState({})
 
     const getFormulaById = async()=>{
-        Swal.fire({
-            title:"Cargando fórmula...",
-            showConfirmButton:false,
-            didOpen:()=>{
-                Swal.showLoading()
-            }
-        })
-
-        const formula = await fetch(API_URL + `/formulas/byid/${formulaId}`)
-        const formulaJSON = await formula.json()
-        if (formulaJSON && formulaJSON.status === "completed") {
-            const paciente = await fetch(API_URL + `/users/byid/${formulaJSON.data.patient_id}`)
-            const pacienteJSON = await paciente.json()
-            //información del médico encargado
-            const medico = await fetch(API_URL + `/workers/byid/${formulaJSON.data.doctor_id}`)
-            const medicoJSON = await medico.json()
-
-            const formulaDate = moment(formulaJSON.data.formula_date).format('DD/MM/YYYY')
-            const hourDate = moment(formulaJSON.data.formula_date).format('LT')
-            //items asociados a la formula
-            const itemsArray = []
-            for(const object of formulaJSON.data.items){
-                const {item_id,item_amount} = object
-                const itemById = await fetch(API_URL + `/items/byid/${item_id}`)
-                const itemJSON = await itemById.json()
-
-                const itemInfo = {
-                    name: itemJSON.data.item_name,
-                    amount:item_amount
+        try {
+            Swal.fire({
+                title:"Cargando fórmula...",
+                showConfirmButton:false,
+                didOpen:()=>{
+                    Swal.showLoading()
                 }
-                itemsArray.push(itemInfo)
+            })
+
+            const formula = await fetch(API_URL + `/formulas/byid/${formulaId}`)
+            const formulaJSON = await formula.json()
+            if (formulaJSON && formulaJSON.status === "completed") {
+                const paciente = await fetch(API_URL + `/users/byid/${formulaJSON.data.patient_id}`)
+                const pacienteJSON = await paciente.json()
+                //información del médico encargado
+                const medico = await fetch(API_URL + `/workers/byid/${formulaJSON.data.doctor_id}`)
+                const medicoJSON = await medico.json()
+
+                //obtenemos la fecha de la formula
+                const formulaDate = moment(formulaJSON.data.formula_date)
+                //hora de la formula
+                const hourDate = formulaDate.format('hh:mm a')
+
+                //separamos el dia, mes y año de la fecha en un objeto
+                const dateObj = {
+                    day:formulaDate.format('DD'),
+                    month:formulaDate.format('MMMM'),
+                    year:formulaDate.format('YYYY')
+                }
+                
+                //items asociados a la formula
+                const itemsArray = []
+                for(const object of formulaJSON.data.items){
+                    const {item_id,item_amount} = object
+                    const itemById = await fetch(API_URL + `/items/byid/${item_id}`)
+                    const itemJSON = await itemById.json()
+
+                    const itemInfo = {
+                        name: itemJSON.data.item_name,
+                        amount:item_amount
+                    }
+                    itemsArray.push(itemInfo)
+                }
+
+                const data = {
+                    date : `${dateObj.day} de ${dateObj.month} del ${dateObj.year}`,
+                    time : hourDate,
+                    items:itemsArray,
+                    patient:`${pacienteJSON.data.user_name} ${pacienteJSON.data.user_last_name}`,
+                    doctor:`${medicoJSON.data.worker_name} ${medicoJSON.data.worker_last_name}`,
+                    posology:formulaJSON.data.posology
+                }
+                
+                setFormula(data)
+                setModalInfo(true)
             }
 
-            const data = {
-                date : formulaDate,
-                time : hourDate,
-                items:itemsArray,
-                patient:`${pacienteJSON.data.user_name} ${pacienteJSON.data.user_last_name}`,
-                doctor:`${medicoJSON.data.worker_name} ${medicoJSON.data.worker_last_name}`,
-                posology:formulaJSON.data.posology
-            }
-            
-            setFormula(data)
-            setModalInfo(true)
-        }
-
-        Swal.close()
-
-        if (!formulaJSON || formulaJSON.status === "error") {
+        } catch (error) {
+            console.error(error)
             Swal.fire({
                 title:"Error",
                 icon:"error",
-                text:"No se encontró la fórmula"
+                text:"Ocurió un error al intentar conseguir la formula"
             })
-        }
-        
+        }finally{
+            Swal.close()
+        } 
     }
 
     const handleHide = ()=>{

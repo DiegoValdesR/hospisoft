@@ -1,12 +1,20 @@
 import mongoose, { Schema,model } from "mongoose";
 
-const ScheduleSchema = Schema({
+const ScheduleSchema = Schema({    
+    title:{
+        type:String,
+        required:true
+    },
     worker_id:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"workers",
         required:true
     },
-    schedule_date:{
+    schedule_start_date:{
+        type:Date,
+        required:true
+    },
+    schedule_final_date:{
         type:Date,
         required:true
     },
