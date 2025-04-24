@@ -1,9 +1,9 @@
 import mongoose, { Schema,model } from "mongoose";
 
 const ScheduleSchema = Schema({
-    employee_id:{
+    worker_id:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"employees",
+        ref:"workers",
         required:true
     },
     schedule_date:{

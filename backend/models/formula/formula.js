@@ -13,7 +13,7 @@ export const FormulaSchema = Schema(
         },
         doctor_id:{
             type:mongoose.Schema.Types.ObjectId,
-            ref:"employees",
+            ref:"workers",
             required:true
         },
         items:[

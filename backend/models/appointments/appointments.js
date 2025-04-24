@@ -17,7 +17,7 @@ export const AppointmentSchema = Schema(
         },
         doctor_id:{
             type:mongoose.Schema.Types.ObjectId,
-            ref:"employees",
+            ref:"workers",
             required:true
         },
         appointment_state:{

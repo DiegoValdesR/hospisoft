@@ -1,0 +1,14 @@
+.select{
+    width: 200px !important;
+}
+@media only screen and (max-width:550px) {
+    .sche-header{
+        display: block !important;
+    }
+    .select{
+        width: 100% !important;
+    }
+    .btn-new{
+        margin-top: 20px ;
+    }
+}

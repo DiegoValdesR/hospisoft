@@ -36,7 +36,7 @@ const MedicalSchema = Schema({
     },
     doctor_id:{
         type:Schema.Types.ObjectId,
-        ref:"employees",
+        ref:"workers",
         required:true
     },
     state:{

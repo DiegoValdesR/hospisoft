@@ -8,7 +8,7 @@ export const Footer = ()=>{
                 <div className="copyright">
                     <p>
                         
-                        {currentYear.getFullYear()}&copy; Copyright <strong>NiceAdmin. </strong>Todos los derechos reservados
+                        {currentYear.getFullYear()} &copy; Copyright <strong>NiceAdmin. </strong>Todos los derechos reservados
                         
                     </p>
                 </div>

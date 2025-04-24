@@ -8,6 +8,7 @@ import { UsersPage } from "./pages/users/usersPage"
 import { WorkersPage } from './pages/workers/WorkersPage'
 import { ItemsPage } from "./pages/items/ItemsPage"
 import { FormulasPage } from "./pages/formulas/FormulasPage"
+import { SchedulesPage } from "./pages/schedules/SchedulesPage"
 //REACT-ROUTER-DOM THINGS
 import {Routes, Route} from 'react-router-dom'
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/empleados" element={<WorkersPage />}/>
         <Route path="/medicamentos" element={<ItemsPage />}/>
         <Route path="/formulas" element={<FormulasPage />}/>
+        <Route path="/horarios" element={<SchedulesPage />}/>
       </Routes>
       
       <Footer></Footer>

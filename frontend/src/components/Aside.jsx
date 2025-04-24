@@ -43,6 +43,13 @@ export const AsideBar = (select)=>{
                 </a>
             </li>
 
+            <li className="nav-item">
+                <a className="nav-link collapsed" href="/horarios">
+                    <i className="bi bi-calendar"></i>
+                    <span>Horarios</span>
+                </a>
+            </li>
+
             <li className="nav-heading">SESIÓN</li>
 
             <li className="nav-item">

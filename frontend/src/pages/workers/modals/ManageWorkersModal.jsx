@@ -261,9 +261,9 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                         <Form.Group>
                             <Form.Label className="text-dark">Rol del empleado</Form.Label>
                             <Form.Select name="worker_role"
-                            defaultValue={workerId.length === 24 ? workerById.worker_role : ''}
+                            defaultValue={workerId.length === 24 ? workerById.worker_role : ""}
                             onChange={handleRole}>
-                                <option value="" selected>Seleccione un rol</option>
+                                <option value = "">Seleccione un rol</option>
                                 <option value="medico">Médico</option>
                                 <option value="secretaria">Secretaria</option>
                                 <option value="farmaceutico">Farmacéutico </option>
