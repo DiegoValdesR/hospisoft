@@ -1,7 +1,7 @@
 import { useState,useEffect } from "react"
 import Swal from "sweetalert2"
 import { API_URL } from "../../../API_URL.js"
-import {Modal,Button,ModalBody,ModalHeader,Form,Row} from 'react-bootstrap'
+import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from 'react-bootstrap'
 /**
  * @param modalData Variable bool que maneja si se muestra o no la modal
  * @param setModalData Funcion que cambia de true a false y viceversa la variable 'showModal'
@@ -135,7 +135,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
     }
 
     return (
-        <Modal centered className="fade" onHide={handleHide} show={modalData}>
+        <Modal centered className="fade" onHide={handleHide} show={modalData} size="lg">
             <ModalHeader className="d-flex flex-row justify-content-between">
                 <Modal.Title>
                     {itemId === "" ? "Insertar" : "Actualizar"} medicamento
@@ -145,9 +145,11 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
             </ModalHeader>
             <ModalBody>
                 <Form onSubmit={handleSubmit}>
+
                     <Row className="mb-3">
+                        <Col>
                         <Form.Group>
-                            <Form.Label className="text-dark">Nombre del medicamento</Form.Label>
+                            <Form.Label className="text-dark">Nombre</Form.Label>
                             <Form.Control
                             required
                             name="item_name"
@@ -156,24 +158,10 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
                             defaultValue={itemId !== "" ? itemById.item_name : ""} 
                             ></Form.Control>
                         </Form.Group>
-                    </Row>
-
-                    <Row className="mb-3">
+                        </Col>
+                        <Col>
                         <Form.Group>
-                            <Form.Label className="text-dark">Descripción</Form.Label>
-                            <Form.Control
-                            as="textarea"
-                            name="item_description"
-                            type="text"
-                            defaultValue={itemId !== "" ? itemById.item_description : ""} 
-                            ></Form.Control>
-                            <small>(Opcional)</small>
-                        </Form.Group>
-                    </Row>
-
-                    <Row className="mb-3">
-                        <Form.Group>
-                            <Form.Label className="text-dark">Stock del medicamento</Form.Label>
+                            <Form.Label className="text-dark">Stock</Form.Label>
                             <Form.Control
                             required
                             name="item_stock"
@@ -183,11 +171,10 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
                             defaultValue={itemId !== "" ? itemById.item_stock : ""} 
                             ></Form.Control>
                         </Form.Group>
-                    </Row>
-
-                    <Row className="mb-3">
+                        </Col>
+                        <Col>
                         <Form.Group>
-                            <Form.Label className="text-dark">Precio de medicamento</Form.Label>
+                            <Form.Label className="text-dark">Precio</Form.Label>
                             <Form.Control
                             required
                             name="item_price"
@@ -195,6 +182,19 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
                             placeholder="0"
                             min={1}
                             defaultValue={itemId !== "" ? itemById.item_price : ""} 
+                            ></Form.Control>
+                        </Form.Group>
+                        </Col>
+                    </Row>
+
+                    <Row className="mb-3">
+                        <Form.Group>
+                            <Form.Label className="text-dark">Descripción <small className="text-secondary">(Opcional)</small></Form.Label>
+                            <Form.Control
+                            as="textarea"
+                            name="item_description"
+                            type="text"
+                            defaultValue={itemId !== "" ? itemById.item_description : ""} 
                             ></Form.Control>
                         </Form.Group>
                     </Row>
