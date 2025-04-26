@@ -149,7 +149,9 @@ export const Scheduler = ()=>{
         <ShowSchedule
         API_URL={API_URL}
         scheduleData={scheduleData}
-        setScheduleData={setScheduleData}></ShowSchedule>
+        setScheduleData={setScheduleData}
+        workers={workers}
+        getEvents={getEvents}></ShowSchedule>
         
         <Card>
             <Card.Header className='p-3'>

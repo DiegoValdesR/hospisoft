@@ -2,9 +2,7 @@ import { useState,useEffect } from "react"
 import Swal from "sweetalert2"
 import { Modal,Form,Row,Col,Button } from "react-bootstrap"
 
-export const UpdateSchedule = ({API_URL, scheduleData, setScheduleData, workers = [], getEvents})=>{
-
-    const [showModal,setShowModal] = useState(false)
+export const UpdateSchedule = ({API_URL, scheduleData, setScheduleData, workers = [], getEvents, showUpdate, setShowUpdate})=>{
 
     const handleSubmit = async(e)=>{
         e.preventDefault()
@@ -63,23 +61,13 @@ export const UpdateSchedule = ({API_URL, scheduleData, setScheduleData, workers 
 
     }
 
-    const handleShow = ()=>{
-        setShowModal(true)
-    }
-
     const handleHide = ()=>{
-        setShowModal(false)
+        setShowUpdate(false)
         setScheduleData({})
     }
 
-    useEffect(()=>{
-        if (Object.keys(scheduleData).length > 0) {
-            handleShow()
-        }
-    },[scheduleData])
-
     return (
-        <Modal centered onHide={handleHide} className="fade" show={showModal}>
+        <Modal centered onHide={handleHide} className="fade" show={showUpdate}>
             <Modal.Header className="d-flex flex-row justify-content-between">
                 <Modal.Title>Actualizar Horario</Modal.Title>
                 <i role="button" className="text-danger fs-4 bi bi-x-circle"
