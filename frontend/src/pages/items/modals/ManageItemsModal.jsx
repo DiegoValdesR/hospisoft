@@ -147,7 +147,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
                 <Form onSubmit={handleSubmit}>
 
                     <Row className="mb-3">
-                        <Col>
+                        <Col xs={12} sm={12} md={5} lg={5}>
                         <Form.Group>
                             <Form.Label className="text-dark">Nombre</Form.Label>
                             <Form.Control
@@ -159,7 +159,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
                             ></Form.Control>
                         </Form.Group>
                         </Col>
-                        <Col>
+                        <Col xs={5} sm={5} md={3} lg={3}>
                         <Form.Group>
                             <Form.Label className="text-dark">Stock</Form.Label>
                             <Form.Control

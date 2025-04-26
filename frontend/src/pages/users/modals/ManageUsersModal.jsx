@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { API_URL } from "../../../API_URL.js";
 import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from "react-bootstrap";
-import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
 /**
  * @param modalData Variable bool que maneja si se muestra o no la modal
  * @param setModalData Funcion que cambia de true a false y viceversa la variable 'showModal'
