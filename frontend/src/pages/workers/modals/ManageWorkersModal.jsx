@@ -1,7 +1,7 @@
 import { useState,useEffect } from "react"
 import Swal from "sweetalert2"
 import { API_URL } from "../../../API_URL.js"
-import {Modal,Button,ModalBody,ModalHeader,Form,Row} from 'react-bootstrap'
+import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from 'react-bootstrap'
 /**
  * @param modalData Variable bool que maneja si se muestra o no la modal
  * @param setModalData Funcion que cambia de true a false y viceversa la variable 'showModal'
@@ -164,7 +164,7 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
     }
 
     return (
-        <Modal centered className="fade" onHide={handleHide} show={modalData}
+        <Modal centered className="fade" onHide={handleHide} show={modalData} size="xl"
         onShow={handleShow}>
             <ModalHeader className="d-flex flex-row justify-content-between">
                 <Modal.Title>
@@ -176,8 +176,9 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
             <ModalBody>
                 <Form onSubmit={handleSubmit}>
                     <Row className="mb-3">
+                        <Col>
                         <Form.Group>
-                            <Form.Label className="text-dark">Nombre del empleado</Form.Label>
+                            <Form.Label className="text-dark">Nombre(s)</Form.Label>
                             <Form.Control
                             required
                             name="worker_name"
@@ -186,11 +187,11 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                             defaultValue={workerId !== "" ? workerById.worker_name : ""} 
                             ></Form.Control>
                         </Form.Group>
-                    </Row>
+                        </Col>
 
-                    <Row className="mb-3">
+                        <Col>
                         <Form.Group>
-                            <Form.Label className="text-dark">Apellido del empleado</Form.Label>
+                            <Form.Label className="text-dark">Apellidos</Form.Label>
                             <Form.Control
                             required
                             name="worker_last_name"
@@ -199,38 +200,45 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                             defaultValue={workerId !== "" ? workerById.worker_last_name : ""} 
                             ></Form.Control>
                         </Form.Group>
+                        </Col>
+
                     </Row>
 
                     {workerId.length === 0 ? (
                         <Row className="mb-3">
+                            <Col>
                             <Form.Group>
-                                <Form.Label className="text-dark">Fecha de nacimiento del empleado</Form.Label>
+                                <Form.Label className="text-dark">Fecha de nacimiento</Form.Label>
                                 <Form.Control
                                 required
                                 name="worker_birthdate"
                                 type="date"
                                 ></Form.Control>
                             </Form.Group>
-                        </Row>
-                    ) : ""}
-
-                    <Row className="mb-3">
-                        <Form.Group>
-                            <Form.Label className="text-dark">Correo del empleado</Form.Label>
+                            </Col>
+                            
+                            <Col>
+                            <Form.Group>
+                            <Form.Label className="text-dark">Número telefónico</Form.Label>
                             <Form.Control
                             required
-                            name="worker_email"
-                            type="email"
-                            placeholder="Ej: example@gmail.com"
-                            defaultValue={workerId !== "" ? workerById.worker_email : ""} 
+                            name="worker_phone_number"
+                            type="text"
+                            minLength={10}
+                            maxLength={10}
+                            placeholder="Ej: 321801****"
+                            defaultValue={workerId !== "" ? workerById.worker_phone_number : ""} 
                             ></Form.Control>
                         </Form.Group>
-                    </Row>
+                            </Col>
+
+                        </Row>
+                    ) : ""}
 
                     {workerId.length === 0 ? (
                         <Row className="mb-3">
                         <Form.Group>
-                            <Form.Label className="text-dark">Contraseña del empleado</Form.Label>
+                            <Form.Label className="text-dark">Contraseña</Form.Label>
                             <Form.Control
                             required
                             minLength={6}
@@ -243,23 +251,23 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                     ) : ""}
                    
                     <Row className="mb-3">
-                        <Form.Group>
-                            <Form.Label className="text-dark">Número telefónico del empleado</Form.Label>
+                    <Form.Group>
+                            <Form.Label className="text-dark">Correo</Form.Label>
                             <Form.Control
                             required
-                            name="worker_phone_number"
-                            type="text"
-                            minLength={10}
-                            maxLength={10}
-                            placeholder="Ej: 321801****"
-                            defaultValue={workerId !== "" ? workerById.worker_phone_number : ""} 
+                            name="worker_email"
+                            type="email"
+                            placeholder="Ej: example@gmail.com"
+                            defaultValue={workerId !== "" ? workerById.worker_email : ""} 
                             ></Form.Control>
                         </Form.Group>
+
                     </Row>
                     
                     <Row className="mb-3">
+                        <Col>
                         <Form.Group>
-                            <Form.Label className="text-dark">Rol del empleado</Form.Label>
+                            <Form.Label className="text-dark">Rol</Form.Label>
                             <Form.Select name="worker_role"
                             defaultValue={workerId.length === 24 ? workerById.worker_role : ""}
                             onChange={handleRole}>
@@ -269,9 +277,8 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                                 <option value="farmaceutico">Farmacéutico </option>
                             </Form.Select>
                         </Form.Group>
-                    </Row>
-
-                    <Row className="mb-3">
+                        </Col>
+                        <Col>
                         <Form.Group>
                             <Form.Label className="text-dark">Especialidad</Form.Label>
                             <Form.Control disabled={disabled} type="text" placeholder="..."
@@ -279,6 +286,8 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                             name="worker_speciality">
                             </Form.Control>
                         </Form.Group>
+                        </Col>
+
                     </Row>
 
                     <Modal.Footer>

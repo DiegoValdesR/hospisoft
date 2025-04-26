@@ -1,7 +1,7 @@
 import { useState,useEffect } from "react"
 import { API_URL } from "../../../API_URL"
 import Swal from "sweetalert2"
-import { Modal,ListGroup, Button} from "react-bootstrap"
+import { Modal,ListGroup, Button, Col} from "react-bootstrap"
 /**
  * 
  * @param modalInfo Bool que determina si se muestra o no la modal
