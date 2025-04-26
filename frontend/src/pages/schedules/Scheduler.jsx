@@ -5,6 +5,7 @@ import Swal from 'sweetalert2'
 //libreria para el calendario
 import {Calendar,momentLocalizer} from 'react-big-calendar'
 import { NewSchedule } from './modals/NewSchedule.jsx'
+import { ShowSchedule } from './modals/ShowSchedule.jsx'
 //libreria para manjear fechas
 import moment from 'moment-timezone'
 //css
@@ -14,7 +15,9 @@ import '../../assets/css/scheduler/scheduler.css'
 export const Scheduler = ()=>{
     //valor para obtener la fecha actual para el calendario
     const localizer = momentLocalizer(moment)
+    
     const [workers,setWorkers] = useState([])
+    const [scheduleData,setScheduleData] = useState({})
     const [showModal,setShowModal] = useState(false)
     const [events,setEvents] = useState([])
 
@@ -91,6 +94,16 @@ export const Scheduler = ()=>{
                 title:title,
                 start:start,
                 end:end,
+                schedule_data:{
+                    _id:schedule._id,
+                    worker_id:schedule.worker_id,
+                    title:schedule.title,
+                    schedule_start_date:schedule_start_date.split("T")[0],
+                    schedule_final_date:schedule_final_date.split("T")[0],
+                    hour_start:hourStart,
+                    hour_end:hourEnd,
+                    schedule_area:schedule.schedule_area
+                }
             }
             
             arrayEvents.push(data)
@@ -98,6 +111,10 @@ export const Scheduler = ()=>{
 
         setEvents(arrayEvents)
         Swal.close()
+    }
+
+    const handleEventClick = (data)=>{
+        setScheduleData(data)
     }
 
     const messages = {
@@ -119,15 +136,21 @@ export const Scheduler = ()=>{
         getWorkers(),
         getEvents()
     },[])
-    console.log(events);
     
     return (
         <>
+        {/* Modal nuevo horario */}
         <NewSchedule API_URL={API_URL}
         showModal={showModal}
         setShowModal={setShowModal}
         workers={workers}
         getEvents={getEvents}></NewSchedule>
+
+        <ShowSchedule
+        API_URL={API_URL}
+        scheduleData={scheduleData}
+        setScheduleData={setScheduleData}></ShowSchedule>
+        
         <Card>
             <Card.Header className='p-3'>
                 <Row>
@@ -168,6 +191,9 @@ export const Scheduler = ()=>{
                 views={["month"]}
                 messages={messages}
                 events={events}
+                onSelectEvent={(event)=>{
+                    handleEventClick(event.schedule_data)
+                }}
                 ></Calendar>
             </Card.Body>
         </Card>
