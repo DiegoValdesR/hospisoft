@@ -27,12 +27,45 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
             icon:"question",
             showCancelButton:true,
             cancelButtonText:"Cancelar",
-            confirmButtonText:"Aceptar"
+            confirmButtonText:"Aceptar",
+            confirmButtonColor:"#dc3545"
         }).then(async(response)=>{
             if (response.isConfirmed === true) {
+                Swal.fire({
+                    title:"Procesando...",
+                    didOpen:()=>{
+                        Swal.showLoading()
+                    }
+                })
+
                 const deactivate = await fetch(API_URL + `/schedules/deactivate/${schedule_id}`,{
                     method:"PATCH"
                 })
+
+                if (!deactivate.ok) {
+                    console.error(deactivate.statusText)
+                    Swal.close()
+                    Swal.fire({
+                        title:"Error",
+                        icon:"error",
+                        text:"Ocurrió un error al momento de borrar el horario."
+                    })
+                    return
+                }
+
+                const deactivateJSON = await deactivate.json()
+                Swal.close()
+                if (deactivateJSON.status === "completed") {
+                    setShow(false)
+                    await getEvents()
+                }
+
+                Swal.fire({
+                    title:deactivateJSON.status === "completed" ? "Completado" : "Error",
+                    icon:deactivateJSON.status === "completed" ? "success" : "error",
+                    text:deactivateJSON.message
+                })
+
             }
         })
     }
@@ -84,16 +117,26 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
                             <strong>Trabajador:</strong> {worker}
                         </ListGroup.Item>
                         <ListGroup.Item>
-                            <strong>Fecha de inicio:</strong> {scheduleData.schedule_start_date}
+                            <strong>Fecha de inicio: </strong> 
+                            {
+                            moment(scheduleData.schedule_start_date).format("DD MMMM YYYY")
+                            }
                         </ListGroup.Item>
                         <ListGroup.Item>
-                            <strong>Fecha de finalización:</strong> {scheduleData.schedule_final_date}
+                            <strong>Fecha de finalización: </strong> 
+                            {moment(scheduleData.schedule_final_date).format("DD MMMM YYYY")}
                         </ListGroup.Item>
                         <ListGroup.Item>
-                            <strong>Hora de inicio:</strong> {scheduleData.hour_start}
+                            <strong>Hora de inicio: </strong> 
+                            {
+                            moment(`${scheduleData.schedule_start_date}T${scheduleData.hour_start}`).format('hh:mm a')
+                            }
                         </ListGroup.Item>
                         <ListGroup.Item>
-                            <strong>Hora de finalización:</strong> {scheduleData.hour_end}
+                            <strong>Hora de finalización: </strong>
+                            {
+                            moment(`${scheduleData.schedule_final_date}T${scheduleData.hour_end}`).format('hh:mm a')
+                            }
                         </ListGroup.Item>
                         <ListGroup.Item>
                             <strong>Área:</strong> {scheduleData.schedule_area}

@@ -23,8 +23,9 @@ const ScheduleByWorker = async(req,res)=>{
 
     try {
         const findOne = await ScheduleModel.find({
-            "employee_id":mongoose.Types.ObjectId.createFromHexString(id)
-        }).sort({"schedule_date":1})
+            "worker_id":mongoose.Types.ObjectId.createFromHexString(id),
+            "schedule_state":"active"
+        })
 
         if (!findOne) {
             return res.status(404).send({

@@ -11,9 +11,6 @@ import { FormulasPage } from "./pages/formulas/FormulasPage"
 import { SchedulesPage } from "./pages/schedules/SchedulesPage"
 //REACT-ROUTER-DOM THINGS
 import {Routes, Route} from 'react-router-dom'
-//aplicamos la zona horaria a todo el proyecto
-import moment from "moment-timezone"
-moment.tz.setDefault('America/Bogota')
 //importamos idioma español
 import 'moment/dist/locale/es'
 

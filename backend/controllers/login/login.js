@@ -46,7 +46,7 @@ const LogIn = async(req,res) =>{
         }
 
         const token = jwt.sign(objectUser,process.env.SECRET,{
-            expiresIn:'1h'
+            expiresIn:'4h'
         })
 
         return res.status(200).send({

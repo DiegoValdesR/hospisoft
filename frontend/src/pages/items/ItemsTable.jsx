@@ -56,6 +56,7 @@ export const ItemsTable = ()=>{
 
                     Swal.fire({
                         title:responseJSON.status === "completed" ? "Completado" : "Error",
+                        icon:responseJSON.status === "completed" ? "success" : "error",
                         text:responseJSON.message
                     })
 

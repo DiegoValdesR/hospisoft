@@ -1,6 +1,7 @@
 import { Button, Card, Form, Row } from 'react-bootstrap'
 import { useState,useEffect } from 'react'
 import { API_URL } from '../../API_URL.js'
+import { allSchedules,scheduleByWorker } from '../../services/schedule/schedule.js'
 import Swal from 'sweetalert2'
 //libreria para el calendario
 import {Calendar,momentLocalizer} from 'react-big-calendar'
@@ -13,10 +14,13 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import '../../assets/css/scheduler/scheduler.css'
 
 export const Scheduler = ()=>{
+    //Ajustamos la zona horaria
+    moment.tz.setDefault('America/Bogota')
     //valor para obtener la fecha actual para el calendario
     const localizer = momentLocalizer(moment)
     
     const [workers,setWorkers] = useState([])
+    const [workerId,setWorkerId] = useState("")
     const [scheduleData,setScheduleData] = useState({})
     const [showModal,setShowModal] = useState(false)
     const [events,setEvents] = useState([])
@@ -40,81 +44,27 @@ export const Scheduler = ()=>{
             }
         })
 
-        const events = await fetch(API_URL + `/schedules/all`)
-        if (!events.ok) {
+        const events = workerId.length === 24 ? await scheduleByWorker(workerId) : await allSchedules()
+        if (!Array.isArray(events)) {
             Swal.close()
             Swal.fire({
                 icon:"error",
                 title:"Error",
-                text:"Ocurrió un error al cargar los eventos."
+                text:events.err_message
             })
-            console.error(events.statusText)
             return
         }
-        const eventsJSON = await events.json()
+        setEvents(events)
         
-        if (!eventsJSON || eventsJSON.status !== "completed") {
-            Swal.close()
-            Swal.fire({
-                icon:"error",
-                title:"Error",
-                text:"Ocurrió un error al cargar los eventos",
-                backdrop:false,
-                allowEscapeKey:false
-            })
-            console.error(eventsJSON)
-            return
-        }
-
-        const arrayEvents = []
-        for(const schedule of eventsJSON.data){
-            const {schedule_start_date,schedule_final_date} = schedule
-
-            const startDate = {
-                year:moment.utc(schedule_start_date).format('YYYY'),
-                month:moment.utc(schedule_start_date).format('MM'),
-                day:moment.utc(schedule_start_date).format('DD'),
-            }
-            
-            const endDate = {
-                year:moment.utc(schedule_final_date).format('YYYY'),
-                month:moment.utc(schedule_final_date).format('MM'),
-                day:moment.utc(schedule_final_date).format('DD'),
-            }
-
-            const hourStart = schedule.hour_start
-            const hourEnd = schedule.hour_end
-
-            //armamos las distintas partes del objeto
-            const start = moment(`${startDate.year}-${startDate.month}-${startDate.day}T${hourStart}`).toDate()
-            const end = moment(`${endDate.year}-${endDate.month}-${endDate.day}T${hourEnd}`).toDate()
-            const title = `${schedule.title} ${moment(start).format('hh:mm a')} a ${moment(end).format('hh:mm a')}`
-
-            const data = {
-                title:title,
-                start:start,
-                end:end,
-                schedule_data:{
-                    _id:schedule._id,
-                    worker_id:schedule.worker_id,
-                    title:schedule.title,
-                    schedule_start_date:schedule_start_date.split("T")[0],
-                    schedule_final_date:schedule_final_date.split("T")[0],
-                    hour_start:hourStart,
-                    hour_end:hourEnd,
-                    schedule_area:schedule.schedule_area
-                }
-            }
-            
-            arrayEvents.push(data)
-        }
-
-        setEvents(arrayEvents)
         Swal.close()
     }
 
     const handleEventClick = (data)=>{
         setScheduleData(data)
+    }
+
+    const handleChange = async({target})=>{
+        setWorkerId(target.value)
     }
 
     const messages = {
@@ -132,10 +82,11 @@ export const Scheduler = ()=>{
         noEventsInRange: "Sin eventos"
     }
 
+    getWorkers()
+
     useEffect(()=>{
-        getWorkers(),
         getEvents()
-    },[])
+    },[workerId])
     
     return (
         <>
@@ -146,6 +97,7 @@ export const Scheduler = ()=>{
         workers={workers}
         getEvents={getEvents}></NewSchedule>
 
+        {/* Mostrar detalles del horario */}
         <ShowSchedule
         API_URL={API_URL}
         scheduleData={scheduleData}
@@ -161,7 +113,7 @@ export const Scheduler = ()=>{
                             <span className='text-black text-break'>Seleccionar empleado</span>
 
                             <Form.Select className='ms-3 border-dark-subtle select'
-                            defaultValue={""}>
+                            defaultValue={""} onChange={handleChange}>
                                 <option value=""></option>
                                 {workers.map((worker)=>{
                                     return (
@@ -190,11 +142,16 @@ export const Scheduler = ()=>{
                 <Calendar
                 style={{width:"100%",height:"100vh"}}
                 localizer={localizer}
-                views={["month"]}
+                views={["month","week","day"]}
                 messages={messages}
                 events={events}
+                min={moment('2025-04-26T06:00:00').toDate()}
+                max={moment('2025-04-26T19:00:00').toDate()}
                 onSelectEvent={(event)=>{
                     handleEventClick(event.schedule_data)
+                }}
+                formats={{
+                    timeGutterFormat:"hh:mm a"
                 }}
                 ></Calendar>
             </Card.Body>
