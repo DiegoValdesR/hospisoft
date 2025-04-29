@@ -50,6 +50,13 @@ export const AsideBar = (select)=>{
                 </a>
             </li>
 
+            <li className="nav-item">
+                <a className="nav-link collapsed" href="/citas">
+                    <i className="bi bi-calendar-check"></i>
+                    <span>Citas</span>
+                </a>
+            </li>
+
             <li className="nav-heading">SESIÓN</li>
 
             <li className="nav-item">

@@ -9,6 +9,7 @@ import { WorkersPage } from './pages/workers/WorkersPage'
 import { ItemsPage } from "./pages/items/ItemsPage"
 import { FormulasPage } from "./pages/formulas/FormulasPage"
 import { SchedulesPage } from "./pages/schedules/SchedulesPage"
+import { AppointmentsPage } from "./pages/appointments/AppointmentsPage"
 //REACT-ROUTER-DOM THINGS
 import {Routes, Route} from 'react-router-dom'
 //importamos idioma español
@@ -27,6 +28,7 @@ function App() {
         <Route path="/medicamentos" element={<ItemsPage />}/>
         <Route path="/formulas" element={<FormulasPage />}/>
         <Route path="/horarios" element={<SchedulesPage />}/>
+        <Route path="/citas" element={<AppointmentsPage />}/>
       </Routes>
       
       <Footer></Footer>

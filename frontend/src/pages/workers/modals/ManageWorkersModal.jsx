@@ -62,11 +62,20 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
     },[workerId])
 
     const handleSubmit = async(e)=>{
+
+        Swal.fire({
+            title:"Procesando información...",
+            didOpen:()=>{
+                Swal.showLoading()
+            }
+        })
+
         e.preventDefault()
         const form = e.target.closest('form')
         const formData = new FormData(form)
 
         const data = {
+            worker_document:formData.get("worker_document"),
             worker_name:formData.get("worker_name"),
             worker_last_name:formData.get("worker_last_name"),
             worker_email:formData.get("worker_email"),
@@ -79,12 +88,6 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
 
         switch (workerId.length) {
             case 0:
-                Swal.fire({
-                    title:"Procesando información...",
-                    didOpen:()=>{
-                        Swal.showLoading()
-                    }
-                })
                 const insert = await fetch(API_URL + `/workers/new`,{
                     method:"POST",
                     headers:{
@@ -114,14 +117,10 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                 break;
             
             case 24:
+                delete data.worker_document
                 delete data.worker_password
                 delete data.worker_birthdate
-                Swal.fire({
-                    title:"Procesando información...",
-                    didOpen:()=>{
-                        Swal.showLoading()
-                    }
-                })
+                
                 const update = await fetch(API_URL + `/workers/update/${workerId}`,{
                     method:"PUT",
                     headers:{
@@ -175,6 +174,22 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
             </ModalHeader>
             <ModalBody>
                 <Form onSubmit={handleSubmit}>
+
+                    {workerId === "" ? (
+                        <Row className="mb-3">
+                            <Col>
+                                <Form.Label className="text-black">Número de documento</Form.Label>
+                                <Form.Control
+                                type="number"
+                                minLength={10}
+                                maxLength={10}
+                                required
+                                name="worker_document"></Form.Control>
+                            </Col>
+                            
+                        </Row>
+                    ) : ""}
+
                     <Row className="mb-3">
                         <Col>
                         <Form.Group>

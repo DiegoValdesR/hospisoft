@@ -55,6 +55,7 @@ export const ManageUsersModal = ({
     const formData = new FormData(form);
 
     const data = {
+      user_document:formData.get("user_document"),
       user_name: formData.get("user_name"),
       user_last_name: formData.get("user_last_name"),
       user_email: formData.get("user_email"),
@@ -103,8 +104,10 @@ export const ManageUsersModal = ({
         break;
 
       case 24:
-        delete data.user_password;
-        delete data.user_birthdate;
+        delete data.user_document
+        delete data.user_password
+        delete data.user_birthdate
+
         Swal.fire({
           title: "Procesando información...",
           didOpen: () => {
@@ -168,6 +171,22 @@ export const ManageUsersModal = ({
       </ModalHeader>
       <ModalBody>
         <Form onSubmit={handleSubmit} id="userForm">
+          
+          {userId === "" ? (
+            <Row className="mb-3">
+              <Col>
+              <Form.Label className="text-black">Número de documento</Form.Label>
+              <Form.Control
+              type="number"
+              minLength={10}
+              maxLength={10}
+              required
+              name="user_document"></Form.Control>
+              </Col>
+            </Row>
+          ) : ""}
+          
+
           <Row className="mb-3">
             <Col>
             <Form.Group>

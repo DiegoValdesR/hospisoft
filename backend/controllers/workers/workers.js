@@ -77,6 +77,7 @@ const WorkerById = async(req,res)=>{
 
 const InsertWorker = async(req,res) =>{
     const data = {
+        worker_document:req.body.worker_document,
         worker_name:req.body.worker_name,
         worker_last_name:req.body.worker_last_name,
         worker_birthdate:req.body.worker_birthdate,

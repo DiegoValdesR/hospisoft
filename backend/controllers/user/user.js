@@ -79,6 +79,7 @@ const InsertUser = async(req,res) =>{
     // }
 
     const data ={
+        user_document:req.body.user_document,
         user_name:req.body.user_name,
         user_last_name:req.body.user_last_name,
         user_email:req.body.user_email,
