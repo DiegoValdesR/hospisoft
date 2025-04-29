@@ -50,7 +50,8 @@ const AppointmentById = async(req,res)=>{
 const InsertAppointment = async(req,res)=>{
     const data = {
         appointment_date:req.body.appointment_date,
-        appointment_time:req.body.appointment_time,
+        hour_start:req.body.hour_start,
+        hour_end:req.body.hour_end,
         patient_id:req.body.patient_id,
         doctor_id:req.body.doctor_id
     }
@@ -63,7 +64,7 @@ const InsertAppointment = async(req,res)=>{
         })
     }
 
-    const errorTime = Validations.IsHourValid(data.appointment_time,"appointment")
+    const errorTime = Validations.IsHourValid([data.hour_start,data.hour_end],"appointment")
     if (errorTime.length !== 0) {
         return res.status(400).send({
             status:"error",
@@ -102,10 +103,14 @@ const InsertAppointment = async(req,res)=>{
 
         const findOne = await AppointmentModel.findOne({
             "appointment_date":new Date(data.appointment_date),
-            "appointment_time":data.appointment_time,
+            "$and":[
+                {"hour_start":{"$gte":data.hour_start}},
+                {"hour_end":{"$lte":data.hour_end}},
+            ],
             "doctor_id":data.doctor_id,
             "appointment_state":"active"
         })
+
 
         if (findOne) {
             return res.status(409).send({
@@ -115,7 +120,7 @@ const InsertAppointment = async(req,res)=>{
         }
 
         const insert = new AppointmentModel(data)
-        await insert.save()
+        // await insert.save()
 
         return res.status(201).send({
             status:"completed",
@@ -134,7 +139,8 @@ const UpdateAppointment = async(req,res)=>{
     let {id} = req.params
     const data = {
         appointment_date:req.body.appointment_date,
-        appointment_time:req.body.appointment_time,
+        hour_start:req.body.hour_start,
+        hour_end:req.body.hour_end,
         patient_id:req.body.patient_id,
         doctor_id:req.body.doctor_id
     }
@@ -147,7 +153,7 @@ const UpdateAppointment = async(req,res)=>{
         })
     }
 
-    const errorTime = Validations.IsHourValid(data.appointment_time,"appointment")
+    const errorTime = Validations.IsHourValid([hour_start,hour_end],"appointment")
     if (errorTime.length !== 0) {
         return res.status(400).send({
             status:"error",

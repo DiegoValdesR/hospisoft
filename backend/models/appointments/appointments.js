@@ -6,7 +6,11 @@ export const AppointmentSchema = Schema(
             type:Date,
             required:true
         },
-        appointment_time:{
+        hour_start:{
+            type:String,
+            required:true
+        },
+        hour_end:{
             type:String,
             required:true
         },
