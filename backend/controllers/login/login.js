@@ -49,11 +49,17 @@ const LogIn = async(req,res) =>{
             expiresIn:'4h'
         })
 
+        res.cookie('token', token, {
+            httpOnly: true,         //Evita que sea accesible desde JS malicioso
+            secure: false,        //DEBE SER FALSE CUANDO ES LOCAL, TRUE cuando se trabaja con https
+            sameSite: 'Lax',     //LAX cuando el front y el back estan en el mismo dominio (local), NONE cuando no
+            maxAge: 4 * 60 * 60 * 1000
+        });
+        
         return res.status(200).send({
-            status:"completed",
-            message:"Sesión iniciada correctamente.",
-            token:token
-        })
+            status: "completed",
+            message: "Sesión iniciada correctamente."
+        });
         
     } catch (error) {
         res.status(400).send({

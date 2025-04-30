@@ -12,23 +12,46 @@ config()
  */
 
 export const AuthorizationToken = (req,res,next)=>{
-    const authHeaders = req.headers["authorization"]
-    const token = authHeaders && authHeaders.split("/")[1]
+    // Extraemos el token desde las cookies
+    const token = req.cookies.token;
     if (!token) {
         return res.status(401).send({
-            status:"error",
-            message:"No has iniciado sesión."
-        })
+            status: 'error',
+            message: 'No has iniciado sesión.',
+        });
     }
 
-    jwt.verify(token,process.env.SECRET,(err)=>{
-        if(err){
-            return res.status(403).send({
-                status:"error",
-                message:"El token es inválido u ha expirado."
-            })
-        }
-        next()
-    })
+        // Verificamos el token usando jwt
+
+        jwt.verify(token,process.env.SECRET,(err,user)=>{
+            if(err){
+                return res.status(403).send({
+                    status:"error",
+                    message:"El token es inválido u ha expirado."
+                })
+            }
+            // Si el token es válido, guardamos el usuario decodificado en la solicitud carajo
+            req.user = user;
+            next()
+        })
+
+    // const authHeaders = req.headers["authorization"]
+    // // const token = authHeaders && authHeaders.split("/")[1]
+    // if (!token) {
+    //     return res.status(401).send({
+    //         status:"error",
+    //         message:"No has iniciado sesión."
+    //     })
+    // }
+
+    // jwt.verify(token,process.env.SECRET,(err)=>{
+    //     if(err){
+    //         return res.status(403).send({
+    //             status:"error",
+    //             message:"El token es inválido u ha expirado."
+    //         })
+    //     }
+    //     next()
+    // })
 
 }
