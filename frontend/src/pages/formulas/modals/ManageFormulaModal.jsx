@@ -27,7 +27,7 @@ export const ManageFormulaModal = ({ modalData, setModalData, getAllFormulas }) 
     }, [searchTerm, items]);
 
     const getUsers = async () => {
-        const allUsers = await fetch(API_URL + '/users/all')
+        const allUsers = await fetch(API_URL + '/users/all',{credentials: 'include'})
             .catch((err) => { if (err) console.error(err) });
 
         const usersJSON = await allUsers.json();
@@ -37,7 +37,7 @@ export const ManageFormulaModal = ({ modalData, setModalData, getAllFormulas }) 
     };
 
     const getDoctors = async () => {
-        const allDoctors = await fetch(API_URL + '/workers/alldoctors')
+        const allDoctors = await fetch(API_URL + '/workers/alldoctors',{credentials: 'include'})
             .catch((err) => { if (err) console.error(err) });
 
         const doctorsJSON = await allDoctors.json();
@@ -48,7 +48,7 @@ export const ManageFormulaModal = ({ modalData, setModalData, getAllFormulas }) 
 
     const getItems = async () => {
         const arrayItems = [];
-        const allItems = await fetch(API_URL + '/items/all')
+        const allItems = await fetch(API_URL + '/items/all',{credentials: 'include'})
             .catch((err) => { if (err) console.error(err) });
 
         const itemsJSON = await allItems.json();
@@ -139,6 +139,7 @@ export const ManageFormulaModal = ({ modalData, setModalData, getAllFormulas }) 
 
         const insert = await fetch(API_URL + `/formulas/new`, {
             method: "POST",
+            credentials: 'include',
             headers: {
                 "Content-Type": "application/json"
             },

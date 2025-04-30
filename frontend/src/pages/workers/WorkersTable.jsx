@@ -22,7 +22,7 @@ export const WorkersTable = ()=>{
             }
         })
 
-        const allWorkers = await fetch(API_URL + '/workers/all').then(res => res.json())
+        const allWorkers = await fetch(API_URL + '/workers/all',{credentials: 'include'}).then(res => res.json())
         if (allWorkers && allWorkers.status === "completed") {
             setWorkers(allWorkers.data)
             Swal.close()
@@ -46,7 +46,8 @@ export const WorkersTable = ()=>{
                     }
                 })
                 const deactivateWorker = await fetch(API_URL + '/workers/delete/'+workerId,{
-                    method:"PATCH"
+                    method:"PATCH",
+                    credentials: 'include'
                 })
                 const responseJSON = await deactivateWorker.json()
                 Swal.close()

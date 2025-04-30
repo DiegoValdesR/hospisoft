@@ -22,7 +22,7 @@ export const FormulasTable = ()=>{
             }
         })
 
-        const allFormulas = await fetch(API_URL + '/formulas/all').then(res => res.json())
+        const allFormulas = await fetch(API_URL + '/formulas/all',{credentials: 'include'}).then(res => res.json())
         const arrayFormulas = []
 
         if (allFormulas && allFormulas.status === "completed") {
@@ -31,10 +31,10 @@ export const FormulasTable = ()=>{
 
                 for(const object of allFormulas.data){
                     //información del paciente
-                    const paciente = await fetch(API_URL + `/users/byid/${object.patient_id}`)
+                    const paciente = await fetch(API_URL + `/users/byid/${object.patient_id}`,{credentials: 'include'})
                     const pacienteJSON = await paciente.json()
                     //información del médico encargado
-                    const medico = await fetch(API_URL + `/workers/byid/${object.doctor_id}`)
+                    const medico = await fetch(API_URL + `/workers/byid/${object.doctor_id}`,{credentials: 'include'})
                     const medicoJSON = await medico.json()
 
                     const formulaDate = moment(object.formula_date).format('DD/MM/YYYY')
@@ -80,7 +80,8 @@ export const FormulasTable = ()=>{
                 })
 
                 const deactivateFormula = await fetch(API_URL + '/formulas/delete/'+formulaId,{
-                    method:"PATCH"
+                    method:"PATCH",
+                    credentials: 'include'
                 })
                 const responseJSON = await deactivateFormula.json()
                 Swal.close()

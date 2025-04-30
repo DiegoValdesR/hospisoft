@@ -23,7 +23,7 @@ export const ShowUserModal = ({modalInfo,setModalInfo,idInfo,setIdInfo})=>{
             }
         })
     
-        const user = await fetch(API_URL + '/users/byid/'+idInfo).then(res => res.json())
+        const user = await fetch(API_URL + '/users/byid/'+idInfo,{credentials: 'include'}).then(res => res.json())
         if (user && user.status === "completed") {
             setUser(user.data)
             setModalInfo(true)

@@ -28,7 +28,7 @@ export const ManageUsersModal = ({
       },
     });
 
-    const user = await fetch(API_URL + "/users/byid/" + userId).then((res) =>
+    const user = await fetch(API_URL + "/users/byid/" + userId,{credentials: 'include'}).then((res) =>
       res.json()
     );
     if (user && user.status === "completed") {
@@ -75,6 +75,7 @@ export const ManageUsersModal = ({
         });
         const insert = await fetch(API_URL + `/users/new`, {
           method: "POST",
+          credentials: 'include',
           headers: {
             "Content-Type": "application/json",
           },
@@ -91,7 +92,7 @@ export const ManageUsersModal = ({
           });
 
           if (insertJSON.status === "completed") {
-            const allUsers = await fetch(API_URL + "/users/all").then((res) =>
+            const allUsers = await fetch(API_URL + "/users/all",{credentials: 'include'}).then((res) =>
               res.json()
             );
             if (allUsers && allUsers.status === "completed") {
@@ -116,6 +117,7 @@ export const ManageUsersModal = ({
         });
         const update = await fetch(API_URL + `/users/update/${userId}`, {
           method: "PUT",
+          credentials: 'include',
           headers: {
             "Content-Type": "application/json",
           },
@@ -132,7 +134,7 @@ export const ManageUsersModal = ({
           });
 
           if (updateJSON.status === "completed") {
-            const allUsers = await fetch(API_URL + "/users/all").then((res) =>
+            const allUsers = await fetch(API_URL + "/users/all",{credentials: 'include'}).then((res) =>
               res.json()
             );
             if (allUsers && allUsers.status === "completed") {

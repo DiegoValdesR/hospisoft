@@ -22,7 +22,7 @@ export const UsersTable = ()=>{
             }
         })
 
-        const allUsers = await fetch(API_URL + '/users/all').then(res => res.json())
+        const allUsers = await fetch(API_URL + '/users/all', {credentials: 'include'}).then(res => res.json());
         if (allUsers && allUsers.status === "completed") {
             setUsers(allUsers.data)
             Swal.close()
@@ -47,7 +47,8 @@ export const UsersTable = ()=>{
                 })
 
                 const deleteUser = await fetch(API_URL + '/users/delete/'+userId,{
-                    method:"PATCH"
+                    method:"PATCH",
+                    credentials: 'include'
                 })
                 const responseJSON = await deleteUser.json()
                 

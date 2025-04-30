@@ -21,7 +21,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
             }
         })
 
-        const item = await fetch(API_URL + '/items/byid/'+itemId).then(res => res.json())
+        const item = await fetch(API_URL + '/items/byid/'+itemId,{credentials: 'include'}).then(res => res.json())
         if (item && item.status === "completed") {
             setItemById(item.data)
             setModalData(true)
@@ -66,6 +66,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
             case 0:
                 const insert = await fetch(API_URL + `/items/new`,{
                     method:"POST",
+                    credentials: 'include',
                     headers:{
                         "Content-Type":"application/json"
                     },
@@ -82,7 +83,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
                     })
 
                     if (insertJSON.status === "completed") {
-                        const allItems = await fetch(API_URL + '/items/all').then(res => res.json())
+                        const allItems = await fetch(API_URL + '/items/all',{credentials: 'include'}).then(res => res.json())
                         if (allItems && allItems.status === "completed") {
                             setItems(allItems.data)
                             handleHide()
@@ -95,6 +96,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
             case 24:
                 const update = await fetch(API_URL + `/items/update/${itemId}`,{
                     method:"PUT",
+                    credentials: 'include',
                     headers:{
                         "Content-Type":"application/json"
                     },
@@ -111,7 +113,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
                     })
 
                     if (updateJSON.status === "completed") {
-                        const allItems = await fetch(API_URL + '/items/all').then(res => res.json())
+                        const allItems = await fetch(API_URL + '/items/all',{credentials: 'include'}).then(res => res.json())
                         if (allItems && allItems.status === "completed") {
                             setItems(allItems.data)
                             handleHide()

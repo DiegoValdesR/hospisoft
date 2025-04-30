@@ -10,7 +10,7 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
     const [worker,setWorker] = useState("")
 
     const workerById = async()=>{
-        const getWorker = await fetch(API_URL + `/workers/byid/${scheduleData.worker_id}`)
+        const getWorker = await fetch(API_URL + `/workers/byid/${scheduleData.worker_id}`,{credentials: 'include'})
         if (!getWorker.ok) {
             console.error(getWorker.statusText)
         }
@@ -39,7 +39,8 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
                 })
 
                 const deactivate = await fetch(API_URL + `/schedules/deactivate/${schedule_id}`,{
-                    method:"PATCH"
+                    method:"PATCH",
+                    credentials: 'include'
                 })
 
                 if (!deactivate.ok) {

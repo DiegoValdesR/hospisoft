@@ -18,7 +18,7 @@ export const ItemsTable = ()=>{
             }
         })
 
-        const allItems = await fetch(API_URL + '/items/all').then(res => res.json())
+        const allItems = await fetch(API_URL + '/items/all',{credentials: 'include'}).then(res => res.json())
         if (allItems && allItems.status === "completed") {
             setItems(allItems.data)
             Swal.close()
@@ -44,7 +44,8 @@ export const ItemsTable = ()=>{
                 })
 
                 const deleteItems = await fetch(API_URL + '/items/delete/'+itemId,{
-                    method:"DELETE"
+                    method:"DELETE",
+                    credentials: 'include'
                 })
                 const responseJSON = await deleteItems.json()
                 Swal.close()

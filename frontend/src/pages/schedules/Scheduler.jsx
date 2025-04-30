@@ -26,7 +26,7 @@ export const Scheduler = ()=>{
     const [events,setEvents] = useState([])
 
     const getWorkers = async()=>{
-        const allWorkers = await fetch(API_URL + '/workers/all')
+        const allWorkers = await fetch(API_URL + '/workers/all',{credentials: 'include'})
         if (!allWorkers.ok) {
             console.error("Error en el fecth: "+allWorkers.statusText)
         }

@@ -22,7 +22,7 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
             }
         })
 
-        const worker = await fetch(API_URL + '/workers/byid/'+workerId).then(res => res.json())
+        const worker = await fetch(API_URL + '/workers/byid/'+workerId,{credentials: 'include'}).then(res => res.json())
         if (worker && worker.status === "completed") {
             setWorkerById(worker.data)
             setModalData(true)
@@ -90,6 +90,7 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
             case 0:
                 const insert = await fetch(API_URL + `/workers/new`,{
                     method:"POST",
+                    credentials: 'include',
                     headers:{
                         "Content-Type":"application/json"
                     },
@@ -106,7 +107,7 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                     })
 
                     if (insertJSON.status === "completed") {
-                        const allWorkers = await fetch(API_URL + '/workers/all').then(res => res.json())
+                        const allWorkers = await fetch(API_URL + '/workers/all',{credentials: 'include'}).then(res => res.json())
                         if (allWorkers && allWorkers.status === "completed") {
                             setWorkers(allWorkers.data)
                             handleHide()
@@ -123,6 +124,7 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                 
                 const update = await fetch(API_URL + `/workers/update/${workerId}`,{
                     method:"PUT",
+                    credentials: 'include',
                     headers:{
                         "Content-Type":"application/json"
                     },
@@ -139,7 +141,7 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
                     })
 
                     if (updateJSON.status === "completed") {
-                        const allWorkers = await fetch(API_URL + '/workers/all').then(res => res.json())
+                        const allWorkers = await fetch(API_URL + '/workers/all',{credentials: 'include'}).then(res => res.json())
                         if (allWorkers && allWorkers.status === "completed") {
                             setWorkers(allWorkers.data)
                             handleHide()

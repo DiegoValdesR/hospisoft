@@ -23,7 +23,7 @@ export const ShowWorkersModal = ({modalInfo,setModalInfo,idInfo,setIdInfo})=>{
             }
         })
     
-        const workerById = await fetch(API_URL + '/workers/byid/'+idInfo).then(res => res.json())
+        const workerById = await fetch(API_URL + '/workers/byid/'+idInfo,{credentials: 'include'}).then(res => res.json())
         if (workerById && workerById.status === "completed") {
             setWorker(workerById.data)
             setModalInfo(true)

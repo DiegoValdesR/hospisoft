@@ -27,6 +27,7 @@ export const UpdateSchedule = ({API_URL, scheduleData, setScheduleData, workers 
 
         const update = await fetch(API_URL + `/schedules/update/${scheduleData._id}`,{
             method:"PUT",
+            credentials: 'include',
             headers:{
                 "Content-Type":"application/json"
             },

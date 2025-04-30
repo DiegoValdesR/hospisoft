@@ -32,6 +32,7 @@ export const NewSchedule = ({API_URL,workers = [],showModal,setShowModal,getEven
 
             const insert = await fetch(API_URL + `/schedules/new`,{
                 method:"POST",
+                credentials: 'include',
                 headers:{
                     "Content-Type":"application/json"
                 },
