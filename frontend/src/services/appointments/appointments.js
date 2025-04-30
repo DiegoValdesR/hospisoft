@@ -85,7 +85,7 @@ export async function getEvents(appointmentsJSON) {
         const user = await getUserById(patiend_id)
 
         if (user.hasOwnProperty("err_message")) {
-            return user
+            return "Ocurrió un error, intentelo más tarde"
         }
 
         const date = {
