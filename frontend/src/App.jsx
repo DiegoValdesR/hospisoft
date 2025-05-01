@@ -22,12 +22,12 @@ function App() {
   const location = useLocation();
   return (
     <>
-          {location.pathname !== "/login" && (
+        {location.pathname !== "/login" && (
         <>
           <Header />
           <AsideBar />
         </>
-      )}
+        )}
 
       <Routes>
         <Route path="/" element={<HomePage />}/>

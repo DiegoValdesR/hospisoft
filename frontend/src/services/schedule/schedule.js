@@ -7,7 +7,7 @@ import { API_URL } from "../../API_URL"
  */
 export async function scheduleByWorker(workerId){
     try {
-        const request = await fetch(API_URL + `/schedules/byworker/${workerId}`)
+        const request = await fetch(API_URL + `/schedules/byworker/${workerId}`,{credentials:"include"})
         if(!request.ok){
             throw new Error("Ocurrió un error interno del servidor, por favor intentelo más tarde.");
         }
@@ -34,7 +34,10 @@ export async function scheduleByWorker(workerId){
  */
 export async function allSchedules() {
     try {
-        const request = await fetch(API_URL + `/schedules/all`)
+        const request = await fetch(API_URL + `/schedules/all`,{
+            credentials:"include"
+        })
+
         if(!request.ok){
             throw new Error("Ocurrió un error interno del servidor, por favor intentelo más tarde.");
         }

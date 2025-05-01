@@ -1,3 +1,5 @@
+import moment from 'moment-timezone'
+moment.tz.setDefault('America/Bogota')
 import { API_URL } from '../../API_URL.js'
 import { getUserById } from '../users/users.js'
 
@@ -10,6 +12,7 @@ export async function insertAppointment(data) {
     try {
         const insert = await fetch(API_URL + "/appointments/new",{
             method:"POST",
+            credentials:"include",
             headers:{
                 "Content-Type":"application/json"
             },
@@ -44,31 +47,30 @@ export async function insertAppointment(data) {
  * Consigue todas las citas y las guarda en un array de objetos
  * @returns {array} Array de objetos con todos los eventos para el calendario
  */
-export async function getApointments(){
+export const getApointments = async()=>{
     try {
-        const request = await fetch(API_URL + `/appointments/all`)
+        const request = await fetch(API_URL + `/appointments/all`,{credentials:"include"})
+
         if(!request.ok){
             throw new Error("Ocurrió un error interno del servidor, por favor intentelo más tarde.");
         }
 
         const requestJSON = await request.json()
         if (requestJSON.status === "error") {
-            throw new Error(requestJSON.message);
+            throw new Error(requestJSON.message)
         }
 
-        const events = getEvents(requestJSON)
+        const events = await Promise.resolve(getEvents(requestJSON))
+        
         if (!Array.isArray(events)) {
-            throw new Error(events.err_message)
+            throw new Error(events)
         }
         
         return events
 
     } catch (err) {
-        console.error(err.message)
-        return {
-            err_message:err.message,
-            ERR_CODE:err.code || 'UNKNOWN_ERROR'
-        }
+        console.error(err)
+        return err.message
     }
 }
 
@@ -77,44 +79,50 @@ export async function getApointments(){
  * @param {object} appointmentsJSON Objeto JSON que contiene un array de objetos con todas las citas 
  * @returns {array} Array de objetos con todos los eventos
  */
-export async function getEvents(appointmentsJSON) {
+const getEvents = async(appointmentsJSON)=>{
     const arrayEvents = []
     for(const appointment of appointmentsJSON.data){
-        const {appointment_date,hour_start,hour_end,patiend_id} = appointment
-        
-        const user = await getUserById(patiend_id)
-
-        if (user.hasOwnProperty("err_message")) {
-            return "Ocurrió un error, intentelo más tarde"
-        }
-
-        const date = {
-            year:moment.utc(appointment_date).format('YYYY'),
-            month:moment.utc(appointment_date).format('MM'),
-            day:moment.utc(appointment_date).format('DD'),
-        }
+        const {start_date,end_date,patient_id} = appointment
     
-        //armamos las distintas partes del objeto
-        const start = moment(`${date.year}-${date.month}-${date.day}T${hour_start}`).toDate()
-        const end = moment(`${date.year}-${date.month}-${date.day}T${hour_end}`).toDate()
-        const title = `Cita ${user.user_name} ${user.user_last_name} (${moment(start).format('hh:mm a')})`
+        const user = await getUserById(patient_id)
+
+        if (typeof user === "string") {
+            return user
+        }
+        //dividimos las fechas en objetos (putas zonas horarias)
+        const startObj = {
+            year:moment.utc(start_date).format('YYYY'),
+            month:moment.utc(start_date).format('MM'),
+            day:moment.utc(start_date).format('DD'),
+        }
+
+        const endObj = {
+            year:moment.utc(end_date).format('YYYY'),
+            month:moment.utc(end_date).format('MM'),
+            day:moment.utc(end_date).format('DD'),
+        }
+
+        const hourStart = moment.utc(start_date).format('hh:mm')
+        const hourEnd = moment.utc(end_date).format('hh:mm')
+        
+        const start = moment(`${startObj.year}-${startObj.month}-${startObj.day}T${hourStart}`).toDate()
+        const end = moment(`${endObj.year}-${endObj.month}-${endObj.day}T${hourEnd}`).toDate()
+    
+        const title = `Cita para ${user.data.user_name} ${user.data.user_last_name}`
     
         const data = {
-        title:title,
-        start:start,
-        end:end,
-        schedule_data:{
-            _id:schedule._id,
-            worker_id:schedule.worker_id,
-            title:schedule.title,
-            schedule_start_date:schedule_start_date.split("T")[0],
-            schedule_final_date:schedule_final_date.split("T")[0],
-            hour_start:hourStart,
-            hour_end:hourEnd,
-            schedule_area:schedule.schedule_area
+            title:title,
+            start:start,
+            end:end,
+            appointment_data:{
+                _id:appointment._id,
+                start_date:start_date,
+                end_date:end_date,
+                patiend_id:patient_id,
+                doctor_id:appointment.doctor_id
             }
         }
-                
+        
         arrayEvents.push(data)
     }
     

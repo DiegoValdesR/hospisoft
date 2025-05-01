@@ -70,15 +70,12 @@ const InsertSchedule = async(req,res)=>{
         })
     }
 
-    const errorsHours = [
-        Validations.IsHourValid(data.hour_start),
-        Validations.IsHourValid(data.hour_end)
-    ]
+    const errorsHours = Validations.IsHourValid([data.hour_start,data.hour_end],"schedule")
 
-    if (errorsHours[0].length !== 0 || errorsHours[1].length !== 0) {
+    if (errorsHours) {
         return res.status(400).send({
             status:"error",
-            message: errorsHours[0].length !== 0 ? errorsHours[0] : errorsHours[1]
+            message: errorsHours
         })
     }
 
@@ -135,17 +132,15 @@ const UpdateSchedule = async(req,res)=>{
         })
     }
 
-    const errorsHours = [
-        Validations.IsHourValid(data.hour_start),
-        Validations.IsHourValid(data.hour_end)
-    ]
+    const errorsHours = Validations.IsHourValid([data.hour_start,data.hour_end],"schedule")
 
-    if (errorsHours[0].length !== 0 || errorsHours[1].length !== 0) {
+    if (errorsHours) {
         return res.status(400).send({
             status:"error",
-            message: errorsHours[0].length !== 0 ? errorsHours[0] : errorsHours[1]
+            message: errorsHours
         })
     }
+
 
     try {
         id = mongoose.Types.ObjectId.createFromHexString(id)

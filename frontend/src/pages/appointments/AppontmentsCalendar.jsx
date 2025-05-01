@@ -1,10 +1,15 @@
 import moment from 'moment-timezone'
+import { insertAppointment,getApointments } from '../../services/appointments/appointments.js'
+import { useState,useEffect } from 'react'
 import { Button, Card } from 'react-bootstrap'
 import { Calendar, momentLocalizer} from 'react-big-calendar'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 import '../../assets/css/scheduler/scheduler.css'
+import Swal from 'sweetalert2'
 
 export const AppontmentsCalendar = ()=>{
     const localizer = momentLocalizer(moment)
+    const [events,setEvents] = useState([])
 
     const messages = {
         allDay: "Todo el día",
@@ -21,14 +26,33 @@ export const AppontmentsCalendar = ()=>{
         noEventsInRange: "Sin eventos"
     }
 
-    const events = [
-        {
-            title:"Esclavismo parte 3: ahora es personal",
-            start:moment.utc("2025-04-28T06:00").toDate(),
-            end:moment.utc("2025-04-28T18:00").toDate()
-        }
-    ]
+    const getEvents = async()=>{
+        Swal.fire({
+            title:"Cargando...",
+            didOpen:()=>{
+                Swal.showLoading()
+            }
+        })
 
+        const appointments = await Promise.resolve(getApointments())
+        if (!Array.isArray(appointments)) {
+            Swal.close()
+
+            Swal.fire({
+                title:"Error",
+                icon:"error",
+                text:appointments
+            })
+        }
+
+        setEvents(appointments)
+        Swal.close()
+    }
+
+    useEffect(()=>{
+        getEvents()
+    },[])
+    
     return (
         <>
             <Card>
@@ -44,11 +68,16 @@ export const AppontmentsCalendar = ()=>{
                 <Card.Body className='mt-2'>
                     <Calendar
                     events={events}
-                    messages={messages}
-                    style={{width:"100%",height:"100vh"}}
-                    views={["month","week","day"]}
-                    defaultView='month'
                     localizer={localizer}
+                    views={["month","week","day"]}
+                    messages={messages}
+                    min={moment("2025-04-23T06:00").toDate()}
+                    max={moment("2025-04-23T19:00").toDate()}
+                    formats={{
+                        timeGutterFormat:"hh:mm a"
+                    }}
+                    style={{width:"100%",height:"100vh"}}
+                    defaultView='month'
                     ></Calendar>
                 </Card.Body>
             </Card>

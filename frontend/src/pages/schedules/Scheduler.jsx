@@ -81,12 +81,13 @@ export const Scheduler = ()=>{
         event: "Evento",
         noEventsInRange: "Sin eventos"
     }
-
-    getWorkers()
-
+    
     useEffect(()=>{
+        if (workers.length === 0) {
+            getWorkers()
+        }
         getEvents()
-    },[workerId])
+    },[])
     
     return (
         <>
