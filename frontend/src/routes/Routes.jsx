@@ -16,10 +16,12 @@ import { API_URL } from "../API_URL.js"
 
 export const PagesRoutes = () => {
     const [loggedIn, setLoggedIn] = useState(false)
+    const [checkingLogin, setCheckingLogin] = useState(true)
     const location = useLocation()
 
-    const routes = [
-        "/", "/home", "/login", "/registro",
+    const publicRoutes = ["/login", "/registro"]
+    const knownRoutes = [
+        "/", "/home", ...publicRoutes,
         "/usuarios", "/empleados", "/medicamentos",
         "/formulas", "/horarios", "/citas",
     ]
@@ -29,40 +31,41 @@ export const PagesRoutes = () => {
             const response = await fetch(`${API_URL}/workers/all`, {
                 credentials: "include"
             })
-            if (response.ok) {
-                setLoggedIn(true)
-            } else {
-                setLoggedIn(false)
-            }
+            setLoggedIn(response.ok)
         } catch (error) {
             setLoggedIn(false)
+        } finally {
+            setCheckingLogin(false)
         }
     }
 
     useEffect(() => {
+        setCheckingLogin(true)
         isLoggedIn()
     }, [location.pathname])
 
+    if (checkingLogin) return null
+
+    if (!loggedIn && !publicRoutes.includes(location.pathname)) {
+        return <Navigate to="/login" replace />
+    }
+
+    if (!knownRoutes.includes(location.pathname)) {
+        return <Navigate to="/404" replace />
+    }
+
     return (
-        <>
-            <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/" element={<HomePage />} />
-                <Route path="/usuarios" element={<UsersPage />} />
-                <Route path="/empleados" element={<WorkersPage />} />
-                <Route path="/medicamentos" element={<ItemsPage />} />
-                <Route path="/formulas" element={<FormulasPage />} />
-                <Route path="/horarios" element={<SchedulesPage />} />
-                <Route path="/citas" element={<AppointmentsPage />} />
-                <Route path="/404" element={<NotFound />} />
-            </Routes>
-
-            {/* Redirigir al login si no está logueado y no está en /login */}
-            {!loggedIn && location.pathname !== "/login" && <Navigate to="/login" replace />}
-
-            {/* Redirigir a 404 si la ruta no está en la lista */}
-            {!routes.includes(location.pathname) && <Navigate to="/404" replace />}
-        </>
+        <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/usuarios" element={<UsersPage />} />
+            <Route path="/empleados" element={<WorkersPage />} />
+            <Route path="/medicamentos" element={<ItemsPage />} />
+            <Route path="/formulas" element={<FormulasPage />} />
+            <Route path="/horarios" element={<SchedulesPage />} />
+            <Route path="/citas" element={<AppointmentsPage />} />
+            <Route path="/404" element={<NotFound />} />
+        </Routes>
     )
 }

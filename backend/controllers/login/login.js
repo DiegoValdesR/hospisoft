@@ -53,7 +53,8 @@ const LogIn = async(req,res) =>{
             httpOnly: true,         //Evita que sea accesible desde JS malicioso
             secure: false,        //DEBE SER FALSE CUANDO ES LOCAL, TRUE cuando se trabaja con https
             sameSite: 'Lax',     //LAX cuando el front y el back estan en el mismo dominio (local), NONE cuando no
-            maxAge: 4 * 60 * 60 * 1000
+            maxAge: 4 * 60 * 60 * 1000,
+            path: '/',
         });
         
         return res.status(200).send({
