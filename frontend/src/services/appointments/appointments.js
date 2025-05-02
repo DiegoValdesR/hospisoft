@@ -19,8 +19,8 @@ export async function insertAppointment(data) {
             body:JSON.stringify(data)
         })
 
-        if (!insert.ok) {
-            throw new Error("Error interno del servidor, por favor intentelo más tarde.");
+        if (insert.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
         }
 
         const insertJSON = await insert.json()
@@ -37,8 +37,70 @@ export async function insertAppointment(data) {
         console.error(err.message)
         return {
             status:false,
-            err_message:err.message,
+            message:err.message,
             ERR_CODE:err.code || 'UNKNOWN_ERROR'
+        }
+    }
+}
+
+export async function updateAppointment(appointmentId,data) {
+    try {
+        const update = await fetch(API_URL + "/appointments/update/"+appointmentId,{
+            method:"PUT",
+            credentials:"include",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(data)
+        })
+
+        if (update.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const updateJSON = await update.json()
+        if (updateJSON.status === "error") {
+            throw new Error(updateJSON.message)
+        } 
+
+        return {
+            status:true,
+            message:"Cita actualizada!"
+        }
+
+    } catch (err) {
+        return {
+            status:false,
+            message:err.message,
+            ERR_CODE:err.code || 'UNKNOWN_ERROR'
+        }
+    }
+}
+
+export async function deactivateAppointment(appointmentId) {
+    try {
+        const deactivate = await fetch(API_URL + `/appointments/deactivate/${appointmentId}`,{
+            method:"PATCH",
+            credentials:"include"
+        })
+
+        if (!deactivate || deactivate.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const deactivateJSON = await deactivate.json()
+        if (deactivateJSON.status === "error") {
+            throw new Error(deactivateJSON.message)
+        }
+
+        return {
+            status:true,
+            message:"Cita cancelada!"
+        }
+    } catch (error) {
+        return {
+            status:false,
+            message:error.message
         }
     }
 }
@@ -83,7 +145,7 @@ const getEvents = async(appointmentsJSON)=>{
     const arrayEvents = []
     for(const appointment of appointmentsJSON.data){
         const {start_date,end_date,patient_id} = appointment
-    
+        
         const user = await getUserById(patient_id)
 
         if (typeof user === "string") {
@@ -118,11 +180,11 @@ const getEvents = async(appointmentsJSON)=>{
                 _id:appointment._id,
                 start_date:start_date,
                 end_date:end_date,
-                patiend_id:patient_id,
+                patient_id:patient_id,
                 doctor_id:appointment.doctor_id
             }
         }
-        
+
         arrayEvents.push(data)
     }
     

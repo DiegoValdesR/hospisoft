@@ -60,6 +60,7 @@ export const Scheduler = ()=>{
     }
 
     const handleEventClick = (data)=>{
+        console.log(data)
         setScheduleData(data)
     }
 

@@ -7,7 +7,7 @@ export const AsideBar = (select)=>{
         <ul className="sidebar-nav" id="sidebar-nav">
 
             <li className="nav-item">
-                <a className="nav-link collapsed" href="/">
+                <a className="nav-link collapsed" href="/home">
                     <i className="bi bi-grid"></i>
                     <span>Dashboard</span>
                 </a>

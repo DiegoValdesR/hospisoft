@@ -1,15 +1,19 @@
 import moment from 'moment-timezone'
-import { insertAppointment,getApointments } from '../../services/appointments/appointments.js'
+import { getApointments } from '../../services/appointments/appointments.js'
 import { useState,useEffect } from 'react'
 import { Button, Card } from 'react-bootstrap'
 import { Calendar, momentLocalizer} from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import '../../assets/css/scheduler/scheduler.css'
 import Swal from 'sweetalert2'
+import { NewAppointment } from './modals/NewAppointment.jsx'
+import { ShowAppointment } from './modals/ShowAppointments.jsx'
 
 export const AppontmentsCalendar = ()=>{
     const localizer = momentLocalizer(moment)
     const [events,setEvents] = useState([])
+    const [appointmentData,setAppointmentData] = useState({})
+    const [showModal,setShowModal] = useState(false)
 
     const messages = {
         allDay: "Todo el día",
@@ -49,16 +53,28 @@ export const AppontmentsCalendar = ()=>{
         Swal.close()
     }
 
+    const handleSelect = (event)=>{
+        setAppointmentData(event.appointment_data)
+    }
+
     useEffect(()=>{
         getEvents()
     },[])
     
     return (
         <>
+            <NewAppointment showModal={showModal} setShowModal={setShowModal}
+            getEvents={getEvents}></NewAppointment>
+
+            <ShowAppointment appointmentData={appointmentData}
+            setAppointmentData={setAppointmentData}
+            getEvents={getEvents}
+            ></ShowAppointment>
+
             <Card>
                 <Card.Header>
                     <Button variant='primary'
-                    >
+                    onClick={()=>{setShowModal(true)}}>
                         <i className="bi bi-plus-lg"></i>
                         <span className="p-1 text-white">
                             Nuevo
@@ -76,6 +92,8 @@ export const AppontmentsCalendar = ()=>{
                     formats={{
                         timeGutterFormat:"hh:mm a"
                     }}
+                    selectable
+                    onSelectEvent={handleSelect}
                     style={{width:"100%",height:"100vh"}}
                     defaultView='month'
                     ></Calendar>

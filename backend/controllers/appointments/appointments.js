@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { AppointmentModel } from "../../models/appointments/appointments.js"
 import { UsersModel } from "../../models/user/user.js"
 import { WorkerModel } from "../../models/workers/workers.js"
@@ -193,6 +193,7 @@ const UpdateAppointment = async(req,res)=>{
         }
 
         const findOne = await AppointmentModel.findOne({
+            "_id":{"$ne":Types.ObjectId.createFromHexString(id)},
             "$and":[
                 {"start_date":{"$gte":data.start_date}},
                 {"end_date":{"$lte":data.end_date}},
