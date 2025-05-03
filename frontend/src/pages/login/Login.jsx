@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Container, Form, Button } from 'react-bootstrap';
-import { API_URL } from '../../API_URL.js';
+import React, { useState } from 'react'
+import { Container, Form, Button } from 'react-bootstrap'
+import { API_URL } from '../../API_URL.js'
+
+import Swal from 'sweetalert2'
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -8,7 +10,7 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
       const response = await fetch(API_URL+'/login', {
@@ -18,20 +20,39 @@ export const Login = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
-      });
+      })
 
       const data = await response.json();
 
       if (response.ok) {
-        alert(data.message);
-        window.location.href = "/home";
+        Swal.fire({
+          icon:"success",
+          title:"Completado",
+          text:"Sesión iniciada correctamente!",
+          allowOutsideClick:false,
+          allowEscapeKey:false
+        }).then((res)=>{
+        
+          if(res.isConfirmed){
+            sessionStorage.setItem("session",JSON.stringify(data.data))
+            window.location.href = "/home"
+          }
+
+        })
+        
       } else {
-        alert(data.message);
+        Swal.fire({
+          icon:"error",
+          title:"Error",
+          text:data.message,
+          allowOutsideClick:false,
+          allowEscapeKey:false
+        })
       }
     } catch (error) {
-      alert('Error al conectar con el servidor: ' + error.message);
+      alert('Error al conectar con el servidor: ' + error.message)
     }
-  };
+  }
 
   const toggleShowPassword = () => setShowPassword(!showPassword);
 

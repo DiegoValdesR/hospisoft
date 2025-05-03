@@ -153,7 +153,10 @@ export const Scheduler = ()=>{
                     handleEventClick(event.schedule_data)
                 }}
                 formats={{
-                    timeGutterFormat:"hh:mm a"
+                    timeGutterFormat:"hh:mm a",
+                    eventTimeRangeFormat: ({ start, end }, culture, local) =>{
+                        return local.format(start, 'hh:mm a') + ' - ' + local.format(end, 'hh:mm a')
+                    }
                 }}
                 ></Calendar>
             </Card.Body>

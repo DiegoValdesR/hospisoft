@@ -5,13 +5,7 @@ import { API_URL } from "../../../API_URL.js"
 import Swal from "sweetalert2"
 import { updateAppointment } from "../../../services/appointments/appointments.js"
 
-export const UpdateAppointment = ({
-  showUpdate,
-  setShowUpdate,
-  appointmentData,
-  setAppointmentData,
-  getEvents
-}) => {
+export const UpdateAppointment = ({showUpdate,setShowUpdate,appointmentData,setAppointmentData,getEvents}) => {
   const [patients, setPatients] = useState([])
   const [doctors, setDoctors] = useState([])
 
@@ -90,7 +84,7 @@ export const UpdateAppointment = ({
 
   useEffect(() => {
     getPatients(), getDoctors()
-  }, [])
+  },[])
 
   return (
     <>
@@ -121,7 +115,7 @@ export const UpdateAppointment = ({
                     type="time"
                     required
                     name="hour_start"
-                    defaultValue={moment(appointmentData.start_date).format("hh:mm")}
+                    defaultValue={appointmentData.hour_start}
                   ></Form.Control>
                 </Form.Group>
               </Col>
@@ -132,7 +126,7 @@ export const UpdateAppointment = ({
                     type="time"
                     required
                     name="hour_end"
-                    defaultValue={moment(appointmentData.end_date).format("hh:mm")}
+                    defaultValue={appointmentData.hour_end}
                   ></Form.Control>
                 </Form.Group>
               </Col>

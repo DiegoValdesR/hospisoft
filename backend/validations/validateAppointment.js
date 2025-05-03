@@ -18,11 +18,23 @@ export const validateAppointment = (arrayDates)=>{
         }
 
         if(arrayDates[0] > arrayDates[1]){
-            throw new Error("La fecha de inicio no puede ser mayor a la final.")
+            throw new Error("La hora de inicio no puede ser mayor a la final.")
         }
 
         if (moment(arrayDates[1]).format("YYYY-MM-DD") !== moment(arrayDates[0]).format("YYYY-MM-DD")) {
             throw new Error("La cita debe trasncurrir en el mismo dia.")
+        }
+        
+        if (moment.utc(arrayDates[0]).format("HH:mm") < moment("2025-04-01T06:00").format("HH:mm")){
+            throw new Error("Solo se aceptan citas desde las 06:00 am")
+        }
+
+        if (moment.utc(arrayDates[0]).format("HH:mm") >= moment("2025-04-01T18:00").format("HH:mm")){
+            throw new Error("No se aceptan citas después de las 06:00 pm")
+        }
+        
+        if (moment.utc(arrayDates[1]).format("HH:mm") > moment("2025-04-01T18:00").format("HH:mm")){
+            throw new Error("No se aceptan citas después de las 06:00 pm")
         }
 
         return response

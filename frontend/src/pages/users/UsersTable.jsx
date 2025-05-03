@@ -6,6 +6,8 @@ import Swal from 'sweetalert2'
 import { Button, Card, Row, Table } from "react-bootstrap"
 
 export const UsersTable = ()=>{
+    const session = JSON.parse(sessionStorage.getItem("session"))
+
     const [users,setUsers] = useState([])
     const [userId,setUserId] = useState("")
     const [idInfo,setIdInfo] = useState("")
@@ -94,6 +96,7 @@ export const UsersTable = ()=>{
             <Card>
                 <Card.Title className="d-flex">
                     <Row className="ms-4">
+                        {session && ["admin"].includes(session.role) && (
                         <Button variant="primary" type="button"
                         onClick={()=>{setModalData(true)}}>
                             <i className="bi bi-plus-lg"></i>
@@ -101,6 +104,7 @@ export const UsersTable = ()=>{
                                 Nuevo
                             </span>
                         </Button>
+                        )}
                     </Row>
                 </Card.Title>
 
@@ -131,24 +135,27 @@ export const UsersTable = ()=>{
                                              <i className="bi bi-eye"></i>
                                         </button>
                                     </span>
-                                            
-                                    {/* EDITAR USUARIO */}
-                                    <span className="p-1">
-                                        <button className="btn btn-primary" title="Editar usuario"
-                                        onClick={()=>{
-                                            setUserId(user["_id"])
-                                        }}>
-                                            <i className="bi bi-pencil-square"></i>
-                                        </button>
-                                    </span>
+                                    
+                                    {session && ["admin"].includes(session.role) && (
+                                        <>
+                                        <span className="p-1">
+                                            <button className="btn btn-primary" title="Editar usuario"
+                                            onClick={()=>{
+                                                setUserId(user["_id"])
+                                            }}>
+                                                <i className="bi bi-pencil-square"></i>
+                                            </button>
+                                        </span>
                                                     
-                                    {/* DESACTIVAR USUARIO */}
-                                    <span className="p-1">
-                                        <button className="btn btn-danger" title="Eliminar usuario"
-                                        onClick={()=>{deactivateUser(user["_id"])}}>
-                                            <i className="bi bi-trash3"></i>
-                                        </button>
-                                    </span>
+                                        <span className="p-1">
+                                            <button className="btn btn-danger" title="Eliminar usuario"
+                                            onClick={()=>{deactivateUser(user["_id"])}}>
+                                                <i className="bi bi-trash3"></i>
+                                            </button>
+                                        </span>
+                                        </>
+                                    )}
+                                    
                                     </td>
                                 </tr>
                                     )

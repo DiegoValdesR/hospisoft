@@ -6,6 +6,8 @@ import Swal from 'sweetalert2'
 import { Button, Card, Row, Table } from "react-bootstrap"
 
 export const WorkersTable = ()=>{
+    const session = JSON.parse(sessionStorage.getItem("session"))
+
     const [workers,setWorkers] = useState([])
     const [workerId,setWorkerId] = useState("")
     const [idInfo,setIdInfo] = useState("")
@@ -63,7 +65,6 @@ export const WorkersTable = ()=>{
                     })
                     
                 }
-                
             }
         })
     }
@@ -94,13 +95,15 @@ export const WorkersTable = ()=>{
             <Card>
                 <Card.Title className="d-flex">
                     <Row className="ms-4">
-                        <Button variant="primary" type="button"
-                        onClick={()=>{setModalData(true)}}>
-                            <i className="bi bi-plus-lg"></i>
-                            <span className="p-1 text-white">
-                                Nuevo
-                            </span>
-                        </Button>
+                        {session && ["admin"].includes(session.role) ? (
+                            <Button variant="primary" type="button"
+                            onClick={()=>{setModalData(true)}}>
+                                <i className="bi bi-plus-lg"></i>
+                                <span className="p-1 text-white">
+                                    Nuevo
+                                </span>
+                            </Button>
+                        ) : ""}
                     </Row>
                 </Card.Title>
 
@@ -131,24 +134,29 @@ export const WorkersTable = ()=>{
                                              <i className="bi bi-eye"></i>
                                         </button>
                                     </span>
-                                            
-                                    {/* EDITAR EMPLEADO */}
-                                    <span className="p-1">
-                                        <button className="btn btn-primary" title="Editar empleado"
-                                        onClick={()=>{
-                                            setWorkerId(worker["_id"])
-                                        }}>
-                                            <i className="bi bi-pencil-square"></i>
-                                        </button>
-                                    </span>
-                                                    
-                                    {/* DESACTIVAR EMPLEADO */}
-                                    <span className="p-1">
-                                        <button className="btn btn-danger" title="Eliminar empleado"
-                                        onClick={()=>{deactivateWorker(worker["_id"])}}>
-                                            <i className="bi bi-trash3"></i>
-                                        </button>
-                                    </span>
+                                    
+                                    {session && ["admin"].includes(session.role) ? (
+                                        <>
+                                        {/* EDITAR EMPLEADO */}
+                                        <span className="p-1">
+                                            <button className="btn btn-primary" title="Editar empleado"
+                                            onClick={()=>{
+                                                setWorkerId(worker["_id"])
+                                            }}>
+                                                <i className="bi bi-pencil-square"></i>
+                                            </button>
+                                        </span>
+                                                        
+                                        {/* DESACTIVAR EMPLEADO */}
+                                        <span className="p-1">
+                                            <button className="btn btn-danger" title="Eliminar empleado"
+                                            onClick={()=>{deactivateWorker(worker["_id"])}}>
+                                                <i className="bi bi-trash3"></i>
+                                            </button>
+                                        </span>
+                                        </>
+                                    ) : ""}
+                                    
                                     </td>
                                 </tr>
                                     )

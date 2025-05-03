@@ -4,108 +4,6 @@ import { API_URL } from '../../API_URL.js'
 import { getUserById } from '../users/users.js'
 
 /**
- * Insertar citas
- * @param {object} data Objeto con la información a insertar
- * @returns {object} Objeto con la respuesta del servidor
- */
-export async function insertAppointment(data) {
-    try {
-        const insert = await fetch(API_URL + "/appointments/new",{
-            method:"POST",
-            credentials:"include",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify(data)
-        })
-
-        if (insert.status === 500) {
-            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
-        }
-
-        const insertJSON = await insert.json()
-        if (insertJSON.status === "error") {
-            throw new Error(insertJSON.message)
-        } 
-
-        return {
-            status:true,
-            message:"Cita agendada!"
-        }
-
-    } catch (err) {
-        console.error(err.message)
-        return {
-            status:false,
-            message:err.message,
-            ERR_CODE:err.code || 'UNKNOWN_ERROR'
-        }
-    }
-}
-
-export async function updateAppointment(appointmentId,data) {
-    try {
-        const update = await fetch(API_URL + "/appointments/update/"+appointmentId,{
-            method:"PUT",
-            credentials:"include",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify(data)
-        })
-
-        if (update.status === 500) {
-            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
-        }
-
-        const updateJSON = await update.json()
-        if (updateJSON.status === "error") {
-            throw new Error(updateJSON.message)
-        } 
-
-        return {
-            status:true,
-            message:"Cita actualizada!"
-        }
-
-    } catch (err) {
-        return {
-            status:false,
-            message:err.message,
-            ERR_CODE:err.code || 'UNKNOWN_ERROR'
-        }
-    }
-}
-
-export async function deactivateAppointment(appointmentId) {
-    try {
-        const deactivate = await fetch(API_URL + `/appointments/deactivate/${appointmentId}`,{
-            method:"PATCH",
-            credentials:"include"
-        })
-
-        if (!deactivate || deactivate.status === 500) {
-            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
-        }
-
-        const deactivateJSON = await deactivate.json()
-        if (deactivateJSON.status === "error") {
-            throw new Error(deactivateJSON.message)
-        }
-
-        return {
-            status:true,
-            message:"Cita cancelada!"
-        }
-    } catch (error) {
-        return {
-            status:false,
-            message:error.message
-        }
-    }
-}
-
-/**
  * Consigue todas las citas y las guarda en un array de objetos
  * @returns {array} Array de objetos con todos los eventos para el calendario
  */
@@ -179,14 +77,129 @@ const getEvents = async(appointmentsJSON)=>{
             appointment_data:{
                 _id:appointment._id,
                 start_date:start_date,
+                hour_start:start_date.split("T")[1].split(":00.000Z")[0],
+                hour_end:end_date.split("T")[1].split(":00.000Z")[0],
                 end_date:end_date,
                 patient_id:patient_id,
                 doctor_id:appointment.doctor_id
             }
         }
-
         arrayEvents.push(data)
     }
     
     return arrayEvents
 }
+
+/**
+ * Insertar citas
+ * @param {object} data Objeto con la información a insertar
+ * @returns {object} Objeto con la respuesta del servidor
+ */
+export async function insertAppointment(data) {
+    try {
+        const insert = await fetch(API_URL + "/appointments/new",{
+            method:"POST",
+            credentials:"include",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(data)
+        })
+
+        if (insert.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const insertJSON = await insert.json()
+        if (insertJSON.status === "error") {
+            throw new Error(insertJSON.message)
+        } 
+
+        return {
+            status:true,
+            message:"Cita agendada!"
+        }
+
+    } catch (err) {
+        console.error(err.message)
+        return {
+            status:false,
+            message:err.message,
+            ERR_CODE:err.code || 'UNKNOWN_ERROR'
+        }
+    }
+}
+
+/**
+ * Actualizar citas
+ * @param {string} appointmentId Id de la cita
+ * @param {object} data Objeto con toda la información  
+ * @returns {object} Objeto con un estado y un mensaje
+ */
+export async function updateAppointment(appointmentId,data) {
+    try {
+        const update = await fetch(API_URL + "/appointments/update/"+appointmentId,{
+            method:"PUT",
+            credentials:"include",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(data)
+        })
+
+        if (!update|| update.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const updateJSON = await update.json()
+        if (updateJSON.status === "error") {
+            throw new Error(updateJSON.message)
+        } 
+
+        return {
+            status:true,
+            message:"Cita actualizada!"
+        }
+
+    } catch (err) {
+        return {
+            status:false,
+            message:err.message,
+            ERR_CODE:err.code || 'UNKNOWN_ERROR'
+        }
+    }
+}
+
+/**
+ * Desactivar citas
+ * @param {string} appointmentId Id de la cita
+ * @returns {object} Objeto con un estado y un mensaje
+ */
+export async function deactivateAppointment(appointmentId) {
+    try {
+        const deactivate = await fetch(API_URL + `/appointments/deactivate/${appointmentId}`,{
+            method:"PATCH",
+            credentials:"include"
+        })
+
+        if (!deactivate || deactivate.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const deactivateJSON = await deactivate.json()
+        if (deactivateJSON.status === "error") {
+            throw new Error(deactivateJSON.message)
+        }
+
+        return {
+            status:true,
+            message:"Cita cancelada!"
+        }
+    } catch (error) {
+        return {
+            status:false,
+            message:error.message
+        }
+    }
+}
+

@@ -90,7 +90,11 @@ export const AppontmentsCalendar = ()=>{
                     min={moment("2025-04-23T06:00").toDate()}
                     max={moment("2025-04-23T19:00").toDate()}
                     formats={{
-                        timeGutterFormat:"hh:mm a"
+                        timeGutterFormat:"hh:mm a",
+                        eventTimeRangeFormat: ({ start, end }, culture, local) =>{
+                            return local.format(start, 'hh:mm a') + ' - ' + local.format(end, 'hh:mm a')
+                        }
+                        
                     }}
                     selectable
                     onSelectEvent={handleSelect}

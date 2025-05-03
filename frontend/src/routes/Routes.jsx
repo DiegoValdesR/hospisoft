@@ -18,20 +18,33 @@ export const PagesRoutes = () => {
     const [loggedIn, setLoggedIn] = useState(false)
     const [checkingLogin, setCheckingLogin] = useState(true)
     const location = useLocation()
-
+    //revisamos que existe el objeto session en el session storage
+    const session = JSON.parse(sessionStorage.getItem("session"))
     const publicRoutes = ["/login", "/registro"]
-    const knownRoutes = [
-        "/", "/home", ...publicRoutes,
-        "/usuarios", "/empleados", "/medicamentos",
-        "/formulas", "/horarios", "/citas",
+
+    let knownRoutes = [
+        ...publicRoutes,
+        session ? "/" : null, session ? "/home" : null, 
+        session && ["admin"].includes(session.role) ? "/usuarios" : null, 
+        session && ["admin"].includes(session.role) ? "/empleados" : null, 
+        session && ["admin","medico","farmaceutico"].includes(session.role) ? "/medicamentos" : null,
+        session && ["admin","medico"].includes(session.role) ? "/formulas" : null, 
+        session && ["admin","medico","secretaria","farmaceutico"].includes(session.role) ? "/horarios" : null, 
+        session && ["admin","medico","secretaria"].includes(session.role) ? "/citas" : null
     ]
+
+    knownRoutes = knownRoutes.filter(route => route)
 
     const isLoggedIn = async () => {
         try {
-            const response = await fetch(`${API_URL}/workers/all`, {
+            const response = await fetch(`${API_URL}/checklogin`, {
+                method:"POST",
                 credentials: "include"
             })
-            setLoggedIn(response.ok)
+            if (response.ok) {
+                setLoggedIn(true)
+            }
+            
         } catch (error) {
             setLoggedIn(false)
         } finally {
@@ -57,6 +70,7 @@ export const PagesRoutes = () => {
     return (
         <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/404" element={<NotFound />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/" element={<HomePage />} />
             <Route path="/usuarios" element={<UsersPage />} />
@@ -65,7 +79,6 @@ export const PagesRoutes = () => {
             <Route path="/formulas" element={<FormulasPage />} />
             <Route path="/horarios" element={<SchedulesPage />} />
             <Route path="/citas" element={<AppointmentsPage />} />
-            <Route path="/404" element={<NotFound />} />
         </Routes>
     )
 }

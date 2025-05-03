@@ -64,8 +64,8 @@ const InsertAppointment = async(req,res)=>{
             })
         }
         //convertimos la fecha al formato correcto
-        data.start_date = moment.utc(req.body.start_date).toDate()
-        data.end_date = moment.utc(req.body.end_date).toDate()
+        data.start_date = moment.utc(data.start_date).toDate()
+        data.end_date = moment.utc(data.end_date).toDate()
 
         const errorDates = Validations.validateAppointment([data.start_date,data.end_date])
         if (errorDates.length > 0) {
@@ -157,15 +157,17 @@ const UpdateAppointment = async(req,res)=>{
         //convertimos la fecha al formato correcto
         data.start_date = moment.utc(req.body.start_date).toDate()
         data.end_date = moment.utc(req.body.end_date).toDate()
-        data.patient_id = mongoose.Types.ObjectId.createFromHexString(data.patient_id)
-        data.doctor_id = mongoose.Types.ObjectId.createFromHexString(data.doctor_id)
 
-        if(data.start_date > data.end_date){
+        const errorDates = Validations.validateAppointment([data.start_date,data.end_date])
+        if (errorDates.length > 0) {
             return res.status(400).send({
                 status:"error",
-                message:"La fecha de inicio no puede ser mayor a la final."
+                message:errorDates
             })
         }
+
+        data.patient_id = mongoose.Types.ObjectId.createFromHexString(data.patient_id)
+        data.doctor_id = mongoose.Types.ObjectId.createFromHexString(data.doctor_id)
 
         const findPatient = await UsersModel.findOne({
             "_id":data.patient_id,
