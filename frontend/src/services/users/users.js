@@ -21,3 +21,39 @@ export async function getUserById(userId) {
 
     return requestJSON
 }
+/**
+ * Método que registra usuarios
+ * @param {object} data Toda la información del registro
+ * @returns {object} Objeto con un estado y un mensaje,los valores de estos dependiendo de si la operación fue exitosa
+ * o no
+ */
+export async function insertUser(data) {
+    try {
+        const insert = await fetch(API_URL + `/users/new`,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(data)
+        })
+
+        if (insert.status === 500) {
+            throw new Error("Error interno del servidor,por favor intentelo más tarde.")
+        }
+
+        const insertJSON = await insert.json()
+        if (insertJSON.status === "error") {
+            throw new Error(insertJSON.message)
+        }
+
+        return {
+            status:true,
+            message:"Usuario creado correctamente!"
+        }
+    } catch (error) {
+        return {
+            status:false,
+            message:error.message
+        }
+    }
+}

@@ -127,10 +127,17 @@ export const Login = () => {
           >
             Iniciar sesión
           </Button>
+          <div className="d-flex flex-row justify-content-between">
+            <div className="text-center mt-3">
+              <a href='#' className="link-secondary">¿Olvidaste tu contraseña?</a>
+            </div>
 
-          <div className="text-center mt-3">
-            <small className="text-muted">¿Olvidaste tu contraseña?</small>
+            <div className="text-center mt-3">
+              <a href='/registro' className="link-primary">Crea tu cuenta aquí</a>
+            </div>
+
           </div>
+          
         </Form>
       </Container>
     </div>

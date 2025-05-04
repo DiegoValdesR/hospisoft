@@ -279,28 +279,27 @@ export const ManageUsersModal = ({
           </Row>
 
           <Row className="mb-3">
-          <Form.Group>
-            <Form.Label className="text-dark">EPS</Form.Label>
-            <Form.Control
-                as="select"
-                required
-                name="user_eps"
-                defaultValue={userId !== "" ? userById.user_eps : ""}>
-                <option value="">Selecciona una EPS</option>
-                {[
-                "Nueva EPS", "Sanitas", "Sura", "Salud Total", "Coosalud", "Famisanar", "Mutual Ser",
-                "Compensar", "Emssanar", "Savia Salud", "Asmet Salud", "Cajacopi", "Capital Salud",
-                "Servicio Occidental de Salud", "Asociación Indígena del Cauca", "Mallamás",
-                "Comfenalco Valle", "Aliansalud", "Anaswayuu", "Familiar de Colombia", "Dusakawi",
-                "Comfaoriente", "Capresoca", "Comfachocó", "Pijaos", "Salud Mía", "Salud Bolívar"
-                ].map((eps) => (
-                <option key={eps} value={eps}>
-                    {eps}
-                </option>
-                ))}
-            </Form.Control>
+            <Form.Group>
+              <Form.Label className="text-dark">EPS</Form.Label>
+              <Form.Control
+                  as="select"
+                  required
+                  name="user_eps"
+                  defaultValue={userId !== "" ? userById.user_eps : ""}>
+                  <option value="">Selecciona una EPS</option>
+                  {[
+                  "Nueva EPS", "Sanitas", "Sura", "Salud Total", "Coosalud", "Famisanar", "Mutual Ser",
+                  "Compensar", "Emssanar", "Savia Salud", "Asmet Salud", "Cajacopi", "Capital Salud",
+                  "Servicio Occidental de Salud", "Asociación Indígena del Cauca", "Mallamás",
+                  "Comfenalco Valle", "Aliansalud", "Anaswayuu", "Familiar de Colombia", "Dusakawi",
+                  "Comfaoriente", "Capresoca", "Comfachocó", "Pijaos", "Salud Mía", "Salud Bolívar"
+                  ].map((eps) => (
+                  <option key={eps} value={eps}>
+                      {eps}
+                  </option>
+                  ))}
+              </Form.Control>
             </Form.Group>
-
           </Row>
 
           <Modal.Footer>

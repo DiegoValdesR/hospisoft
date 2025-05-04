@@ -3,14 +3,13 @@ import express, { json } from 'express'
 // Galletas Free <------------------------------- <------------------------ <------------------------
 import cookieParser from 'cookie-parser';
 import { MongoDbConnection } from './db/db.js'
-import { AuthorizationToken as auth } from './middleware/auth.js'
 const app = express()
 const serverPort = process.env.DB_PORT
 
 app.use(cors({
     origin: 'http://localhost:5173',
-    credentials: true,
-  }));
+    credentials: true
+}))
 app.use(json())
 app.use(cookieParser());
 
@@ -32,9 +31,8 @@ import { AuthorizationToken } from './middleware/auth.js'
 app.use('/api',SessionRoutes)
 app.use('/api',EmailRoutes)
 app.use('/api',UserRoutes)
-//auth es el middleware que verifica que haya iniciado sesión (revisar middleware para entender)
-// app.use(auth)
 
+//auth es el middleware que verifica que haya iniciado sesión (revisar middleware para entender)
 app.use(AuthorizationToken)
 
 //cada metodo desde aqui usa el middleware

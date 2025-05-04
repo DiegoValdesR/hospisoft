@@ -19,7 +19,7 @@ function App() {
   
   return (
     <>
-      {location.pathname !== "/login" && location.pathname !== "/404" && (
+      {!["/404","/login","/registro"].includes(location.pathname) && (
         <>
           <Header />
           <AsideBar />
@@ -28,7 +28,7 @@ function App() {
 
       <PagesRoutes></PagesRoutes>
 
-      {location.pathname !== "/login" && location.pathname !== "/404" && <Footer />}
+      {!["/404","/login","/registro"].includes(location.pathname) && <Footer />}
     </>
   )
 }

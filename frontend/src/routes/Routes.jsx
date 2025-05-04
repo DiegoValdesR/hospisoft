@@ -11,6 +11,7 @@ import { SchedulesPage } from "../pages/schedules/SchedulesPage"
 import { AppointmentsPage } from "../pages/appointments/AppointmentsPage"
 import { Login } from '../pages/login/Login'
 import { NotFound } from "../pages/404/NotFound"
+import { Register } from "../pages/register/register.jsx"
 
 import { API_URL } from "../API_URL.js"
 
@@ -20,7 +21,7 @@ export const PagesRoutes = () => {
     const location = useLocation()
     //revisamos que existe el objeto session en el session storage
     const session = JSON.parse(sessionStorage.getItem("session"))
-    const publicRoutes = ["/login", "/registro"]
+    const publicRoutes = [!session ? "/login" : null, !session ? "/registro" : null]
 
     let knownRoutes = [
         ...publicRoutes,
@@ -79,6 +80,7 @@ export const PagesRoutes = () => {
             <Route path="/formulas" element={<FormulasPage />} />
             <Route path="/horarios" element={<SchedulesPage />} />
             <Route path="/citas" element={<AppointmentsPage />} />
+            <Route path="/registro" element={<Register />} />
         </Routes>
     )
 }
