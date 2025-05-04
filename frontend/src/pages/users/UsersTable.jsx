@@ -76,38 +76,45 @@ export const UsersTable = ()=>{
     
     return (
         <>
-            <ShowUserModal
-            modalInfo={modalInfo}
-            setModalInfo={setModalInfo}
-            idInfo={idInfo}
-            setIdInfo={setIdInfo}
-            >
-            </ShowUserModal>
 
-            <ManageUsersModal
-            modalData={modalData}
-            setModalData={setModalData}
-            userId={userId}
-            setUserId={setUserId}
-            setUsers={setUsers}
-            >
-            </ManageUsersModal>
+            {session && ["admin","secretaria"].includes(session.role) ? (
+                <>
+                    <ShowUserModal
+                    modalInfo={modalInfo}
+                    setModalInfo={setModalInfo}
+                    idInfo={idInfo}
+                    setIdInfo={setIdInfo}
+                    >
+                    </ShowUserModal>
 
+                    {}
+                    <ManageUsersModal
+                    modalData={modalData}
+                    setModalData={setModalData}
+                    userId={userId}
+                    setUserId={setUserId}
+                    setUsers={setUsers}
+                    >
+                    </ManageUsersModal>
+                </>
+            ) : ""}
+            
             <Card>
-                <Card.Title className="d-flex">
-                    <Row className="ms-4">
-                        {session && ["admin"].includes(session.role) && (
-                        <Button variant="primary" type="button"
-                        onClick={()=>{setModalData(true)}}>
-                            <i className="bi bi-plus-lg"></i>
-                            <span className="p-1 text-white">
-                                Nuevo
-                            </span>
-                        </Button>
-                        )}
-                    </Row>
-                </Card.Title>
-
+                <Card.Header>
+                    <Card.Title className="d-flex">
+                        <Row className="ms-4">
+                            {session && ["admin","secretaria"].includes(session.role) && (
+                            <Button variant="primary" type="button"
+                            onClick={()=>{setModalData(true)}}>
+                                <i className="bi bi-plus-lg"></i>
+                                <span className="p-1 text-white">
+                                    Nuevo
+                                </span>
+                            </Button>
+                            )}
+                        </Row>
+                    </Card.Title>
+                </Card.Header>
                 <Card.Body>
                     {users.length > 0 ? (
                     <Row className="table-responsive text-center">

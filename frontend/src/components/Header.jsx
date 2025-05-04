@@ -44,13 +44,17 @@ export const Header = ()=>{
                     <li className="nav-item dropdown pe-3">
 
                         <a className="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                            <span className="d-none d-md-block dropdown-toggle ps-2">{session.name} {session.last_name}</span>
+                            <span className="d-none d-md-block dropdown-toggle ps-2">
+                                { session && session.name ? session.name : "?"}  { session && session.last_name ? session.last_name : "?"}
+                            </span>
                         </a>
 
                         <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                             <li className="dropdown-header">
-                                <h6>{session.name} {session.last_name}</h6>
-                                <span>{session.role.toUpperCase()}</span>
+                                <h6>
+                                    { session && session.name ? session.name : "?"}  { session && session.last_name ? session.last_name : "?"}
+                                </h6>
+                                <span>{session && session.role ? session.role.toUpperCase() : "?"}</span>
                             </li>
                             <li>
                                 <hr className="dropdown-divider"></hr>

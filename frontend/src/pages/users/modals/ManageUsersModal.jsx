@@ -219,10 +219,6 @@ export const ManageUsersModal = ({
           </Row>
 
           <Row className="mb-3">
-
-          </Row>
-
-          <Row className="mb-3">
             <Form.Group>
               <Form.Label className="text-dark">Correo del usuario</Form.Label>
               <Form.Control
@@ -254,18 +250,21 @@ export const ManageUsersModal = ({
 
           {userId.length === 0 ? (
             <Row className="mb-3">
-                <Col xs={12} sm={12} md={12} lg={ 4}>
-                <Form.Group>
-                <Form.Label className="text-dark">Fecha de nacimiento</Form.Label>
-                <Form.Control
-                required
-                name="user_birthdate"
-                type="date"
-                ></Form.Control>
-                </Form.Group>
-                </Col>
-                <Col xs={12} sm={12} md={12} lg={8}>
-                <Form.Group>
+              <Form.Group>
+                  <Form.Label className="text-dark">Fecha de nacimiento</Form.Label>
+                  <Form.Control
+                  required
+                  name="user_birthdate"
+                  type="date"
+                  ></Form.Control>
+              </Form.Group>
+            </Row>
+          ) : (
+            ""
+          )}
+
+          <Row className="mb-3">
+            <Form.Group>
                 <Form.Label className="text-dark">Número telefónico</Form.Label>
                 <Form.Control
                   required
@@ -276,12 +275,8 @@ export const ManageUsersModal = ({
                   placeholder="Ej: 3108948..."
                   defaultValue={userId !== "" ? userById.user_phone_number : ""}
                 ></Form.Control>
-              </Form.Group>
-                </Col>
-            </Row>
-          ) : (
-            ""
-          )}
+            </Form.Group>
+          </Row>
 
           <Row className="mb-3">
           <Form.Group>

@@ -24,8 +24,8 @@ export const PagesRoutes = () => {
 
     let knownRoutes = [
         ...publicRoutes,
-        session ? "/" : null, session ? "/home" : null, 
-        session && ["admin"].includes(session.role) ? "/usuarios" : null, 
+        session && session.role ? "/" : null, session  && session.role ? "/home" : null, 
+        session && ["admin","secretaria"].includes(session.role) ? "/usuarios" : null, 
         session && ["admin"].includes(session.role) ? "/empleados" : null, 
         session && ["admin","medico","farmaceutico"].includes(session.role) ? "/medicamentos" : null,
         session && ["admin","medico"].includes(session.role) ? "/formulas" : null, 

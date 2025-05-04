@@ -8,6 +8,9 @@ import { ShowFormula } from "./modals/ShowFormula.jsx"
 import moment from 'moment-timezone'
 
 export const FormulasTable = ()=>{
+
+    const session = JSON.parse(sessionStorage.getItem("session"))
+
     const [formulas,setFormulas] = useState([])
     const [formulaId,setFormulaId] = useState("")
     //para mostrar la modal de insertar/actualizar
@@ -105,31 +108,38 @@ export const FormulasTable = ()=>{
     },[])
     
     return (
-        <>
-            <ManageFormulaModal
-            modalData={modalData}
-            setModalData={setModalData}
-            getAllFormulas={getAllFormulas}>
-            </ManageFormulaModal>
+        <>  
+            {session && ["admin","medico"].includes(session.role) ? (
+                <>
+                    <ManageFormulaModal
+                    modalData={modalData}
+                    setModalData={setModalData}
+                    getAllFormulas={getAllFormulas}>
+                    </ManageFormulaModal>
 
-            <ShowFormula formulaId={formulaId} 
-            setFormulaId={setFormulaId}
-            modalInfo={modalInfo} setModalInfo={setModalInfo}>
-            </ShowFormula>
-
+                    <ShowFormula formulaId={formulaId} 
+                    setFormulaId={setFormulaId}
+                    modalInfo={modalInfo} setModalInfo={setModalInfo}>
+                    </ShowFormula>
+                </>
+            ) : ""}
+            
             <Card>
-                <Card.Title className="d-flex">
-                    <Row className="ms-4">
-                        <Button variant="primary" type="button"
-                        onClick={()=>{setModalData(true)}}>
-                            <i className="bi bi-plus-lg"></i>
-                            <span className="p-1 text-white">
-                                Nuevo
-                            </span>
-                        </Button>
-                    </Row>
-                </Card.Title>
-
+                <Card.Header>
+                    <Card.Title className="d-flex">
+                        <Row className="ms-4">
+                            {session && ["admin","medico"].includes(session.role) ? (
+                                <Button variant="primary" type="button"
+                                onClick={()=>{setModalData(true)}}>
+                                    <i className="bi bi-plus-lg"></i>
+                                    <span className="p-1 text-white">
+                                        Nuevo
+                                    </span>
+                                </Button>
+                            ) : ""}
+                        </Row>
+                    </Card.Title>
+                </Card.Header>
                 <Card.Body>
                     {formulas.length > 0 ? (
                     <Row className="table-responsive text-center">
@@ -152,22 +162,27 @@ export const FormulasTable = ()=>{
                                         <td>{formula.patient}</td>
                                         <td>{formula.doctor}</td>
                                         <td>
-                                            <span className="p-1">
-                                                <Button variant="secondary"
-                                                title="Ver detalles de la formula"
-                                                onClick={()=>{setFormulaId(formula["_id"])}}>
-                                                    <i className="bi bi-eye"></i>
-                                                </Button>
-                                            </span>
-                                        
-                                            <span className="p-1">
-                                                <Button variant="danger"
-                                                title="Eliminar formula"
-                                                onClick={()=>{deactivateFormula(formula["_id"])}}>
-                                                    <i className="bi bi-trash"></i>
-                                                </Button>
-                                            </span>
-                                            
+                                            {session && ["admin","medico"].includes(session.role) ? (
+                                                <>
+                                                    <span className="p-1">
+                                                    <Button variant="secondary"
+                                                    title="Ver detalles de la formula"
+                                                    onClick={()=>{setFormulaId(formula["_id"])}}>
+                                                        <i className="bi bi-eye"></i>
+                                                    </Button>
+                                                    </span>
+                                                </>
+                                            ) : ""}
+
+                                            {session && ["admin"].includes(session.role) ? (
+                                                <span className="p-1">
+                                                    <Button variant="danger"
+                                                    title="Eliminar formula"
+                                                    onClick={()=>{deactivateFormula(formula["_id"])}}>
+                                                        <i className="bi bi-trash"></i>
+                                                    </Button>
+                                                </span>
+                                            ) : ""}
                                         </td>
                                     </tr>
                                     )

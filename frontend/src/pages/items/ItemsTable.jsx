@@ -7,6 +7,7 @@ import { Button, Card, Row, Table } from "react-bootstrap"
 export const ItemsTable = ()=>{
     const [items,setItems] = useState([])
     const [itemId,setItemId] = useState("")
+    const session = JSON.parse(sessionStorage.getItem("session"))
     //para mostrar la modal de insertar/actualizar
     const [modalData,setModalData] = useState(false)
 
@@ -73,18 +74,21 @@ export const ItemsTable = ()=>{
     
     return (
         <>
-            <ManageItemsModal
-            modalData={modalData}
-            setModalData={setModalData}
-            itemId={itemId}
-            setItemId={setItemId}
-            setItems={setItems}
-            >
-            </ManageItemsModal>
-
+            {session && ["admin","farmaceutico"].includes(session.role) ? (
+                <ManageItemsModal
+                modalData={modalData}
+                setModalData={setModalData}
+                itemId={itemId}
+                setItemId={setItemId}
+                setItems={setItems}
+                >
+                </ManageItemsModal>
+            ) : ""}
+            
             <Card>
                 <Card.Title className="d-flex">
-                    <Row className="ms-4">
+                    {session && ["admin","farmaceutico"].includes(session.role) ? (
+                        <Row className="ms-4">
                         <Button variant="primary" type="button"
                         onClick={()=>{setModalData(true)}}>
                             <i className="bi bi-plus-lg"></i>
@@ -92,7 +96,8 @@ export const ItemsTable = ()=>{
                                 Nuevo
                             </span>
                         </Button>
-                    </Row>
+                        </Row>
+                    ) : ""}
                 </Card.Title>
 
                 <Card.Body>
@@ -105,7 +110,10 @@ export const ItemsTable = ()=>{
                                     <th>DESCRIPCIÓN</th>
                                     <th>STOCK</th>
                                     <th>PRECIO</th>
-                                    <th>ACCIONES</th>
+                                    {session && ["admin","farmaceutico"].includes(session.role) ? (
+                                        <th>ACCIONES</th>
+                                    ) : ""}
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,24 +125,27 @@ export const ItemsTable = ()=>{
                                     <td>{item.item_stock}</td>
                                     <td>{item.item_price}</td>
                                     <td>
-                                      
-                                    {/* EDITAR ITEM */}
-                                    <span className="p-1">
-                                        <button className="btn btn-primary" title="Editar medicamento"
-                                        onClick={()=>{
-                                            setItemId(item["_id"])
-                                        }}>
-                                            <i className="bi bi-pencil-square"></i>
-                                        </button>
-                                    </span>
-                                                    
-                                    {/* ELIMINAR ITEM */}
-                                    <span className="p-1">
-                                        <button className="btn btn-danger" title="Eliminar medicamento"
-                                        onClick={()=>{deleteItem(item["_id"])}}>
-                                            <i className="bi bi-trash3"></i>
-                                        </button>
-                                    </span>
+                                    {session && ["admin","farmaceutico"].includes(session.role) ? (
+                                        <>
+                                        {/* EDITAR ITEM */}
+                                        <span className="p-1">
+                                            <button className="btn btn-primary" title="Editar medicamento"
+                                            onClick={()=>{
+                                                setItemId(item["_id"])
+                                            }}>
+                                                <i className="bi bi-pencil-square"></i>
+                                            </button>
+                                        </span>
+                                                        
+                                        {/* ELIMINAR ITEM */}
+                                        <span className="p-1">
+                                            <button className="btn btn-danger" title="Eliminar medicamento"
+                                            onClick={()=>{deleteItem(item["_id"])}}>
+                                                <i className="bi bi-trash3"></i>
+                                            </button>
+                                        </span>
+                                        </>
+                                    ) : ""}
                                     </td>
                                 </tr>
                                     )

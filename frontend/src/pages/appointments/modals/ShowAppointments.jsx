@@ -13,6 +13,8 @@ export const ShowAppointment = ({getEvents,appointmentData,setAppointmentData})=
     const [doctor,setDoctor] = useState({})
     const [showUpdate,setShowUpdate] = useState(false)
 
+    const session = JSON.parse(sessionStorage.getItem("session"))
+
     const getDoctor = async()=>{
         const doctor = await fetch(API_URL + '/workers/byid/'+appointmentData.doctor_id,{
             credentials:"include"
@@ -81,12 +83,15 @@ export const ShowAppointment = ({getEvents,appointmentData,setAppointmentData})=
 
     return(
         <>
-            <UpdateAppointment
-            showUpdate={showUpdate}
-            setShowUpdate={setShowUpdate}
-            appointmentData={appointmentData}
-            setAppointmentData={setAppointmentData}
-            getEvents={getEvents}></UpdateAppointment>
+            {session && ["admin","secretaria"].includes(session.role) ? (
+                <UpdateAppointment
+                showUpdate={showUpdate}
+                setShowUpdate={setShowUpdate}
+                appointmentData={appointmentData}
+                setAppointmentData={setAppointmentData}
+                getEvents={getEvents}></UpdateAppointment>
+            ) : ""}
+            
 
             <Modal centered className="fade" show={show} onHide={handleHide}>
                 <Modal.Header className="d-flex flex-row justify-content-between">
@@ -127,21 +132,25 @@ export const ShowAppointment = ({getEvents,appointmentData,setAppointmentData})=
                     </ListGroup>
                 </Modal.Body>
 
-                <Modal.Footer className="d-flex justify-content-between">
-                    <section>
-                        <Button variant="primary me-3" title="Actualizar"
-                        onClick={()=>{
-                            setShow(false)
-                            setShowUpdate(true)
-                        }}>
-                            <i className="bi bi-pencil-square"></i>
-                        </Button>
+                <Modal.Footer className={`d-flex ${session && session && ["admin","secretaria"].includes(session.role) ? 'justify-content-between' : 'justify-content-end'}`}>
+                    {session && ["admin","secretaria"].includes(session.role) ? (
+                        <>
+                            <section>
+                                <Button variant="primary me-3" title="Actualizar"
+                                onClick={()=>{
+                                    setShow(false)
+                                    setShowUpdate(true)
+                                }}>
+                                    <i className="bi bi-pencil-square"></i>
+                                </Button>
 
-                        <Button variant="danger me-3" title="Eliminar"
-                        onClick={()=>{handleDelete(appointmentData["_id"])}}>
-                            <i className="bi bi-trash3"></i>
-                        </Button>
-                    </section>
+                                <Button variant="danger me-3" title="Eliminar"
+                                onClick={()=>{handleDelete(appointmentData["_id"])}}>
+                                    <i className="bi bi-trash3"></i>
+                                </Button>
+                            </section>
+                        </>
+                    ) : ""}
 
                     <section>
                         <Button variant="success" onClick={handleHide}>Aceptar</Button>

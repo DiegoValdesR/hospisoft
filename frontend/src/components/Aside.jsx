@@ -29,7 +29,7 @@ export const AsideBar = ()=>{
                 </li>
 
                 <li className="nav-heading">SECCIONES</li>
-                {["admin"].includes(session.role) && (
+                {["admin","secretaria"].includes(session.role) && (
                     <li className="nav-item">
                     <a className="nav-link collapsed" href="/usuarios">
                         <i className="bi bi-people"></i>

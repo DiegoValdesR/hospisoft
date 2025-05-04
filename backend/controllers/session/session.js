@@ -38,6 +38,7 @@ const LogIn = async(req,res) =>{
         }
 
         const objectUser = {
+            id:findUser !== null ? findUser["_id"] : findWorker["_id"],
             name:findUser !== null ? findUser.user_name : findWorker.worker_name,
             last_name:findUser !== null ? findUser.user_last_name : findWorker.worker_last_name,
             role: findUser !== null ? 'usuario' : findWorker.worker_role

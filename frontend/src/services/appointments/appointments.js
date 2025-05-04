@@ -11,15 +11,11 @@ export const getApointments = async()=>{
     try {
         const request = await fetch(API_URL + `/appointments/all`,{credentials:"include"})
 
-        if(!request.ok){
+        if(request.status === 500){
             throw new Error("Ocurrió un error interno del servidor, por favor intentelo más tarde.");
         }
 
         const requestJSON = await request.json()
-        if (requestJSON.status === "error") {
-            throw new Error(requestJSON.message)
-        }
-
         const events = await Promise.resolve(getEvents(requestJSON))
         
         if (!Array.isArray(events)) {
@@ -31,6 +27,37 @@ export const getApointments = async()=>{
     } catch (err) {
         console.error(err)
         return err.message
+    }
+}
+
+/**
+ * Busca las citas pendientes de un médico
+ * @param {string} doctorId Id del médico
+ * @returns {array} Array de objetos con todas las citas
+ */
+export const appointmentByDoctor = async(doctorId)=>{
+    try {
+        const request = await fetch(API_URL + `/appointments/bydoctor/${doctorId}`,{credentials:"include"})
+
+        if(request.status === 500){
+            throw new Error("Ocurrió un error interno del servidor, por favor intentelo más tarde.");
+        }
+
+        const requestJSON = await request.json()
+        const events = await Promise.resolve(getEvents(requestJSON))
+        
+        if (!Array.isArray(events)) {
+            throw new Error(events)
+        }
+        
+        return events
+
+    } catch (err) {
+        console.error(err)
+        return {
+            status:false,
+            message:err.message
+        }
     }
 }
 

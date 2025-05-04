@@ -8,7 +8,7 @@ import { API_URL } from "../../API_URL"
 export async function scheduleByWorker(workerId){
     try {
         const request = await fetch(API_URL + `/schedules/byworker/${workerId}`,{credentials:"include"})
-        if(!request.ok){
+        if(request.status === 500){
             throw new Error("Ocurrió un error interno del servidor, por favor intentelo más tarde.");
         }
 
@@ -38,7 +38,7 @@ export async function allSchedules() {
             credentials:"include"
         })
 
-        if(!request.ok){
+        if(request.status === 500){
             throw new Error("Ocurrió un error interno del servidor, por favor intentelo más tarde.");
         }
 

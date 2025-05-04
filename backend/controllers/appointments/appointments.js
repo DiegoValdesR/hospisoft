@@ -48,6 +48,28 @@ const AppointmentById = async(req,res)=>{
     }
 }
 
+const AppointmentsByDoctor = async(req,res)=>{
+    const {id} = req.params
+
+    try {
+        const find = await AppointmentModel.find({
+            "doctor_id":mongoose.Types.ObjectId.createFromHexString(id),
+            "appointment_state":"active"
+        })
+
+        return res.status(200).send({
+            status:"completed",
+            data:find
+        })
+        
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
 const InsertAppointment = async(req,res)=>{
     const data = {
         start_date:req.body.start_date,
@@ -249,6 +271,7 @@ const DeactivateAppointment = async(req,res)=>{
 export const AppointmentsMethods = {
     AllApointments,
     AppointmentById,
+    AppointmentsByDoctor,
     InsertAppointment,
     UpdateAppointment,
     DeactivateAppointment

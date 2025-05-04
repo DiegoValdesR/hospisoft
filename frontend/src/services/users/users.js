@@ -9,7 +9,7 @@ export async function getUserById(userId) {
 
     const request = await fetch(API_URL + `/users/byid/${userId}`,{credentials:"include"})
 
-    if(!request.status === 401){
+    if(request.status === 401){
         return "No has iniciado sesión."
     }
 

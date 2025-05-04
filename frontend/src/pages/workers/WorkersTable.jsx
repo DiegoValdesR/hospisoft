@@ -75,38 +75,45 @@ export const WorkersTable = ()=>{
     
     return (
         <>
-            <ShowWorkersModal
-            modalInfo={modalInfo}
-            setModalInfo={setModalInfo}
-            idInfo={idInfo}
-            setIdInfo={setIdInfo}
-            >
-            </ShowWorkersModal>
+            {session && ["admin"].includes(session.role) ? (
+                <>
+                    <ShowWorkersModal
+                    modalInfo={modalInfo}
+                    setModalInfo={setModalInfo}
+                    idInfo={idInfo}
+                    setIdInfo={setIdInfo}
+                    >
+                    </ShowWorkersModal>
 
-            <ManageWorkersModal
-            modalData={modalData}
-            setModalData={setModalData}
-            workerId={workerId}
-            setWorkerId={setWorkerId}
-            setWorkers={setWorkers}
-            >
-            </ManageWorkersModal>
-
+                    <ManageWorkersModal
+                    modalData={modalData}
+                    setModalData={setModalData}
+                    workerId={workerId}
+                    setWorkerId={setWorkerId}
+                    setWorkers={setWorkers}
+                    >
+                    </ManageWorkersModal>
+                </>
+                
+            ) : ""}
+            
             <Card>
-                <Card.Title className="d-flex">
-                    <Row className="ms-4">
-                        {session && ["admin"].includes(session.role) ? (
-                            <Button variant="primary" type="button"
-                            onClick={()=>{setModalData(true)}}>
-                                <i className="bi bi-plus-lg"></i>
-                                <span className="p-1 text-white">
-                                    Nuevo
-                                </span>
-                            </Button>
-                        ) : ""}
-                    </Row>
-                </Card.Title>
-
+                <Card.Header>
+                    <Card.Title className="d-flex">
+                        <Row className="ms-4">
+                            {session && ["admin"].includes(session.role) ? (
+                                <Button variant="primary" type="button"
+                                onClick={()=>{setModalData(true)}}>
+                                    <i className="bi bi-plus-lg"></i>
+                                    <span className="p-1 text-white">
+                                        Nuevo
+                                    </span>
+                                </Button>
+                            ) : ""}
+                        </Row>
+                    </Card.Title>
+                </Card.Header>
+                
                 <Card.Body>
                     {workers.length > 0 ? (
                     <Row className="table-responsive text-center">

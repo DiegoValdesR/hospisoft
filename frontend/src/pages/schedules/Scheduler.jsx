@@ -18,7 +18,8 @@ export const Scheduler = ()=>{
     moment.tz.setDefault('America/Bogota')
     //valor para obtener la fecha actual para el calendario
     const localizer = momentLocalizer(moment)
-    
+    const session = JSON.parse(sessionStorage.getItem("session"))
+
     const [workers,setWorkers] = useState([])
     const [workerId,setWorkerId] = useState("")
     const [scheduleData,setScheduleData] = useState({})
@@ -44,7 +45,14 @@ export const Scheduler = ()=>{
             }
         })
 
-        const events = workerId.length === 24 ? await scheduleByWorker(workerId) : await allSchedules()
+        let events
+
+        if (workerId.length === 24 || (session && session.id && session.role && session.role !== "admin") ) {
+            events = await scheduleByWorker(workerId.length === 24 ? workerId : session.id)
+        }else{
+            events = await Promise.resolve(allSchedules())
+        }
+        
         if (!Array.isArray(events)) {
             Swal.close()
             Swal.fire({
@@ -60,7 +68,6 @@ export const Scheduler = ()=>{
     }
 
     const handleEventClick = (data)=>{
-        console.log(data)
         setScheduleData(data)
     }
 
@@ -88,77 +95,96 @@ export const Scheduler = ()=>{
             getWorkers()
         }
         getEvents()
-    },[])
+    },[workerId])
     
     return (
         <>
-        {/* Modal nuevo horario */}
-        <NewSchedule API_URL={API_URL}
-        showModal={showModal}
-        setShowModal={setShowModal}
-        workers={workers}
-        getEvents={getEvents}></NewSchedule>
+        {session && ["admin"].includes(session.role) ? (
+            <>
+                {/* Modal nuevo horario */}
+                <NewSchedule API_URL={API_URL}
+                showModal={showModal}
+                setShowModal={setShowModal}
+                workers={workers}
+                getEvents={getEvents}></NewSchedule>
+            </>
+        ) : ""}
 
-        {/* Mostrar detalles del horario */}
-        <ShowSchedule
-        API_URL={API_URL}
-        scheduleData={scheduleData}
-        setScheduleData={setScheduleData}
-        workers={workers}
-        getEvents={getEvents}></ShowSchedule>
+        {session && ["admin","medico","secretaria","farmaceutico"].includes(session.role) ? (
+            <>
+            {/* Mostrar detalles del horario */}
+            <ShowSchedule
+            API_URL={API_URL}
+            scheduleData={scheduleData}
+            setScheduleData={setScheduleData}
+            workers={workers}
+            getEvents={getEvents}></ShowSchedule>
+            </>
+        ) : ""}
         
         <Card>
-            <Card.Header className='p-3'>
-                <Row>
-                    <div className='d-flex flex-row justify-content-between sche-header'>
-                        <div className='d-flex flex-row align-items-center'>
-                            <span className='text-black text-break'>Seleccionar empleado</span>
+            {session && ["admin"].includes(session.role) ? (
+                <Card.Header className='p-3'>
+                    <Row>
+                        <div className='d-flex flex-row justify-content-between sche-header'>
+                            <div className='d-flex flex-row align-items-center'>
+                                <span className='text-black text-break'>Seleccionar empleado</span>
 
-                            <Form.Select className='ms-3 border-dark-subtle select'
-                            defaultValue={""} onChange={handleChange}>
-                                <option value=""></option>
-                                {workers.map((worker)=>{
-                                    return (
-                                        <option key={worker["_id"]} value={worker["_id"]}>
-                                            {worker.worker_name} {worker.worker_last_name}
-                                        </option>
-                                    )
-                                })}
-                            </Form.Select>
+                                <Form.Select className='ms-3 border-dark-subtle select'
+                                defaultValue={""} onChange={handleChange}>
+                                    <option value=""></option>
+                                    {workers.map((worker)=>{
+                                        return (
+                                            <option key={worker["_id"]} value={worker["_id"]}>
+                                                {worker.worker_name} {worker.worker_last_name}
+                                            </option>
+                                        )
+                                    })}
+                                </Form.Select>
+                            </div>
+                            {session && ["admin"].includes(session.role) ? (
+                                <div className='btn-new'>
+                                    <Button variant='primary'
+                                    onClick={()=>{setShowModal(true)}}>
+                                        <i className="bi bi-plus-lg"></i>
+                                        <span className="p-1 text-white">
+                                            Nuevo
+                                        </span>
+                                    </Button>
+                                </div>
+                            ) : ""}
+                            
                         </div>
+                    </Row>
+                </Card.Header>
+            ) : ""}
+            
 
-                        <div className='btn-new'>
-                            <Button variant='primary'
-                            onClick={()=>{setShowModal(true)}}>
-                                <i className="bi bi-plus-lg"></i>
-                                <span className="p-1 text-white">
-                                    Nuevo
-                                </span>
-                            </Button>
-                        </div>
-                    </div>
-                </Row>
-            </Card.Header>
+            <Card.Body className='mt-2 p-3'>
 
-            <Card.Body className='mt-2'>
-                <Calendar
-                style={{width:"100%",height:"100vh"}}
-                localizer={localizer}
-                views={["month","week","day"]}
-                messages={messages}
-                events={events}
-                min={moment('2025-04-26T06:00:00').toDate()}
-                max={moment('2025-04-26T19:00:00').toDate()}
-                onSelectEvent={(event)=>{
-                    handleEventClick(event.schedule_data)
-                }}
-                formats={{
-                    timeGutterFormat:"hh:mm a",
-                    eventTimeRangeFormat: ({ start, end }, culture, local) =>{
-                        return local.format(start, 'hh:mm a') + ' - ' + local.format(end, 'hh:mm a')
-                    }
-                }}
-                ></Calendar>
+                {events.length > 0 ? (
+                    <Calendar
+                    style={{width:"100%",height:"100vh"}}
+                    localizer={localizer}
+                    views={["month","week","day"]}
+                    messages={messages}
+                    events={events}
+                    min={moment('2025-04-26T06:00:00').toDate()}
+                    max={moment('2025-04-26T19:00:00').toDate()}
+                    onSelectEvent={(event)=>{
+                        handleEventClick(event.schedule_data)
+                    }}
+                    formats={{
+                        timeGutterFormat:"hh:mm a",
+                        eventTimeRangeFormat: ({ start, end }, culture, local) =>{
+                            return local.format(start, 'hh:mm a') + ' - ' + local.format(end, 'hh:mm a')
+                        }
+                    }}
+                    ></Calendar>
+                ) : (
+                    <p className='text-center text-black h5'>No existen horarios registrados para ti.</p>
+                )}
+                
             </Card.Body>
         </Card>
         </>

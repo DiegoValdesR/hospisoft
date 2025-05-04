@@ -8,6 +8,7 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
     const [show,setShow] = useState(false)
     const [showUpdate,setShowUpdate] = useState(false)
     const [worker,setWorker] = useState("")
+    const session = JSON.parse(sessionStorage.getItem("session"))
 
     const workerById = async()=>{
         const getWorker = await fetch(API_URL + `/workers/byid/${scheduleData.worker_id}`,{credentials: 'include'})
@@ -94,15 +95,17 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
 
     return (
         <>
-            <UpdateSchedule
-            API_URL={API_URL}
-            scheduleData={scheduleData}
-            setScheduleData={setScheduleData}
-            workers={workers}
-            getEvents={getEvents}
-            showUpdate={showUpdate}
-            setShowUpdate={setShowUpdate}></UpdateSchedule>
-
+            {session && ["admin"].includes(session.role) ? (
+                <UpdateSchedule
+                API_URL={API_URL}
+                scheduleData={scheduleData}
+                setScheduleData={setScheduleData}
+                workers={workers}
+                getEvents={getEvents}
+                showUpdate={showUpdate}
+                setShowUpdate={setShowUpdate}></UpdateSchedule>
+            ) : ""}
+            
             <Modal centered className="fade" show={show} onHide={handleHide}>
                 <Modal.Header className="d-flex flex-row justify-content-between">
                     <Modal.Title>Detalles del horario</Modal.Title>
@@ -145,17 +148,21 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
                     </ListGroup>
                 </Modal.Body>
 
-                <Modal.Footer className="d-flex justify-content-between">
-                    <section>
-                        <Button variant="primary me-3" title="Actualizar"
-                        onClick={handleModalUpdate}>
-                            <i className="bi bi-pencil-square"></i>
-                        </Button>
-                        <Button variant="danger me-3" title="Eliminar"
-                        onClick={()=>{deactivateSchedule(scheduleData._id)}}>
-                            <i className="bi bi-trash3"></i>
-                        </Button>
-                    </section>
+                <Modal.Footer className={`d-flex ${session && session && ["admin"].includes(session.role) ? 'justify-content-between' : 'justify-content-end'}`}>
+                    {session && ["admin"].includes(session.role) ? (
+                        <>
+                        <section>
+                            <Button variant="primary me-3" title="Actualizar"
+                            onClick={handleModalUpdate}>
+                                <i className="bi bi-pencil-square"></i>
+                            </Button>
+                            <Button variant="danger me-3" title="Eliminar"
+                            onClick={()=>{deactivateSchedule(scheduleData._id)}}>
+                                <i className="bi bi-trash3"></i>
+                            </Button>
+                        </section>
+                        </>
+                    ) : ""}
 
                     <section>
                         <Button variant="success" onClick={handleHide}>Aceptar</Button>
