@@ -1,35 +1,14 @@
-import { API_URL } from "../../API_URL.js";
+import { API_URL } from "../../API_URL.js"
 
-/**
- * Consigue la información de un usuario en concreto
- * @param {string} userId Id del usuario 
- * @returns {object} Objeto con toda la informacion de un usuario específico
- */
-export async function getUserById(userId) {
-
-    const request = await fetch(API_URL + `/users/byid/${userId}`,{credentials:"include"})
-
-    if(request.status === 500){
-        return "Error interno del servidor, por favor intentelo más tarde."
-    }
-
-    const requestJSON = await request.json()
-
-    if (requestJSON.status === "error") {
-        return requestJSON.message
-    }
-
-    return requestJSON
-}
 /**
  * Método que registra usuarios
  * @param {object} data Toda la información del registro
  * @returns {object} Objeto con un estado y un mensaje,los valores de estos dependiendo de si la operación fue exitosa
  * o no
  */
-export async function insertUser(data) {
+export async function insertWorker(data) {
     try {
-        const insert = await fetch(API_URL + `/users/new`,{
+        const insert = await fetch(API_URL + `/workers/new`,{
             method:"POST",
             credentials:"include",
             headers:{
@@ -49,7 +28,7 @@ export async function insertUser(data) {
 
         return {
             status:true,
-            message:"Usuario creado correctamente!"
+            message:"Empleado creado correctamente!"
         }
 
     } catch (error) {
@@ -66,9 +45,9 @@ export async function insertUser(data) {
  * @returns {object} Objeto con un estado y un mensaje,los valores de estos dependiendo de si la operación fue exitosa
  * o no
  */
-export async function updateUser(userId,data) {
+export async function updateWorker(workerId,data) {
     try {
-        const insert = await fetch(API_URL + `/users/update/${userId}`,{
+        const insert = await fetch(API_URL + `/workers/update/${workerId}`,{
             method:"PUT",
             credentials:"include",
             headers:{
@@ -88,7 +67,7 @@ export async function updateUser(userId,data) {
 
         return {
             status:true,
-            message:"Usuario actualizado correctamente!"
+            message:"Empleado actualizado correctamente!"
         }
         
     } catch (error) {

@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import Swal from "sweetalert2";
-import { API_URL } from "../../../API_URL.js";
-import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from "react-bootstrap";
+import { useState, useEffect } from "react"
+import Swal from "sweetalert2"
+import { API_URL } from "../../../API_URL.js"
+import { insertUser,updateUser } from "../../../services/users/users.js"
+import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from "react-bootstrap"
 /**
  * @param modalData Variable bool que maneja si se muestra o no la modal
  * @param setModalData Funcion que cambia de true a false y viceversa la variable 'showModal'
@@ -15,42 +16,66 @@ export const ManageUsersModal = ({
   setModalData,
   userId = "",
   setUserId,
-  setUsers,
+  getAllUsers,
 }) => {
-  const [userById, setUserById] = useState({});
-  const [birthdate, setBirthdate] = useState(userId !== "" ? new Date(userById.user_birthdate) : null);
+  const [userById, setUserById] = useState({})
 
   const GetUserById = async () => {
     Swal.fire({
       title: "Cargando usuario...",
+      allowEscapeKey:false,
+      allowOutsideClick:false,
       didOpen: () => {
         Swal.showLoading();
-      },
-    });
+      }
+    })
 
-    const user = await fetch(API_URL + "/users/byid/" + userId,{credentials: 'include'}).then((res) =>
-      res.json()
-    );
-    if (user && user.status === "completed") {
-      setUserById(user.data);
-      setModalData(true);
-      Swal.close();
+    const user = await fetch(API_URL + "/users/byid/" + userId,{credentials: 'include'})
+    if (!user.ok) {
+      Swal.close()
+      Swal.fire({
+        title:"Error",
+        icon:"error",
+        text:"Ocurrió un error, por favor, intentelo más tarde",
+        allowEscapeKey:false,
+        allowOutsideClick:false,
+      }).then((res)=>{
+          if (res.isConfirmed) {
+            window.location.href = "/home"
+          }
+      })
+      return
     }
-  };
+
+    const userJSON = await user.json()
+    setUserById(userJSON.data)
+    setModalData(true)
+
+    Swal.close()
+  }
 
   const handleHide = () => {
-    setModalData(false);
-    setUserId("");
-  };
+    setModalData(false)
+    setUserId("")
+  }
 
   useEffect(() => {
     if (userId.length === 24) {
-      GetUserById();
+      GetUserById()
     }
-  }, [userId]);
+  }, [userId])
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
+    Swal.fire({
+      title:"Procesando...",
+      allowEscapeKey:false,
+      allowOutsideClick:false,
+      didOpen:()=>{
+        Swal.showLoading()
+      }
+    })
+
     const form = e.target.closest("form");
     const formData = new FormData(form);
 
@@ -63,101 +88,29 @@ export const ManageUsersModal = ({
       user_phone_number: formData.get("user_phone_number"),
       user_birthdate: formData.get("user_birthdate"),
       user_eps: formData.get("user_eps"),
-    };
-
-    switch (userId.length) {
-      case 0:
-        Swal.fire({
-          title: "Procesando información...",
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-        const insert = await fetch(API_URL + `/users/new`, {
-          method: "POST",
-          credentials: 'include',
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-        const insertJSON = await insert.json();
-        Swal.close();
-
-        if (insertJSON) {
-          Swal.fire({
-            title: insertJSON.status === "completed" ? "Completado" : "Error",
-            icon: insertJSON.status === "completed" ? "success" : "error",
-            text: insertJSON.message,
-          });
-
-          if (insertJSON.status === "completed") {
-            const allUsers = await fetch(API_URL + "/users/all",{credentials: 'include'}).then((res) =>
-              res.json()
-            );
-            if (allUsers && allUsers.status === "completed") {
-              setUsers(allUsers.data);
-              handleHide();
-              return;
-            }
-          }
-        }
-        break;
-
-      case 24:
-        delete data.user_document
-        delete data.user_password
-        delete data.user_birthdate
-
-        Swal.fire({
-          title: "Procesando información...",
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-        const update = await fetch(API_URL + `/users/update/${userId}`, {
-          method: "PUT",
-          credentials: 'include',
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-        const updateJSON = await update.json();
-        Swal.close();
-
-        if (updateJSON) {
-          Swal.fire({
-            title: updateJSON.status === "completed" ? "Completado" : "Error",
-            icon: updateJSON.status === "completed" ? "success" : "error",
-            text: updateJSON.message,
-          });
-
-          if (updateJSON.status === "completed") {
-            const allUsers = await fetch(API_URL + "/users/all",{credentials: 'include'}).then((res) =>
-              res.json()
-            );
-            if (allUsers && allUsers.status === "completed") {
-              setUsers(allUsers.data);
-              handleHide();
-              return;
-            }
-          }
-        }
-        break;
-
-      default:
-        Swal.fire({
-          title: "Error",
-          icon: "error",
-          text: "Ocurrió un error, intentelo más tarde",
-          showCancelButton: false,
-          showConfirmButton: false,
-          timer: 3000,
-        });
-        break;
     }
-  };
+    
+    if (userId.length === 24) {
+      delete data.user_document
+      delete data.user_password
+      delete data.user_birthdate
+    }
+
+    const request = userId.length !== 24 ? await insertUser(data) : await updateUser(userId,data)
+    
+    Swal.close()
+    if (request.status) {
+      await getAllUsers()
+      handleHide()
+    }
+
+    Swal.fire({
+      title:request.status ? "Completado" : "Error",
+      icon:request.status ? "success" : "error",
+      text:request.message
+    })
+
+  }
 
   return (
     <Modal centered className="fade" onHide={handleHide} show={modalData} size="xl">
@@ -281,8 +234,7 @@ export const ManageUsersModal = ({
           <Row className="mb-3">
             <Form.Group>
               <Form.Label className="text-dark">EPS</Form.Label>
-              <Form.Control
-                  as="select"
+              <Form.Select
                   required
                   name="user_eps"
                   defaultValue={userId !== "" ? userById.user_eps : ""}>
@@ -298,7 +250,7 @@ export const ManageUsersModal = ({
                       {eps}
                   </option>
                   ))}
-              </Form.Control>
+              </Form.Select>
             </Form.Group>
           </Row>
 
@@ -313,5 +265,5 @@ export const ManageUsersModal = ({
         </Form>
       </ModalBody>
     </Modal>
-  );
-};
+  )
+}

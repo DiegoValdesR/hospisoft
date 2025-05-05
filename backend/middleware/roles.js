@@ -13,8 +13,13 @@ export const AdmittedRoles = (req,roles)=>{
     const loginData = jwt.verify(token,process.env.SECRET)
     
     if (!roles.includes(loginData.role)) {
-        return "No tienes acceso a esta función."
+        return {
+            status:false,
+            message:"No tienes acceso a esta función."
+        }
     }
 
-    return true
+    return {
+        status:true
+    }
 }

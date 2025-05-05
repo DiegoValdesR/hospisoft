@@ -1,10 +1,10 @@
 import { WorkerModel } from "../../models/workers/workers.js"
 import { Validations } from "../../validations/index.js"
+import { AdmittedRoles } from "../../middleware/roles.js"
 import mongoose from "mongoose"
 import bcrypt from "bcryptjs"
 
 const AllWorkers = async(req,res)=>{
-    
     try {
         const workers = await WorkerModel.find({"worker_state":"active"})
         return res.status(200).send({

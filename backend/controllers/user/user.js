@@ -6,11 +6,11 @@ import bcrypt from 'bcryptjs'
 
 const AllUsers = async(req,res) =>{
 
-    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    // if (typeof errorRole === "string") {
+    // const errorRole = AdmittedRoles(req,["admin","secretaria"])
+    // if (!errorRole.status) {
     //     return res.status(401).send({
     //         status:"error",
-    //         message:errorRole
+    //         message:errorRole.message
     //     })
     // }
 
@@ -34,11 +34,11 @@ const AllUsers = async(req,res) =>{
 
 const UserById = async(req,res)=>{
 
-    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    // if (typeof errorRole === "string") {
+    // const errorRole = AdmittedRoles(req,["admin","secretaria"])
+    // if (!errorRole.status) {
     //     return res.status(401).send({
     //         status:"error",
-    //         message:errorRole
+    //         message:errorRole.message
     //     })
     // }
 
@@ -70,11 +70,11 @@ const UserById = async(req,res)=>{
 
 const InsertUser = async(req,res) =>{
 
-    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    // if (typeof errorRole === "string") {
+    // const errorRole = AdmittedRoles(req,["admin","secretaria","usuario"])
+    // if (!errorRole.status) {
     //     return res.status(401).send({
     //         status:"error",
-    //         message:errorRole
+    //         message:errorRole.message
     //     })
     // }
 
@@ -127,11 +127,11 @@ const InsertUser = async(req,res) =>{
 
 const UpdateUser = async(req,res)=>{
 
-    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    // if (typeof errorRole === "string") {
+    // const errorRole = AdmittedRoles(req,["admin"])
+    // if (!errorRole.status) {
     //     return res.status(401).send({
     //         status:"error",
-    //         message:errorRole
+    //         message:errorRole.message
     //     })
     // }
 
@@ -180,11 +180,11 @@ const UpdateUser = async(req,res)=>{
 
 const DeleteUser = async(req,res)=>{
 
-    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    // if (typeof errorRole === "string") {
+    // const errorRole = AdmittedRoles(req,["admin"])
+    // if (!errorRole.status) {
     //     return res.status(401).send({
     //         status:"error",
-    //         message:errorRole
+    //         message:errorRole.message
     //     })
     // }
 

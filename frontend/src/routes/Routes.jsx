@@ -21,7 +21,7 @@ export const PagesRoutes = () => {
     const location = useLocation()
     //revisamos que existe el objeto session en el session storage
     const session = JSON.parse(sessionStorage.getItem("session"))
-    const publicRoutes = [!session ? "/login" : null, !session ? "/registro" : null]
+    const publicRoutes = ["/login", !session ? "/registro" : null]
 
     let knownRoutes = [
         ...publicRoutes,

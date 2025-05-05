@@ -2,6 +2,7 @@ import { useState,useEffect } from "react"
 import Swal from "sweetalert2"
 import { API_URL } from "../../../API_URL.js"
 import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from 'react-bootstrap'
+
 /**
  * @param modalData Variable bool que maneja si se muestra o no la modal
  * @param setModalData Funcion que cambia de true a false y viceversa la variable 'showModal'
@@ -16,18 +17,34 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
     const getItemById = async() =>{
         Swal.fire({
             title:"Cargando medicamento...",
+            allowEscapeKey:false,
+            allowOutsideClick:false,
             didOpen:()=>{
                 Swal.showLoading()
             }
         })
 
-        const item = await fetch(API_URL + '/items/byid/'+itemId,{credentials: 'include'}).then(res => res.json())
-        if (item && item.status === "completed") {
-            setItemById(item.data)
-            setModalData(true)
+        const item = await fetch(API_URL + '/items/byid/'+itemId,{credentials: 'include'})
+        if (!item.ok) {
             Swal.close()
+            Swal.fire({
+                title:"Error",
+                icon:"error",
+                text:"Ocurrió un error, por favor, intentelo más tarde",
+                allowEscapeKey:false,
+                allowOutsideClick:false,
+            }).then((res)=>{
+                if (res.isConfirmed) {
+                    window.location.href = "/home"
+                }
+            })
             return
         }
+
+        const itemJSON = await item.json()
+        setItemById(itemJSON.data)
+        setModalData(true)
+        Swal.close()
     }
 
     const handleHide = ()=>{
