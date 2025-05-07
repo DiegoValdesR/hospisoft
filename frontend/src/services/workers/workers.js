@@ -1,5 +1,32 @@
 import { API_URL } from "../../API_URL.js"
 
+export async function getAllDoctors() {
+    try {
+        const request = await fetch(API_URL + `/workers/alldoctors`,{credentials:"include"})
+
+        if(request.status === 500){
+            return "Error interno del servidor, por favor intentelo más tarde."
+        }
+
+        const requestJSON = await request.json()
+
+        if (requestJSON.status === "error") {
+            return requestJSON.message
+        }
+
+        return {
+            status:true,
+            data:requestJSON.data
+        }
+
+    } catch (error) {
+        return {
+            status:false,
+            message:error.message
+        }
+    }
+}
+
 /**
  * Método que registra usuarios
  * @param {object} data Toda la información del registro

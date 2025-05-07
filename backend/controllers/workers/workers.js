@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs"
 
 const AllWorkers = async(req,res)=>{
     try {
-        const workers = await WorkerModel.find({"worker_state":"active"})
+        const workers = await WorkerModel.find({"worker_state":"active","worker_role":{"$ne":"admin"}})
         return res.status(200).send({
             status:"completed",
             data:workers

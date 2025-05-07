@@ -91,15 +91,17 @@ export const AppontmentsCalendar = ()=>{
             <Card>
                 {session && ["admin","secretaria"].includes(session.role) ? (
                     <Card.Header>
-                    {session && ["admin","secretaria"].includes(session.role) ? (
-                        <Button variant='primary'
-                        onClick={()=>{setShowModal(true)}}>
-                            <i className="bi bi-plus-lg"></i>
-                            <span className="p-1 text-white">
-                                Nuevo
-                            </span>
-                        </Button>
-                    ) : ""}
+                        <Card.Title>
+                            {session && ["admin","secretaria"].includes(session.role) ? (
+                            <Button variant='primary' className='ms-4'
+                            onClick={()=>{setShowModal(true)}}>
+                                <i className="bi bi-plus-lg"></i>
+                                <span className="p-1 text-white">
+                                    Nuevo
+                                </span>
+                            </Button>
+                            ) : ""}
+                        </Card.Title>
                     </Card.Header>
                 ) : ""}
                 

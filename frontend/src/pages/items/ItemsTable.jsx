@@ -183,7 +183,7 @@ export const ItemsTable = ()=>{
                         </Table>
                     </Row>
                     ) : (
-                        <p className="mt-2 text-center text-dark">No hay medicamentos...</p>
+                        <p className="mt-2 text-center text-black h5">No hay medicamentos...</p>
                     )}
                 </Card.Body>
             </Card> 

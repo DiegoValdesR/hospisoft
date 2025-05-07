@@ -125,7 +125,7 @@ export const Scheduler = ()=>{
         <Card>
             {session && ["admin"].includes(session.role) ? (
                 <Card.Header className='p-3'>
-                    <Row>
+                    <Card.Title>
                         <div className='d-flex flex-row justify-content-between sche-header'>
                             <div className='d-flex flex-row align-items-center'>
                                 <span className='text-black text-break'>Seleccionar empleado</span>
@@ -155,7 +155,7 @@ export const Scheduler = ()=>{
                             ) : ""}
                             
                         </div>
-                    </Row>
+                    </Card.Title>
                 </Card.Header>
             ) : ""}
             
@@ -182,7 +182,7 @@ export const Scheduler = ()=>{
                     }}
                     ></Calendar>
                 ) : (
-                    <p className='text-center text-black h5'>No existen horarios registrados para ti.</p>
+                    <p className='text-center text-black h5'>No existen horarios registrados...</p>
                 )}
                 
             </Card.Body>

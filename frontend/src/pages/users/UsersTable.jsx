@@ -204,7 +204,7 @@ export const UsersTable = ()=>{
                     </Row>
                     ) : (
                         <div className="mt-2 p-2">
-                            <p className="text-dark">No hay usuarios...</p>
+                            <p className="text-black text-center h5">No hay usuarios...</p>
                         </div> 
                     )}
                 </Card.Body>

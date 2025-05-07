@@ -219,7 +219,7 @@ export const FormulasTable = ()=>{
                     </Row>
                     ) : (
                         <div>
-                            <p className="text-center text-dark">No hay formulas...</p>
+                            <p className="text-center text-black mt-2 h5">No hay formulas...</p>
                         </div>
                         
                     )}
