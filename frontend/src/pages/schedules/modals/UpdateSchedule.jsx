@@ -35,7 +35,6 @@ export const UpdateSchedule = ({API_URL, scheduleData, setScheduleData, workers 
         })
 
         if (!update.ok) {
-            console.error(update.statusText)
             Swal.close()
 
             Swal.fire({
@@ -55,11 +54,10 @@ export const UpdateSchedule = ({API_URL, scheduleData, setScheduleData, workers 
         } 
 
         Swal.fire({
-            title:updateJSON.status === "completed" ? "Completado" : "Error",
-            icon:updateJSON.status === "completed" ? "success" : "error",
+            title:"Completado",
+            icon:"success",
             text:updateJSON.message
         })
-
     }
 
     const handleHide = ()=>{

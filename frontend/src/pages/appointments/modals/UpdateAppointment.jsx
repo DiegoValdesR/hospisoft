@@ -39,6 +39,8 @@ export const UpdateAppointment = ({showUpdate,setShowUpdate,appointmentData,setA
     try {
       Swal.fire({
         title: "Procesando...",
+        allowEscapeKey:false,
+        allowOutsideClick:false,
         didOpen: () => {
           Swal.showLoading()
         }
@@ -72,6 +74,7 @@ export const UpdateAppointment = ({showUpdate,setShowUpdate,appointmentData,setA
         icon: "success",
         text: update.message
       })
+      
     } catch (error) {
       Swal.close()
       Swal.fire({

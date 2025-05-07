@@ -38,6 +38,8 @@ export const NewAppointment = ({getEvents,showModal,setShowModal})=>{
         try {
             Swal.fire({
                 title:"Procesando...",
+                allowEscapeKey:false,
+                allowOutsideClick:false,
                 didOpen:()=>{
                     Swal.showLoading()
                 }

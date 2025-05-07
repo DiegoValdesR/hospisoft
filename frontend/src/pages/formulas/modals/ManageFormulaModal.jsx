@@ -83,14 +83,8 @@ export const ManageFormulaModal = ({ modalData, setModalData, getAllFormulas }) 
     const handleAmountChange = (itemId, value) => {
         setSelectedItems(selectedItems.map(item => 
             item.item_id === itemId ? { ...item, amount: value } : item
-        ));
-    };
-
-    const handlePosologyChange = (itemId, value) => {
-        setSelectedItems(selectedItems.map(item => 
-            item.item_id === itemId ? { ...item, posology: value } : item
-        ));
-    };
+        ))
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -132,10 +126,12 @@ export const ManageFormulaModal = ({ modalData, setModalData, getAllFormulas }) 
         
         Swal.fire({
             title: "Procesando información...",
+            allowEscapeKey:false,
+            allowOutsideClick:false,
             didOpen: () => {
-                Swal.isLoading();
+                Swal.isLoading()
             }
-        });
+        })
 
         const insert = await fetch(API_URL + `/formulas/new`, {
             method: "POST",
@@ -144,10 +140,17 @@ export const ManageFormulaModal = ({ modalData, setModalData, getAllFormulas }) 
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
-        });
+        })
 
-        const insertJSON = await insert.json();
-        Swal.close();
+        if (!insert.ok) {
+            Swal.close()
+            Swal.fire({
+                
+            })
+        }
+
+        const insertJSON = await insert.json()
+        Swal.close()
 
         if (insertJSON) {
             if (insertJSON.status === "completed") {
@@ -161,7 +164,7 @@ export const ManageFormulaModal = ({ modalData, setModalData, getAllFormulas }) 
                 text: insertJSON.message
             });
         }
-    };
+    }
 
     const handleHide = () => {
         setModalData(false);

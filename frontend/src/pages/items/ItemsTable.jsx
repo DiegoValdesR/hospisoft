@@ -85,13 +85,11 @@ export const ItemsTable = ()=>{
 
                 const responseJSON = await deleteItems.json()
                 Swal.close()
-                if (responseJSON.status === "completed") {
-                    await getAllItems()
-                }
+                await getAllItems()
 
                 Swal.fire({
-                    title:responseJSON.status === "completed" ? "Completado" : "Error",
-                    icon:responseJSON.status === "completed" ? "success" : "error",
+                    title:"Completado",
+                    icon:"success",
                     text:responseJSON.message
                 })
             }
@@ -110,7 +108,7 @@ export const ItemsTable = ()=>{
                 setModalData={setModalData}
                 itemId={itemId}
                 setItemId={setItemId}
-                setItems={setItems}
+                getAllItems={getAllItems}
                 >
                 </ManageItemsModal>
             ) : ""}

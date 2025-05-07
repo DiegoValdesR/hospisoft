@@ -85,8 +85,7 @@ export const FormulasTable = ()=>{
             showCancelButton:true,
             showConfirmButton:true,
             confirmButtonColor:"#dc3545",
-            confirmButtonText:"Aceptar"
-
+            confirmButtonText:"Aceptar",
         }).then(async result =>{
             if (result.isConfirmed) {
                 

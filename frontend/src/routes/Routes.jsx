@@ -12,6 +12,7 @@ import { AppointmentsPage } from "../pages/appointments/AppointmentsPage"
 import { Login } from '../pages/login/Login'
 import { NotFound } from "../pages/404/NotFound"
 import { Register } from "../pages/register/register.jsx"
+import { HistoryPage } from "../pages/medical_history/HistoryPage.jsx"
 
 import { API_URL } from "../API_URL.js"
 
@@ -31,8 +32,10 @@ export const PagesRoutes = () => {
         session && ["admin","medico","farmaceutico"].includes(session.role) ? "/medicamentos" : null,
         session && ["admin","medico"].includes(session.role) ? "/formulas" : null, 
         session && ["admin","medico","secretaria","farmaceutico"].includes(session.role) ? "/horarios" : null, 
-        session && ["admin","medico","secretaria"].includes(session.role) ? "/citas" : null
+        session && ["admin","medico","secretaria"].includes(session.role) ? "/citas" : null,
+        session && ["admin","usuario","medico"].includes(session.role) ? "/historial_medico" : null
     ]
+
 
     knownRoutes = knownRoutes.filter(route => route)
 
@@ -81,6 +84,7 @@ export const PagesRoutes = () => {
             <Route path="/horarios" element={<SchedulesPage />} />
             <Route path="/citas" element={<AppointmentsPage />} />
             <Route path="/registro" element={<Register />} />
+            <Route path="/historial_medico" element={<HistoryPage />} />
         </Routes>
     )
 }

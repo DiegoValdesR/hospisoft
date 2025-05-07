@@ -13,7 +13,12 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
     const workerById = async()=>{
         const getWorker = await fetch(API_URL + `/workers/byid/${scheduleData.worker_id}`,{credentials: 'include'})
         if (!getWorker.ok) {
-            console.error(getWorker.statusText)
+            console.error(getWorker)
+            Swal.fire({
+                title:"Error",
+                icon:"error",
+                text:"Ocurrió un error, por favor intentelo más tarde."
+            })
         }
         const workerJSON = await getWorker.json()
         if (workerJSON.status === "completed") {
@@ -45,7 +50,6 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
                 })
 
                 if (!deactivate.ok) {
-                    console.error(deactivate.statusText)
                     Swal.close()
                     Swal.fire({
                         title:"Error",
@@ -63,8 +67,8 @@ export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers
                 }
 
                 Swal.fire({
-                    title:deactivateJSON.status === "completed" ? "Completado" : "Error",
-                    icon:deactivateJSON.status === "completed" ? "success" : "error",
+                    title:"Completado",
+                    icon:"success",
                     text:deactivateJSON.message
                 })
 

@@ -34,6 +34,8 @@ export const AppontmentsCalendar = ()=>{
     const getEvents = async()=>{
         Swal.fire({
             title:"Cargando...",
+            allowEscapeKey:false,
+            allowOutsideClick:false,
             didOpen:()=>{
                 Swal.showLoading()
             }

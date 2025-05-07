@@ -96,6 +96,7 @@ const getEvents = async(appointmentsJSON)=>{
         const end = moment(`${endObj.year}-${endObj.month}-${endObj.day}T${hourEnd}`).toDate()
     
         const title = `Cita para ${user.data.user_name} ${user.data.user_last_name}`
+
     
         const data = {
             title:title,
@@ -111,6 +112,8 @@ const getEvents = async(appointmentsJSON)=>{
                 doctor_id:appointment.doctor_id
             }
         }
+        
+        
         arrayEvents.push(data)
     }
     

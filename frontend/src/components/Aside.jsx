@@ -75,6 +75,14 @@ export const AsideBar = ()=>{
                             <span>Citas</span>
                         </a>
                     )}
+
+                    {["admin","medico","usuario"].includes(session.role) && (
+                        <a className="nav-link collapsed" href="/historial_medico"
+                        >
+                            <i className="bi bi-clipboard-plus"></i>
+                            <span>Historial médico</span>
+                        </a>
+                    )}
                 
                     <li className="nav-heading">SESIÓN</li>
 

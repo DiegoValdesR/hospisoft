@@ -8,7 +8,6 @@ export const NewSchedule = ({API_URL,workers = [],showModal,setShowModal,getEven
 
     const handleSubmit = async(e)=>{
         e.preventDefault()
-
         try {
             Swal.fire({
                 text:"Procesando...",
@@ -39,30 +38,29 @@ export const NewSchedule = ({API_URL,workers = [],showModal,setShowModal,getEven
                 body:JSON.stringify(data)
             })
 
+            if (!insert.ok) {
+                throw new Error(insert.statusText)
+            }
+
             const insertJSON = await insert.json()
             Swal.close()
 
-            if (insertJSON) {
-                if (insertJSON.status === "completed") {
-                    handleHide()
-                    await getEvents()
-                }
-
-                Swal.fire({
-                    title:insertJSON.status === "completed" ? "Completado" : "Error",
-                    icon:insertJSON.status === "completed" ? "success" : "error",
-                    text:insertJSON.message
-                })
-            }
+            handleHide()
+            await getEvents()
+            
+            Swal.fire({
+                title:"Completado",
+                icon:"success",
+                text:insertJSON.message
+            })
 
             return
 
         } catch (error) {
-            console.error(error)
             Swal.fire({
                 title:"Error",
                 icon:"error",
-                text:"Occurió un error, por favor intentelo más tarde."
+                text:error.message
             })
         }
     }
