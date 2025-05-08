@@ -2,6 +2,7 @@ import { MedicalModel } from "../../models/medicalHistory/medicalHistory.js"
 import { UsersModel } from "../../models/user/user.js"
 import { WorkerModel } from "../../models/workers/workers.js"
 import { Types } from "mongoose"
+import moment from 'moment-timezone'
 
 const AllMedicalHistory = async(req,res)=>{
     try {
@@ -23,6 +24,37 @@ const MedicalHistoryById = async(req,res)=>{
     const {id} = req.params
     try {
         const findOne = await MedicalModel.findOne({"_id":Types.ObjectId.createFromHexString(id),"state":"active"})
+        return res.status(200).send({
+            status:"completed",
+            data:findOne
+        })
+
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
+const MedicalHistoryByDate = async(req,res)=>{
+    const {date} = req.body
+
+    try {
+        const minDate = moment(date).toDate()
+        const dateObject = {
+            year:moment(minDate).format('YYYY'),
+            month:moment(minDate).format('mm'),
+            day:moment(minDate).format('DD'),
+
+        }
+
+        const maxDate = moment(`${dateObject.year}-${dateObject.month}-${dateObject.day}`).toDate()
+
+        const findOne = await MedicalModel.find(
+            {"_id":Types.ObjectId.createFromHexString(id),"state":"active"}
+        )
+
         return res.status(200).send({
             status:"completed",
             data:findOne
@@ -64,6 +96,93 @@ const MedicalHistoryByPatient = async(req,res)=>{
         return res.status(400).send({
             status:"error",
             message:error.ToString()
+        })
+    }
+}
+
+const AllDates = async(req,res)=>{
+    try {
+        const findHistory = await MedicalModel.aggregate([
+            {
+                $project:{
+                    date:{
+                        $dateToString:{format:"%Y-%m-%d",date:"$createdAt"}
+                    }
+                }
+            },
+            {
+                $sort:{
+                    "date":1 
+                }
+            },
+            {
+                "$group":{
+                    _id:"$date",
+                },
+            }
+        ])
+
+        return res.status(200).send({
+            status:"completed",
+            data:findHistory
+        })
+
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(500).send({
+            status:"error",
+            message:"Ocurrió un error, por favor intentelo más tarde."
+        })
+    }
+}
+
+const GetDatesByPatient = async(req,res)=>{
+    const {patient_id} = req.params 
+
+    try {
+        const findPatient= await UsersModel.findOne({
+            "_id":Types.ObjectId.createFromHexString(patient_id)
+        })
+
+        if (!findPatient) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el paciente."
+            })
+        }
+    
+        const findHistory = await MedicalModel.aggregate([
+            {
+                "$match":{
+                    "patient_id":Types.ObjectId.createFromHexString(patient_id)
+                }
+            },
+            {
+                $project:{
+                    date:{
+                        $dateToString:{format:"%Y-%m-%d",date:"$createdAt"}
+                    }
+                }
+            },
+            {
+                "$group":{
+                    _id:"$date"
+                }
+            }
+        ])
+
+        return res.status(200).send({
+            status:"completed",
+            data:findHistory
+        })
+
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(400).send({
+            status:"error",
+            message:"Ocurrió un error, por favor intentelo más tarde."
         })
     }
 }
@@ -185,6 +304,9 @@ export const MedicalMethods = {
     AllMedicalHistory,
     MedicalHistoryById,
     MedicalHistoryByPatient,
+    MedicalHistoryByDate,
+    AllDates,
+    GetDatesByPatient,
     InsertMedicalHistory,
     // UpdateMedicalHistory,
     // DeactivateMedicalHistory

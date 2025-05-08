@@ -1,6 +1,6 @@
 import { Table ,Button, Card, Row, Form } from "react-bootstrap"
 import { useState, useEffect} from 'react'
-import { getAllHistories,getHistoriesByPatient } from "../../services/medical_history/history.js"
+import { getAllHistories,getHistoriesByPatient,getDates,getDatesByPatient } from "../../services/medical_history/history.js"
 import { getAllUsers } from "../../services/users/users.js"
 import Swal from 'sweetalert2'
 import { NewHistoryModal } from "./modal/NewHistoryModal.jsx"
@@ -11,6 +11,7 @@ import '../../assets/css/scheduler/scheduler.css'
 export const HistoryTable = ()=>{
     const session = JSON.parse(sessionStorage.getItem("session"))
     const [history,setHistory] = useState([])
+    const [dates,setDates] = useState([])
     const [patients,setPatients] = useState([])
     const [patientId,setPatientId] = useState("")
     const [historyId, setHistoryId] = useState("")
@@ -26,7 +27,7 @@ export const HistoryTable = ()=>{
             }
         })
 
-        if (patientId.length !== 24 && session && (session.role && ["usuario"].includes(session.role))) {
+        if (patientId.length !== 24 || session && (session.role && ["usuario"].includes(session.role))) {
             setPatientId(session["id"])
         }
 
@@ -57,6 +58,10 @@ export const HistoryTable = ()=>{
         Swal.close()
     }
 
+    const getHistoryId = (id)=>{
+        setHistoryId(id)
+    }
+
     const getPatients = async()=>{
         const request = await getAllUsers()
         if (request.status) {
@@ -66,19 +71,34 @@ export const HistoryTable = ()=>{
         console.error(request.message)
     }
 
-    const getHistoryId = (id)=>{
-        setHistoryId(id)
+    const allHistoryDates = async()=>{
+        let request
+        if (patientId.length !== 24) {
+            request = await getDates()
+        }else{
+            request = await getDatesByPatient(patientId)
+        }
+
+        if (request.status) {
+            setDates(request.data)
+            return
+        }
+        console.error(request)
     }
 
     const handleChange = async({target})=>{
         setPatientId(target.value)
     }
 
+    const selectDate = async(date)=>{
+
+    }
+
     useEffect(()=>{
         if (patients.length < 1) {
             getPatients()
         }
-
+        allHistoryDates()
         getHistories()
     },[patientId])
 
@@ -128,24 +148,27 @@ export const HistoryTable = ()=>{
                                 <Form.Select className='ms-3 border-dark-subtle select'
                                 defaultValue={""} onChange={handleChange}>
                                     <option value=""></option>
-                                    {history.map((element)=>{
+                                    {dates.map((date)=>{
                                         return (
-                                            <option key={element["date"]} value={element["date"]}>
-                                                {moment(element["date"]).format("DD/MM/YYYY")}
+                                            <option key={date["_id"]} value={date["_id"]}>
+                                                {moment(date["_id"]).format("DD/MM/YYYY")}
                                             </option>
                                         )
                                     })}
                                 </Form.Select>
                             </div>
-                            <div className='btn-new'>
+
+                            {session && ["admin","medico"].includes(session.role) ?  (
+                                <div className='btn-new'>
                                     <Button variant='primary'
-                                    onClick={()=>{setShowModal(true)}}>
+                                    onClick={()=>{setShowInsert(true)}}>
                                         <i className="bi bi-plus-lg"></i>
                                         <span className="p-1 text-white">
                                             Nuevo
                                         </span>
                                     </Button>
-                            </div>
+                                </div>
+                            ) : ""}
                         </div>
                     </Card.Title>
                 </Card.Header>

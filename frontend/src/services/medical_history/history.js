@@ -1,4 +1,4 @@
-import moment from "moment-timezone"
+
 import { API_URL } from "../../API_URL.js"
 
 export async function getAllHistories() {
@@ -134,6 +134,49 @@ export async function insertHistory(data) {
         return {
             status:false,
             message:error.message
+        }
+    }
+}
+
+export async function getDates() {
+    try {
+        const request  = await fetch(API_URL + `/medical_history/getdates/all`,{credentials:"include"})
+        if (!request.ok) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const requestJSON = await request.json()
+        return {
+            status:true,
+            data:requestJSON.data
+        }
+
+    } catch (error) {
+        return {
+            status:false,
+            message:error.message    
+        }
+    }
+}
+
+export async function getDatesByPatient(patientId) {
+    try {
+        const request  = await fetch(API_URL + `/medical_history/getdates/bypatient/${patientId}`,{credentials:"include",})
+
+        if (!request.ok) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const requestJSON = await request.json()
+        return {
+            status:true,
+            data:requestJSON.data
+        }
+
+    } catch (error) {
+        return {
+            status:false,
+            message:error.message    
         }
     }
 }

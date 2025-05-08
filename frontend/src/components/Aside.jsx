@@ -20,12 +20,14 @@ export const AsideBar = ()=>{
             
             {session && (
                 <ul className="sidebar-nav" id="sidebar-nav">
-
-                    <a className="nav-link collapsed" href="/home"
-                    >
-                        <i className="bi bi-grid"></i>
-                        <span>Dashboard</span>
-                    </a>    
+                    {session && ["admin"].includes(session.role) ? (
+                        <a className="nav-link collapsed" href="/home"
+                        >
+                            <i className="bi bi-grid"></i>
+                            <span>Dashboard</span>
+                        </a> 
+                    ) : ""}
+                       
 
                     <li className="nav-heading">SECCIONES</li>
                     {["admin","secretaria"].includes(session.role) && (
