@@ -10,22 +10,6 @@ const MedicalSchema = Schema({
         type:String,
         required:true
     },
-    current_illness:{
-        type:String,
-        default:"Ninguna"
-    },
-    personal_history:{
-        type:String,
-        default:"No existe"
-    },
-    family_history:{
-        type:String,
-        default:"No existe"
-    },
-    physical_exam:{
-        type:String,
-        required:true
-    },
     diagnosis:{
         type:String,
         required:true

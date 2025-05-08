@@ -2,6 +2,8 @@ import { useState,useEffect } from "react"
 import Swal from "sweetalert2"
 import { API_URL } from "../../../API_URL.js"
 import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from 'react-bootstrap'
+import { insertItem,updateItem } from "../../../services/items/items.js"
+
 /**
  * @param modalData Variable bool que maneja si se muestra o no la modal
  * @param setModalData Funcion que cambia de true a false y viceversa la variable 'showModal'
@@ -10,24 +12,40 @@ import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from 'react-bootstrap'
  * @param setItems Método de 'ItemsTable', la uso 
  * para volver a cargar la tabla con los nuevos cambios
  */
-export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemId, setItems})=>{
+export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemId, getAllItems})=>{
     const [itemById,setItemById] = useState({})
 
     const getItemById = async() =>{
         Swal.fire({
             title:"Cargando medicamento...",
+            allowEscapeKey:false,
+            allowOutsideClick:false,
             didOpen:()=>{
                 Swal.showLoading()
             }
         })
 
-        const item = await fetch(API_URL + '/items/byid/'+itemId).then(res => res.json())
-        if (item && item.status === "completed") {
-            setItemById(item.data)
-            setModalData(true)
+        const item = await fetch(API_URL + '/items/byid/'+itemId,{credentials: 'include'})
+        if (!item.ok) {
             Swal.close()
+            Swal.fire({
+                title:"Error",
+                icon:"error",
+                text:"Ocurrió un error, por favor, intentelo más tarde",
+                allowEscapeKey:false,
+                allowOutsideClick:false,
+            }).then((res)=>{
+                if (res.isConfirmed) {
+                    window.location.href = "/home"
+                }
+            })
             return
         }
+
+        const itemJSON = await item.json()
+        setItemById(itemJSON.data)
+        setModalData(true)
+        Swal.close()
     }
 
     const handleHide = ()=>{
@@ -57,81 +75,24 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
 
         Swal.fire({
             title:"Procesando información...",
+            allowEscapeKey:false,
+            allowOutsideClick:false,
             didOpen:()=>{
                 Swal.showLoading()
             }
         })
 
-        switch (itemId.length) {
-            case 0:
-                const insert = await fetch(API_URL + `/items/new`,{
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json"
-                    },
-                    body:JSON.stringify(data)
-                })
-                const insertJSON = await insert.json()
-                Swal.close()
-
-                if (insertJSON) {
-                    Swal.fire({
-                        title:insertJSON.status === "completed" ? 'Completado' : "Error",
-                        icon:insertJSON.status === "completed" ? 'success' : "error",
-                        text:insertJSON.message
-                    })
-
-                    if (insertJSON.status === "completed") {
-                        const allItems = await fetch(API_URL + '/items/all').then(res => res.json())
-                        if (allItems && allItems.status === "completed") {
-                            setItems(allItems.data)
-                            handleHide()
-                            return
-                        }
-                    }
-                }
-                break
-            
-            case 24:
-                const update = await fetch(API_URL + `/items/update/${itemId}`,{
-                    method:"PUT",
-                    headers:{
-                        "Content-Type":"application/json"
-                    },
-                    body:JSON.stringify(data)
-                })
-                const updateJSON = await update.json()
-                Swal.close()
-
-                if (updateJSON) {
-                    Swal.fire({
-                        title:updateJSON.status === "completed" ? 'Completado' : "Error",
-                        icon:updateJSON.status === "completed" ? 'success' : "error",
-                        text:updateJSON.message
-                    })
-
-                    if (updateJSON.status === "completed") {
-                        const allItems = await fetch(API_URL + '/items/all').then(res => res.json())
-                        if (allItems && allItems.status === "completed") {
-                            setItems(allItems.data)
-                            handleHide()
-                            return
-                        }
-                    }
-                }
-                break
-        
-            default:
-                Swal.fire({
-                    title:"Error",
-                    icon:"error",
-                    text:"Ocurrió un error, intentelo más tarde",
-                    showCancelButton:false,
-                    showConfirmButton:false,
-                    timer:3000
-                })
-                break;
+        const request = itemId.length !== 24 ? await insertItem(data) : await updateItem(itemId,data)
+        if (request.status) {
+            handleHide()
+            await getAllItems()
         }
+
+        Swal.fire({
+            title: request.status ? "Completado" : "Error",
+            icon: request.status ? "success" : "error",
+            title: request.message
+        })
     }
 
     return (
@@ -147,7 +108,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
                 <Form onSubmit={handleSubmit}>
 
                     <Row className="mb-3">
-                        <Col xs={12} sm={12} md={5} lg={5}>
+                        <Col>
                         <Form.Group>
                             <Form.Label className="text-dark">Nombre</Form.Label>
                             <Form.Control
@@ -159,7 +120,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
                             ></Form.Control>
                         </Form.Group>
                         </Col>
-                        <Col xs={5} sm={5} md={3} lg={3}>
+                        <Col>
                         <Form.Group>
                             <Form.Label className="text-dark">Stock</Form.Label>
                             <Form.Control

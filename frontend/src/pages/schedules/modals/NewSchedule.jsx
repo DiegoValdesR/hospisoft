@@ -8,7 +8,6 @@ export const NewSchedule = ({API_URL,workers = [],showModal,setShowModal,getEven
 
     const handleSubmit = async(e)=>{
         e.preventDefault()
-
         try {
             Swal.fire({
                 text:"Procesando...",
@@ -32,42 +31,42 @@ export const NewSchedule = ({API_URL,workers = [],showModal,setShowModal,getEven
 
             const insert = await fetch(API_URL + `/schedules/new`,{
                 method:"POST",
+                credentials: 'include',
                 headers:{
                     "Content-Type":"application/json"
                 },
                 body:JSON.stringify(data)
             })
 
+            if (!insert.ok) {
+                throw new Error(insert.statusText)
+            }
+
             const insertJSON = await insert.json()
             Swal.close()
 
-            if (insertJSON) {
-                if (insertJSON.status === "completed") {
-                    handleHide()
-                    await getEvents()
-                }
-
-                Swal.fire({
-                    title:insertJSON.status === "completed" ? "Completado" : "Error",
-                    icon:insertJSON.status === "completed" ? "success" : "error",
-                    text:insertJSON.message
-                })
-            }
+            handleHide()
+            await getEvents()
+            
+            Swal.fire({
+                title:"Completado",
+                icon:"success",
+                text:insertJSON.message
+            })
 
             return
 
         } catch (error) {
-            console.error(error)
             Swal.fire({
                 title:"Error",
                 icon:"error",
-                text:"Occurió un error, por favor intentelo más tarde."
+                text:error.message
             })
         }
     }
     
     return (
-        <Modal onHide={handleHide} className="fade" show={showModal}>
+        <Modal centered onHide={handleHide} className="fade" show={showModal}>
             <Modal.Header className="d-flex flex-row justify-content-between">
                 <Modal.Title>Nuevo Horario</Modal.Title>
                 <i role="button" className="text-danger fs-4 bi bi-x-circle"

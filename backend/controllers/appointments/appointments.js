@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { AppointmentModel } from "../../models/appointments/appointments.js"
 import { UsersModel } from "../../models/user/user.js"
 import { WorkerModel } from "../../models/workers/workers.js"
 import { Validations } from "../../validations/index.js"
+import moment from 'moment-timezone'
 
 const AllApointments = async(req,res)=>{
     try {
@@ -47,31 +48,55 @@ const AppointmentById = async(req,res)=>{
     }
 }
 
+const AppointmentsByDoctor = async(req,res)=>{
+    const {id} = req.params
+
+    try {
+        const find = await AppointmentModel.find({
+            "doctor_id":mongoose.Types.ObjectId.createFromHexString(id),
+            "appointment_state":"active"
+        })
+
+        return res.status(200).send({
+            status:"completed",
+            data:find
+        })
+        
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
 const InsertAppointment = async(req,res)=>{
     const data = {
-        appointment_date:req.body.appointment_date,
-        appointment_time:req.body.appointment_time,
+        start_date:req.body.start_date,
+        end_date:req.body.end_date,
         patient_id:req.body.patient_id,
         doctor_id:req.body.doctor_id
     }
 
-    const errorDate = Validations.IsDateValid(data.appointment_date,"appointment")
-    if (errorDate.length !== 0) {
-        return res.status(400).send({
-            status:"error",
-            message:errorDate
-        })
-    }
-
-    const errorTime = Validations.IsHourValid(data.appointment_time,"appointment")
-    if (errorTime.length !== 0) {
-        return res.status(400).send({
-            status:"error",
-            message:errorTime
-        })
-    }
-
     try {
+        if (!data.start_date || !data.end_date) {
+            return res.status(400).send({
+                status:"error",
+                message:"No se ingresó una fecha válida"
+            })
+        }
+        //convertimos la fecha al formato correcto
+        data.start_date = moment.utc(data.start_date).toDate()
+        data.end_date = moment.utc(data.end_date).toDate()
+
+        const errorDates = Validations.validateAppointment([data.start_date,data.end_date])
+        if (errorDates.length > 0) {
+            return res.status(400).send({
+                status:"error",
+                message:errorDates
+            })
+        }
+
         data.patient_id = mongoose.Types.ObjectId.createFromHexString(data.patient_id)
         data.doctor_id = mongoose.Types.ObjectId.createFromHexString(data.doctor_id)
 
@@ -101,13 +126,15 @@ const InsertAppointment = async(req,res)=>{
         }
 
         const findOne = await AppointmentModel.findOne({
-            "appointment_date":new Date(data.appointment_date),
-            "appointment_time":data.appointment_time,
+            "$and":[
+                {"start_date":{"$gte":data.start_date}},
+                {"end_date":{"$lte":data.end_date}},
+            ],
             "doctor_id":data.doctor_id,
             "appointment_state":"active"
         })
-
-        if (findOne) {
+        
+        if (findOne && data.start_date < findOne.end_date) {
             return res.status(409).send({
                 status:"error",
                 message:"No puede registrar una cita a esa hora, el médico encargado tiene otra cita."
@@ -123,9 +150,11 @@ const InsertAppointment = async(req,res)=>{
         })
         
     } catch (error) {
+        console.error(error)
+
         return res.status(400).send({
             status:"error",
-            message:error.toString()
+            message:"Ocurrió un error, por favor intentelo más tarde."
         })
     }
 }
@@ -133,35 +162,40 @@ const InsertAppointment = async(req,res)=>{
 const UpdateAppointment = async(req,res)=>{
     let {id} = req.params
     const data = {
-        appointment_date:req.body.appointment_date,
-        appointment_time:req.body.appointment_time,
+        start_date:req.body.start_date,
+        end_date:req.body.end_date,
         patient_id:req.body.patient_id,
         doctor_id:req.body.doctor_id
     }
 
-    const errorDate = Validations.IsDateValid(data.appointment_date,"appointment")
-    if (errorDate.length !== 0) {
-        return res.status(400).send({
-            status:"error",
-            message:errorDate
-        })
-    }
-
-    const errorTime = Validations.IsHourValid(data.appointment_time,"appointment")
-    if (errorTime.length !== 0) {
-        return res.status(400).send({
-            status:"error",
-            message:errorTime
-        })
-    }
-
     try {
-        id = mongoose.Types.ObjectId.createFromHexString(id)
+        if (!data.start_date || !data.end_date) {
+            return res.status(400).send({
+                status:"error",
+                message:"No se ingresó una fecha válida"
+            })
+        }
+
+        //convertimos la fecha al formato correcto
+        data.start_date = moment.utc(req.body.start_date).toDate()
+        data.end_date = moment.utc(req.body.end_date).toDate()
+
+        const errorDates = Validations.validateAppointment([data.start_date,data.end_date])
+        if (errorDates.length > 0) {
+            return res.status(400).send({
+                status:"error",
+                message:errorDates
+            })
+        }
+
+        data.patient_id = mongoose.Types.ObjectId.createFromHexString(data.patient_id)
+        data.doctor_id = mongoose.Types.ObjectId.createFromHexString(data.doctor_id)
+
         const findPatient = await UsersModel.findOne({
-            "_id":mongoose.Types.ObjectId.createFromHexString(data.patient_id),
+            "_id":data.patient_id,
             "user_state":"active"
         })
-
+        
         if (!findPatient) {
             return res.status(404).send({
                 status:"error",
@@ -170,7 +204,7 @@ const UpdateAppointment = async(req,res)=>{
         }
 
         const findDoctor = await WorkerModel.findOne({
-            "_id":mongoose.Types.ObjectId.createFromHexString(data.doctor_id),
+            "_id":data.doctor_id,
             "worker_role":"medico",
             "worker_state":"active"
         })
@@ -182,22 +216,22 @@ const UpdateAppointment = async(req,res)=>{
             })
         }
 
-        //buscamos si el medico encargado tiene una cita en ese mismo dia a esa misma hora
         const findOne = await AppointmentModel.findOne({
-            "_id":{"$ne":id},
-            "appointment_date":new Date(data.appointment_date),
-            "appointment_time":data.appointment_time,
+            "_id":{"$ne":Types.ObjectId.createFromHexString(id)},
+            "$and":[
+                {"start_date":{"$gte":data.start_date}},
+                {"end_date":{"$lte":data.end_date}},
+            ],
             "doctor_id":data.doctor_id,
             "appointment_state":"active"
         })
-
-        if (findOne) {
+        
+        if (findOne && data.start_date < findOne.end_date) {
             return res.status(409).send({
                 status:"error",
                 message:"No puede registrar una cita a esa hora, el médico encargado tiene otra cita."
             })
         }
-
         await AppointmentModel.findOneAndUpdate({"_id":id},data)
 
         return res.status(200).send({
@@ -206,9 +240,10 @@ const UpdateAppointment = async(req,res)=>{
         })
 
     } catch (error) {
+        console.error(error)
         return res.status(400).send({
             status:"error",
-            message:error.toString()
+            message:"Ocurrió un error, por favor intentelo más tarde."
         })
     }
 }
@@ -236,6 +271,7 @@ const DeactivateAppointment = async(req,res)=>{
 export const AppointmentsMethods = {
     AllApointments,
     AppointmentById,
+    AppointmentsByDoctor,
     InsertAppointment,
     UpdateAppointment,
     DeactivateAppointment

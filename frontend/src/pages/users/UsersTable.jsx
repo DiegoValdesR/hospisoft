@@ -6,6 +6,8 @@ import Swal from 'sweetalert2'
 import { Button, Card, Row, Table } from "react-bootstrap"
 
 export const UsersTable = ()=>{
+    const session = JSON.parse(sessionStorage.getItem("session"))
+
     const [users,setUsers] = useState([])
     const [userId,setUserId] = useState("")
     const [idInfo,setIdInfo] = useState("")
@@ -17,17 +19,34 @@ export const UsersTable = ()=>{
     const getAllUsers = async()=>{
         Swal.fire({
             title:"Cargando...",
+            allowEscapeKey:false,
+            allowOutsideClick:false,
             didOpen:()=>{
                 Swal.showLoading()
             }
         })
 
-        const allUsers = await fetch(API_URL + '/users/all').then(res => res.json())
-        if (allUsers && allUsers.status === "completed") {
-            setUsers(allUsers.data)
+        const allUsers = await fetch(API_URL + '/users/all', {credentials: 'include'})
+        if (!allUsers.ok) {
             Swal.close()
+            Swal.fire({
+                title:"Error",
+                icon:"error",
+                text:"Ocurrió un error, por favor, intentelo más tarde",
+                allowEscapeKey:false,
+                allowOutsideClick:false,
+            }).then((res)=>{
+                if (res.isConfirmed) {
+                    window.location.href = "/home"
+                }
+            })
             return
         }
+
+        const allUsersJSON = await allUsers.json()
+        setUsers(allUsersJSON.data)
+
+        Swal.close()
     }
 
     const deactivateUser = async(userId)=>{
@@ -47,22 +66,36 @@ export const UsersTable = ()=>{
                 })
 
                 const deleteUser = await fetch(API_URL + '/users/delete/'+userId,{
-                    method:"PATCH"
+                    method:"PATCH",
+                    credentials: 'include'
                 })
-                const responseJSON = await deleteUser.json()
-                
-                Swal.close()
-                if (responseJSON) {
-                    if (responseJSON.status === "completed") {
-                        await getAllUsers()
-                    }
 
+                if (!deleteUser.ok) {
+                    Swal.close()
                     Swal.fire({
-                        title:"Completado",
-                        text:responseJSON.message
+                        title:"Error",
+                        icon:"error",
+                        text:"Ocurrió un error, por favor, intentelo más tarde",
+                        allowEscapeKey:false,
+                        allowOutsideClick:false,
+                    }).then((res)=>{
+                        if (res.isConfirmed) {
+                            window.location.href = "/home"
+                        }
                     })
                 }
 
+                const responseJSON = await deleteUser.json()
+                Swal.close()
+
+                if (responseJSON.status === "completed") {
+                    await getAllUsers()
+                }
+
+                Swal.fire({
+                    title:"Completado",
+                    text:responseJSON.message
+                })
             }
         })
     }
@@ -73,37 +106,48 @@ export const UsersTable = ()=>{
     
     return (
         <>
-            <ShowUserModal
-            modalInfo={modalInfo}
-            setModalInfo={setModalInfo}
-            idInfo={idInfo}
-            setIdInfo={setIdInfo}
-            >
-            </ShowUserModal>
 
-            <ManageUsersModal
-            modalData={modalData}
-            setModalData={setModalData}
-            userId={userId}
-            setUserId={setUserId}
-            setUsers={setUsers}
-            >
-            </ManageUsersModal>
+            {session && ["admin","secretaria"].includes(session.role) ? (
+                <>
+                    <ShowUserModal
+                    modalInfo={modalInfo}
+                    setModalInfo={setModalInfo}
+                    idInfo={idInfo}
+                    setIdInfo={setIdInfo}
+                    >
+                    </ShowUserModal>
 
+                    {}
+                    <ManageUsersModal
+                    modalData={modalData}
+                    setModalData={setModalData}
+                    userId={userId}
+                    setUserId={setUserId}
+                    setUsers={setUsers}
+                    getAllUsers={getAllUsers}
+                    >
+                    </ManageUsersModal>
+                </>
+            ) : ""}
+            
             <Card>
-                <Card.Title className="d-flex">
-                    <Row className="ms-4">
-                        <Button variant="primary" type="button"
-                        onClick={()=>{setModalData(true)}}>
-                            <i className="bi bi-plus-lg"></i>
-                            <span className="p-1 text-white">
-                                Nuevo
-                            </span>
-                        </Button>
-                    </Row>
-                </Card.Title>
+                {session && ["admin","secretaria"].includes(session.role) && (
+                <Card.Header>
+                    <Card.Title className="d-flex">
+                        <Row className="ms-4">
+                            <Button variant="primary" type="button"
+                            onClick={()=>{setModalData(true)}}>
+                                <i className="bi bi-plus-lg"></i>
+                                <span className="p-1 text-white">
+                                    Nuevo
+                                </span>
+                            </Button>
+                        </Row>
+                    </Card.Title>
+                </Card.Header>
+                )}
 
-                <Card.Body>
+                <Card.Body className="mt-2">
                     {users.length > 0 ? (
                     <Row className="table-responsive text-center">
                         <Table hover>
@@ -130,24 +174,27 @@ export const UsersTable = ()=>{
                                              <i className="bi bi-eye"></i>
                                         </button>
                                     </span>
-                                            
-                                    {/* EDITAR USUARIO */}
-                                    <span className="p-1">
-                                        <button className="btn btn-primary" title="Editar usuario"
-                                        onClick={()=>{
-                                            setUserId(user["_id"])
-                                        }}>
-                                            <i className="bi bi-pencil-square"></i>
-                                        </button>
-                                    </span>
+                                    
+                                    {session && ["admin"].includes(session.role) && (
+                                        <>
+                                        <span className="p-1">
+                                            <button className="btn btn-primary" title="Editar usuario"
+                                            onClick={()=>{
+                                                setUserId(user["_id"])
+                                            }}>
+                                                <i className="bi bi-pencil-square"></i>
+                                            </button>
+                                        </span>
                                                     
-                                    {/* DESACTIVAR USUARIO */}
-                                    <span className="p-1">
-                                        <button className="btn btn-danger" title="Eliminar usuario"
-                                        onClick={()=>{deactivateUser(user["_id"])}}>
-                                            <i className="bi bi-trash3"></i>
-                                        </button>
-                                    </span>
+                                        <span className="p-1">
+                                            <button className="btn btn-danger" title="Eliminar usuario"
+                                            onClick={()=>{deactivateUser(user["_id"])}}>
+                                                <i className="bi bi-trash3"></i>
+                                            </button>
+                                        </span>
+                                        </>
+                                    )}
+                                    
                                     </td>
                                 </tr>
                                     )
@@ -156,7 +203,9 @@ export const UsersTable = ()=>{
                         </Table>
                     </Row>
                     ) : (
-                        <p className="text-center text-dark">No hay usuarios...</p>
+                        <div className="mt-2 p-2">
+                            <p className="text-black text-center h5">No hay usuarios...</p>
+                        </div> 
                     )}
                 </Card.Body>
             </Card> 

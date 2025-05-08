@@ -1,4 +1,5 @@
 import { useState,useEffect } from "react"
+import { insertWorker,updateWorker } from "../../../services/workers/workers.js"
 import Swal from "sweetalert2"
 import { API_URL } from "../../../API_URL.js"
 import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from 'react-bootstrap'
@@ -7,28 +8,42 @@ import {Modal,Button,ModalBody,ModalHeader,Form,Row,Col} from 'react-bootstrap'
  * @param setModalData Funcion que cambia de true a false y viceversa la variable 'showModal'
  * @param workerId self explanatory
  * @param setworkerId Método de 'WorkersTable' que cambia el id del empleado, lo uso para cuando cierro la modal
- * @param setWorkers Método de 'WorkersTable', la uso 
- * para volver a cargar la tabla con los nuevos cambios
+ * @param getAllWorkers Método de 'WorkersTable', lo uso para volver a cargar la tabla con los nuevos cambios
  */
-export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setWorkerId, setWorkers})=>{
+export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setWorkerId, getAllWorkers})=>{
     const [workerById,setWorkerById] = useState({})
     const [disabled,setDisabled] = useState(true)
 
     const GetWorkerById = async() =>{
         Swal.fire({
             title:"Cargando empleado...",
+            allowEscapeKey:false,
+            allowOutsideClick:false,
             didOpen:()=>{
                 Swal.showLoading()
             }
         })
 
-        const worker = await fetch(API_URL + '/workers/byid/'+workerId).then(res => res.json())
-        if (worker && worker.status === "completed") {
-            setWorkerById(worker.data)
-            setModalData(true)
+        const worker = await fetch(API_URL + '/workers/byid/'+workerId,{credentials: 'include'})
+        if (!worker.ok) {
             Swal.close()
+            Swal.fire({
+                title:"Error",
+                icon:"error",
+                text:"Error interno del servidor, por favor intentelo más tarde.",
+                allowEscapeKey:false,
+                allowOutsideClick:false
+            }).then((res)=>{
+                if (res.isConfirmed) {
+                    window.location.href = "/home"
+                }
+            })
             return
         }
+        const workerJSON = await worker.json()
+        setWorkerById(workerJSON.data)
+        setModalData(true)
+        Swal.close()
     }
 
     const handleHide = ()=>{
@@ -63,10 +78,21 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
 
     const handleSubmit = async(e)=>{
         e.preventDefault()
+
+        Swal.fire({
+            title:"Procesando información...",
+            allowEscapeKey:false,
+            allowOutsideClick:false,
+            didOpen:()=>{
+                Swal.showLoading()
+            }
+        })
+
         const form = e.target.closest('form')
         const formData = new FormData(form)
 
         const data = {
+            worker_document:formData.get("worker_document"),
             worker_name:formData.get("worker_name"),
             worker_last_name:formData.get("worker_last_name"),
             worker_email:formData.get("worker_email"),
@@ -77,90 +103,25 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
             worker_speciality:formData.get("worker_speciality")
         }
 
-        switch (workerId.length) {
-            case 0:
-                Swal.fire({
-                    title:"Procesando información...",
-                    didOpen:()=>{
-                        Swal.showLoading()
-                    }
-                })
-                const insert = await fetch(API_URL + `/workers/new`,{
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json"
-                    },
-                    body:JSON.stringify(data)
-                })
-                const insertJSON = await insert.json()
-                Swal.close()
-
-                if (insertJSON) {
-                    Swal.fire({
-                        title:insertJSON.status === "completed" ? 'Completado' : "Error",
-                        icon:insertJSON.status === "completed" ? 'success' : "error",
-                        text:insertJSON.message
-                    })
-
-                    if (insertJSON.status === "completed") {
-                        const allWorkers = await fetch(API_URL + '/workers/all').then(res => res.json())
-                        if (allWorkers && allWorkers.status === "completed") {
-                            setWorkers(allWorkers.data)
-                            handleHide()
-                            return
-                        }
-                    }
-                }
-                break;
-            
-            case 24:
-                delete data.worker_password
-                delete data.worker_birthdate
-                Swal.fire({
-                    title:"Procesando información...",
-                    didOpen:()=>{
-                        Swal.showLoading()
-                    }
-                })
-                const update = await fetch(API_URL + `/workers/update/${workerId}`,{
-                    method:"PUT",
-                    headers:{
-                        "Content-Type":"application/json"
-                    },
-                    body:JSON.stringify(data)
-                })
-                const updateJSON = await update.json()
-                Swal.close()
-
-                if (updateJSON) {
-                    Swal.fire({
-                        title:updateJSON.status === "completed" ? 'Completado' : "Error",
-                        icon:updateJSON.status === "completed" ? 'success' : "error",
-                        text:updateJSON.message
-                    })
-
-                    if (updateJSON.status === "completed") {
-                        const allWorkers = await fetch(API_URL + '/workers/all').then(res => res.json())
-                        if (allWorkers && allWorkers.status === "completed") {
-                            setWorkers(allWorkers.data)
-                            handleHide()
-                            return
-                        }
-                    }
-                }
-                break
-        
-            default:
-                Swal.fire({
-                    title:"Error",
-                    icon:"error",
-                    text:"Ocurrió un error, intentelo más tarde",
-                    showCancelButton:false,
-                    showConfirmButton:false,
-                    timer:3000
-                })
-                break;
+        if (workerId.length === 24) {
+            delete data.worker_document
+            delete data.worker_birthdate
+            delete data.worker_role
         }
+
+        const request = workerId.length !== 24 ? await insertWorker(data) : await updateWorker(workerId,data)
+        Swal.close()
+
+        if (request.status) {
+            await getAllWorkers()
+            handleHide()
+        }
+
+        Swal.fire({
+            title:request.status ? 'Completado' : "Error",
+            icon:request.status ? 'success' : "error",
+            text:request.message
+        })
     }
 
     return (
@@ -175,6 +136,22 @@ export const ManageWorkersModal = ({modalData, setModalData, workerId = "", setW
             </ModalHeader>
             <ModalBody>
                 <Form onSubmit={handleSubmit}>
+
+                    {workerId === "" ? (
+                        <Row className="mb-3">
+                            <Col>
+                                <Form.Label className="text-black">Número de documento</Form.Label>
+                                <Form.Control
+                                type="number"
+                                minLength={10}
+                                maxLength={10}
+                                required
+                                name="worker_document"></Form.Control>
+                            </Col>
+                            
+                        </Row>
+                    ) : ""}
+
                     <Row className="mb-3">
                         <Col>
                         <Form.Group>

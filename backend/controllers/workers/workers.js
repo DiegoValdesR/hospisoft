@@ -1,12 +1,12 @@
 import { WorkerModel } from "../../models/workers/workers.js"
 import { Validations } from "../../validations/index.js"
+import { AdmittedRoles } from "../../middleware/roles.js"
 import mongoose from "mongoose"
 import bcrypt from "bcryptjs"
 
 const AllWorkers = async(req,res)=>{
-    
     try {
-        const workers = await WorkerModel.find({"worker_state":"active"})
+        const workers = await WorkerModel.find({"worker_state":"active","worker_role":{"$ne":"admin"}})
         return res.status(200).send({
             status:"completed",
             data:workers
@@ -77,6 +77,7 @@ const WorkerById = async(req,res)=>{
 
 const InsertWorker = async(req,res) =>{
     const data = {
+        worker_document:req.body.worker_document,
         worker_name:req.body.worker_name,
         worker_last_name:req.body.worker_last_name,
         worker_birthdate:req.body.worker_birthdate,

@@ -2,12 +2,12 @@ import mongoose,{Schema, model } from "mongoose";
 
 export const AppointmentSchema = Schema(
     {
-        appointment_date:{
+        start_date:{
             type:Date,
             required:true
         },
-        appointment_time:{
-            type:String,
+        end_date:{
+            type:Date,
             required:true
         },
         patient_id:{

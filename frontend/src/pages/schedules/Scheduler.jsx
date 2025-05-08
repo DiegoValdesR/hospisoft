@@ -1,10 +1,12 @@
 import { Button, Card, Form, Row } from 'react-bootstrap'
 import { useState,useEffect } from 'react'
 import { API_URL } from '../../API_URL.js'
+import { allSchedules,scheduleByWorker } from '../../services/schedule/schedule.js'
 import Swal from 'sweetalert2'
 //libreria para el calendario
 import {Calendar,momentLocalizer} from 'react-big-calendar'
 import { NewSchedule } from './modals/NewSchedule.jsx'
+import { ShowSchedule } from './modals/ShowSchedule.jsx'
 //libreria para manjear fechas
 import moment from 'moment-timezone'
 //css
@@ -12,14 +14,20 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import '../../assets/css/scheduler/scheduler.css'
 
 export const Scheduler = ()=>{
+    //Ajustamos la zona horaria
+    moment.tz.setDefault('America/Bogota')
     //valor para obtener la fecha actual para el calendario
     const localizer = momentLocalizer(moment)
+    const session = JSON.parse(sessionStorage.getItem("session"))
+
     const [workers,setWorkers] = useState([])
+    const [workerId,setWorkerId] = useState("")
+    const [scheduleData,setScheduleData] = useState({})
     const [showModal,setShowModal] = useState(false)
     const [events,setEvents] = useState([])
 
     const getWorkers = async()=>{
-        const allWorkers = await fetch(API_URL + '/workers/all')
+        const allWorkers = await fetch(API_URL + '/workers/all',{credentials: 'include'})
         if (!allWorkers.ok) {
             console.error("Error en el fecth: "+allWorkers.statusText)
         }
@@ -37,67 +45,34 @@ export const Scheduler = ()=>{
             }
         })
 
-        const events = await fetch(API_URL + `/schedules/all`)
-        if (!events.ok) {
-            Swal.close()
-            Swal.fire({
-                icon:"error",
-                title:"Error",
-                text:"Ocurrió un error al cargar los eventos."
-            })
-            console.error(events.statusText)
-            return
+        let events
+
+        if (workerId.length === 24 || (session && session.id && session.role && session.role !== "admin") ) {
+            events = await scheduleByWorker(workerId.length === 24 ? workerId : session.id)
+        }else{
+            events = await Promise.resolve(allSchedules())
         }
-        const eventsJSON = await events.json()
         
-        if (!eventsJSON || eventsJSON.status !== "completed") {
+        if (!Array.isArray(events)) {
             Swal.close()
             Swal.fire({
                 icon:"error",
                 title:"Error",
-                text:"Ocurrió un error al cargar los eventos",
-                backdrop:false,
-                allowEscapeKey:false
+                text:events.err_message
             })
-            console.error(eventsJSON)
             return
         }
-
-        const arrayEvents = []
-        for(const schedule of eventsJSON.data){
-            const {schedule_start_date,schedule_final_date} = schedule
-
-            const startDate = {
-                year:moment.utc(schedule_start_date).format('YYYY'),
-                month:moment.utc(schedule_start_date).format('MM'),
-                day:moment.utc(schedule_start_date).format('DD'),
-            }
-            
-            const endDate = {
-                year:moment.utc(schedule_final_date).format('YYYY'),
-                month:moment.utc(schedule_final_date).format('MM'),
-                day:moment.utc(schedule_final_date).format('DD'),
-            }
-
-            const hourStart = schedule.hour_start
-            const hourEnd = schedule.hour_end
-
-            //armamos las distintas partes del objeto
-            const start = moment(`${startDate.year}-${startDate.month}-${startDate.day}T${hourStart}`).toDate()
-            const end = moment(`${endDate.year}-${endDate.month}-${endDate.day}T${hourEnd}`).toDate()
-            const title = `${schedule.title} ${moment(start).format('hh:mm a')} a ${moment(end).format('hh:mm a')}`
-
-            const data = {
-                title:title,
-                start:start,
-                end:end,
-            }
-            
-            arrayEvents.push(data)
-        }
-
-        setEvents(arrayEvents)
+        setEvents(events)
+        
         Swal.close()
+    }
+
+    const handleEventClick = (data)=>{
+        setScheduleData(data)
+    }
+
+    const handleChange = async({target})=>{
+        setWorkerId(target.value)
     }
 
     const messages = {
@@ -114,61 +89,102 @@ export const Scheduler = ()=>{
         event: "Evento",
         noEventsInRange: "Sin eventos"
     }
-
+    
     useEffect(()=>{
-        getWorkers(),
+        if (workers.length === 0) {
+            getWorkers()
+        }
         getEvents()
-    },[])
-    console.log(events);
+    },[workerId])
     
     return (
         <>
-        <NewSchedule API_URL={API_URL}
-        showModal={showModal}
-        setShowModal={setShowModal}
-        workers={workers}
-        getEvents={getEvents}></NewSchedule>
+        {session && ["admin"].includes(session.role) ? (
+            <>
+                {/* Modal nuevo horario */}
+                <NewSchedule API_URL={API_URL}
+                showModal={showModal}
+                setShowModal={setShowModal}
+                workers={workers}
+                getEvents={getEvents}></NewSchedule>
+            </>
+        ) : ""}
+
+        {session && ["admin","medico","secretaria","farmaceutico"].includes(session.role) ? (
+            <>
+            {/* Mostrar detalles del horario */}
+            <ShowSchedule
+            API_URL={API_URL}
+            scheduleData={scheduleData}
+            setScheduleData={setScheduleData}
+            workers={workers}
+            getEvents={getEvents}></ShowSchedule>
+            </>
+        ) : ""}
+        
         <Card>
-            <Card.Header className='p-3'>
-                <Row>
-                    <div className='d-flex flex-row justify-content-between sche-header'>
-                        <div className='d-flex flex-row align-items-center'>
-                            <span className='text-black text-break'>Seleccionar empleado</span>
+            {session && ["admin"].includes(session.role) ? (
+                <Card.Header className='p-3'>
+                    <Card.Title>
+                        <div className='d-flex flex-row justify-content-between sche-header'>
+                            <div className='d-flex flex-row align-items-center'>
+                                <span className='text-black text-break'>Seleccionar empleado</span>
 
-                            <Form.Select className='ms-3 border-dark-subtle select'
-                            defaultValue={""}>
-                                <option value=""></option>
-                                {workers.map((worker)=>{
-                                    return (
-                                        <option key={worker["_id"]} value={worker["_id"]}>
-                                            {worker.worker_name} {worker.worker_last_name}
-                                        </option>
-                                    )
-                                })}
-                            </Form.Select>
+                                <Form.Select className='ms-3 border-dark-subtle select'
+                                defaultValue={""} onChange={handleChange}>
+                                    <option value=""></option>
+                                    {workers.map((worker)=>{
+                                        return (
+                                            <option key={worker["_id"]} value={worker["_id"]}>
+                                                {worker.worker_name} {worker.worker_last_name}
+                                            </option>
+                                        )
+                                    })}
+                                </Form.Select>
+                            </div>
+                            {session && ["admin"].includes(session.role) ? (
+                                <div className='btn-new'>
+                                    <Button variant='primary'
+                                    onClick={()=>{setShowModal(true)}}>
+                                        <i className="bi bi-plus-lg"></i>
+                                        <span className="p-1 text-white">
+                                            Nuevo
+                                        </span>
+                                    </Button>
+                                </div>
+                            ) : ""}
+                            
                         </div>
+                    </Card.Title>
+                </Card.Header>
+            ) : ""}
+            
 
-                        <div className='btn-new'>
-                            <Button variant='primary'
-                            onClick={()=>{setShowModal(true)}}>
-                                <i className="bi bi-plus-lg"></i>
-                                <span className="p-1 text-white">
-                                    Nuevo
-                                </span>
-                            </Button>
-                        </div>
-                    </div>
-                </Row>
-            </Card.Header>
+            <Card.Body className='mt-2 p-3'>
 
-            <Card.Body className='mt-2'>
-                <Calendar
-                style={{width:"100%",height:"100vh"}}
-                localizer={localizer}
-                views={["month"]}
-                messages={messages}
-                events={events}
-                ></Calendar>
+                {events.length > 0 ? (
+                    <Calendar
+                    style={{width:"100%",height:"100vh"}}
+                    localizer={localizer}
+                    views={["month","week","day"]}
+                    messages={messages}
+                    events={events}
+                    min={moment('2025-04-26T06:00:00').toDate()}
+                    max={moment('2025-04-26T19:00:00').toDate()}
+                    onSelectEvent={(event)=>{
+                        handleEventClick(event.schedule_data)
+                    }}
+                    formats={{
+                        timeGutterFormat:"hh:mm a",
+                        eventTimeRangeFormat: ({ start, end }, culture, local) =>{
+                            return local.format(start, 'hh:mm a') + ' - ' + local.format(end, 'hh:mm a')
+                        }
+                    }}
+                    ></Calendar>
+                ) : (
+                    <p className='text-center text-black h5'>No existen horarios registrados...</p>
+                )}
+                
             </Card.Body>
         </Card>
         </>

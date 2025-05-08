@@ -2,6 +2,14 @@ import {Schema, model } from "mongoose";
 
 const WorkerSchema = Schema(
     {
+        worker_document:{
+            type:Number,
+            unique:true,
+            dropDups:true,
+            required:true,
+            minlength:10,
+            maxlength:10
+        },
         worker_name:{
             type:String,
             required:true

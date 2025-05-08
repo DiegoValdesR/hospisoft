@@ -18,13 +18,13 @@ export const ShowFormula = ({modalInfo,setModalInfo,formulaId = "",setFormulaId}
                 }
             })
 
-            const formula = await fetch(API_URL + `/formulas/byid/${formulaId}`)
+            const formula = await fetch(API_URL + `/formulas/byid/${formulaId}`,{credentials: 'include'})
             const formulaJSON = await formula.json()
             if (formulaJSON && formulaJSON.status === "completed") {
-                const paciente = await fetch(API_URL + `/users/byid/${formulaJSON.data.patient_id}`)
+                const paciente = await fetch(API_URL + `/users/byid/${formulaJSON.data.patient_id}`,{credentials: 'include'})
                 const pacienteJSON = await paciente.json()
                 //información del médico encargado
-                const medico = await fetch(API_URL + `/workers/byid/${formulaJSON.data.doctor_id}`)
+                const medico = await fetch(API_URL + `/workers/byid/${formulaJSON.data.doctor_id}`,{credentials: 'include'})
                 const medicoJSON = await medico.json()
 
                 //obtenemos la fecha de la formula
@@ -43,7 +43,7 @@ export const ShowFormula = ({modalInfo,setModalInfo,formulaId = "",setFormulaId}
                 const itemsArray = []
                 for(const object of formulaJSON.data.items){
                     const {item_id,item_amount} = object
-                    const itemById = await fetch(API_URL + `/items/byid/${item_id}`)
+                    const itemById = await fetch(API_URL + `/items/byid/${item_id}`,{credentials: 'include'})
                     const itemJSON = await itemById.json()
 
                     const itemInfo = {
