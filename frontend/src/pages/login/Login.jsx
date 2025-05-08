@@ -65,7 +65,7 @@ export const Login = () => {
       justifyContent: 'center',
       padding: '20px'
     }}>
-      <Container className="p-0" style={{ maxWidth: '500px' }}>
+      <Container className="p-0" style={{ maxWidth: '400px' }}>
         <Form onSubmit={handleSubmit} className="p-4 rounded-4 shadow-lg" style={{ backgroundColor: '#ffffff' }}>
           <div className="text-center mb-4">
             <h3 className="fw-bold text-primary">Bienvenido a Hospisoft</h3>
