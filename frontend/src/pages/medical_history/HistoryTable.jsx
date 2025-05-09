@@ -1,6 +1,6 @@
 import { Table ,Button, Card, Row, Form } from "react-bootstrap"
 import { useState, useEffect} from 'react'
-import { getAllHistories,getHistoriesByPatient,getDates,getDatesByPatient } from "../../services/medical_history/history.js"
+import { getAllHistories,getHistoriesByPatient,getDates,getDatesByPatient,getHistoriesByDate,byDateAndPatient } from "../../services/medical_history/history.js"
 import { getAllUsers } from "../../services/users/users.js"
 import Swal from 'sweetalert2'
 import { NewHistoryModal } from "./modal/NewHistoryModal.jsx"
@@ -90,8 +90,44 @@ export const HistoryTable = ()=>{
         setPatientId(target.value)
     }
 
-    const selectDate = async(date)=>{
+    const selectDate = async({target})=>{
+        Swal.fire({
+            title:"Cargando...",
+            allowEscapeKey:false,
+            allowOutsideClick:false,
+            didOpen:()=>{
+                Swal.showLoading()
+            }
+        })
+        const date = target.value
+        let request
 
+        if (date.length < 0) {
+            request = request = await getAllHistories()
+            setHistory(request.data)
+            Swal.close()
+            return
+        }
+
+        if (patientId.length === 24) {
+            request = await getHistoriesByDate(date)
+        }else{
+            request = await byDateAndPatient(patientId,date)
+        }
+
+        if (!request.status) {
+            Swal.close()
+            Swal.fire({
+                title:"Error",
+                icon:"error",
+                message:request.message,
+                allowEscapeKey:false,
+                allowOutsideClick:false
+            })
+            return
+        }
+        setHistory(request.data)
+        Swal.close()
     }
 
     useEffect(()=>{
@@ -146,7 +182,7 @@ export const HistoryTable = ()=>{
                                 <span className='text-black text-break'>Buscar por fechas:</span>
 
                                 <Form.Select className='ms-3 border-dark-subtle select'
-                                defaultValue={""} onChange={handleChange}>
+                                defaultValue={""} onChange={selectDate}>
                                     <option value=""></option>
                                     {dates.map((date)=>{
                                         return (

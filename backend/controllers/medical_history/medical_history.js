@@ -44,15 +44,58 @@ const MedicalHistoryByDate = async(req,res)=>{
         const minDate = moment(date).toDate()
         const dateObject = {
             year:moment(minDate).format('YYYY'),
-            month:moment(minDate).format('mm'),
-            day:moment(minDate).format('DD'),
-
+            month:moment(minDate).format('MM'),
+            day:moment(minDate).format('DD')
         }
 
-        const maxDate = moment(`${dateObject.year}-${dateObject.month}-${dateObject.day}`).toDate()
+        const maxDate = moment(`${dateObject.year}-${dateObject.month}-${parseInt(dateObject.day) + 1}`).toDate()
 
         const findOne = await MedicalModel.find(
-            {"_id":Types.ObjectId.createFromHexString(id),"state":"active"}
+            {
+                "$and":[
+                    {"createdAt":{"$gte":minDate}},
+                    {"createdAt":{"$lt":maxDate}}
+                ],
+                "state":"active"
+            }
+        )
+
+        return res.status(200).send({
+            status:"completed",
+            data:findOne
+        })
+
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
+const ByDateAndPatient = async(req,res)=>{
+    const {patient_id} = req.params
+    const {date} = req.body
+
+    try {
+        const minDate = moment(date).toDate()
+        const dateObject = {
+            year:moment(minDate).format('YYYY'),
+            month:moment(minDate).format('MM'),
+            day:moment(minDate).format('DD')
+        }
+
+        const maxDate = moment(`${dateObject.year}-${dateObject.month}-${parseInt(dateObject.day) + 1}`).toDate()
+
+        const findOne = await MedicalModel.find(
+            {
+                "$and":[
+                    {"createdAt":{"$gte":minDate}},
+                    {"createdAt":{"$lt":maxDate}},
+                ],
+                "patient_id":Types.ObjectId.createFromHexString(patient_id),
+                "state":"active"
+            }
         )
 
         return res.status(200).send({
@@ -305,9 +348,10 @@ export const MedicalMethods = {
     MedicalHistoryById,
     MedicalHistoryByPatient,
     MedicalHistoryByDate,
+    ByDateAndPatient,
     AllDates,
     GetDatesByPatient,
-    InsertMedicalHistory,
+    InsertMedicalHistory
     // UpdateMedicalHistory,
     // DeactivateMedicalHistory
 }

@@ -1,4 +1,3 @@
-
 import { API_URL } from "../../API_URL.js"
 
 export async function getAllHistories() {
@@ -77,6 +76,86 @@ export async function getHistoryById(id) {
 export async function getHistoriesByPatient(id) {
     try {
         const request = await fetch(API_URL + `/medical_history/bypatient/${id}`,{credentials:"include"})
+        if (request.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const requestJSON = await request.json()
+        if (requestJSON.status === "error") {
+            throw new Error(requestJSON.message)
+        }
+
+        const allHistories = requestJSON.data.length > 0 ? await userHistory(requestJSON.data) : []
+
+        if (!Array.isArray(allHistories)) {
+            throw new Error(allHistories.message)
+        }
+
+        return {
+            status:true,
+            data:allHistories
+        }
+
+    } catch (error) {
+        return{
+            status:false,
+            message:error.message
+        }
+    }
+}
+
+export async function getHistoriesByDate(date) {
+    try {
+        const request = await fetch(API_URL + `/medical_history/bydate`,
+        {
+            method:"POST",
+            credentials:"include",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({date:date})
+        })
+
+        if (request.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const requestJSON = await request.json()
+        if (requestJSON.status === "error") {
+            throw new Error(requestJSON.message)
+        }
+
+        const allHistories = requestJSON.data.length > 0 ? await userHistory(requestJSON.data) : []
+
+        if (!Array.isArray(allHistories)) {
+            throw new Error(allHistories.message)
+        }
+
+        return {
+            status:true,
+            data:allHistories
+        }
+
+    } catch (error) {
+        return{
+            status:false,
+            message:error.message
+        }
+    }
+}
+
+export async function byDateAndPatient(patientId,date) {
+    try {
+        const request = await fetch(API_URL + `/medical_history/bydate&patient/${patientId}`,
+        {
+            method:"POST",
+            credentials:"include",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({date:date})
+        })
+        
         if (request.status === 500) {
             throw new Error("Error interno del servidor, por favor intentelo más tarde.")
         }
