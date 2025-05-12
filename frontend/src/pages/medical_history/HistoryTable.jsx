@@ -27,7 +27,7 @@ export const HistoryTable = ()=>{
             }
         })
 
-        if (patientId.length !== 24 || session && (session.role && ["usuario"].includes(session.role))) {
+        if (session && (session.role && ["usuario"].includes(session.role))) {
             setPatientId(session["id"])
         }
 
@@ -99,20 +99,22 @@ export const HistoryTable = ()=>{
                 Swal.showLoading()
             }
         })
-        const date = target.value
+        const date = target.value ? target.value : undefined
         let request
 
-        if (date.length < 0) {
-            request = request = await getAllHistories()
+        if (!date) {
+            console.log("loooog");
+            
+            request = await getAllHistories()
             setHistory(request.data)
             Swal.close()
             return
         }
 
         if (patientId.length === 24) {
-            request = await getHistoriesByDate(date)
+            request = await byDateAndPatient(patientId,date) 
         }else{
-            request = await byDateAndPatient(patientId,date)
+            request = await getHistoriesByDate(date)
         }
 
         if (!request.status) {
@@ -146,7 +148,8 @@ export const HistoryTable = ()=>{
                 <NewHistoryModal
                 showInsert={showInsert}
                 setShowInsert={setShowInsert}
-                getHistories={getHistories}></NewHistoryModal>
+                getHistories={getHistories}
+                allHistoryDates={allHistoryDates}></NewHistoryModal>
 
                 <ShowHistoryModal
                 historyId={historyId}
@@ -178,21 +181,24 @@ export const HistoryTable = ()=>{
                                 </div>
                             ) : ""}
                             
-                            <div className="d-flex flex-row align-items-center">
-                                <span className='text-black text-break'>Buscar por fechas:</span>
+                            {dates.length > 0 && (
+                                <div className="d-flex flex-row align-items-center">
+                                    <span className='text-black text-break'>Buscar por fechas:</span>
 
-                                <Form.Select className='ms-3 border-dark-subtle select'
-                                defaultValue={""} onChange={selectDate}>
-                                    <option value=""></option>
-                                    {dates.map((date)=>{
-                                        return (
-                                            <option key={date["_id"]} value={date["_id"]}>
-                                                {moment(date["_id"]).format("DD/MM/YYYY")}
-                                            </option>
-                                        )
-                                    })}
-                                </Form.Select>
-                            </div>
+                                    <Form.Select className='ms-3 border-dark-subtle select'
+                                    defaultValue={""} onChange={selectDate}>
+                                        <option value=""></option>
+                                        {dates.map((date)=>{
+                                            return (
+                                                <option key={date["_id"]} value={date["_id"]}>
+                                                    {moment(date["_id"]).format("DD/MM/YYYY")}
+                                                </option>
+                                            )
+                                        })}
+                                    </Form.Select>
+                                </div>
+                            )}
+                            
 
                             {session && ["admin","medico"].includes(session.role) ?  (
                                 <div className='btn-new'>

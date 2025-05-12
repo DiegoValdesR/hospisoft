@@ -1,14 +1,19 @@
 import { Col, Form, Modal, Row , Button} from "react-bootstrap"
 import { useState,useEffect } from "react"
+import { byDoctorAndPatient } from "../../../services/appointments/appointments.js"
 import { getAllUsers } from "../../../services/users/users.js"
 import { getAllDoctors } from "../../../services/workers/workers.js"
 import { insertHistory } from "../../../services/medical_history/history.js"
 import Swal from "sweetalert2"
+import moment from "moment-timezone";
 
-export const NewHistoryModal = ({showInsert,setShowInsert,getHistories})=>{
+export const NewHistoryModal = ({showInsert,setShowInsert,getHistories,allHistoryDates})=>{
     const [patients,setPatients] = useState([])
+    const [patientId,setPatientId] = useState("")
+    const [doctorId,setDoctorId] = useState("")
+    const [disabled,setDisabled] = useState(true)
     const [doctors,setDoctors] = useState([])
-
+    const [dates,setDates] = useState([])
 
     const getPatients = async()=>{
         const request = await getAllUsers()
@@ -32,6 +37,15 @@ export const NewHistoryModal = ({showInsert,setShowInsert,getHistories})=>{
         console.error(request)
     }
 
+    const getDates = async()=>{
+        const request = await byDoctorAndPatient(doctorId,patientId)
+        if (request.status && request.data.length > 0) {
+            setDates(request.data)
+            setDisabled(false)
+            return
+        }
+    }
+
     const handleSubmit = async(e)=>{
         e.preventDefault()
 
@@ -52,6 +66,7 @@ export const NewHistoryModal = ({showInsert,setShowInsert,getHistories})=>{
             doctor_id:formData.get("doctor_id"),
             reason:formData.get("reason"),
             diagnosis:formData.get("diagnosis"),
+            appointment_id:formData.get("appointment_id"),
             treatment:formData.get("treatment")
         }
 
@@ -59,6 +74,7 @@ export const NewHistoryModal = ({showInsert,setShowInsert,getHistories})=>{
         if (request.status) {
             await getHistories()
             handleHide()
+            await allHistoryDates()
         }
 
         Swal.close()
@@ -74,6 +90,14 @@ export const NewHistoryModal = ({showInsert,setShowInsert,getHistories})=>{
         getPatients()
         getDoctors()
     },[])
+
+    useEffect(()=>{
+        if (doctorId.length === 24 && patientId.length === 24) {
+           getDates() 
+        }else{
+            setDisabled(true)
+        }
+    },[doctorId,patientId])
     
     const handleHide = ()=>{
         setShowInsert(false)
@@ -95,6 +119,9 @@ export const NewHistoryModal = ({showInsert,setShowInsert,getHistories})=>{
                                 <Form.Select
                                 required
                                 name="patient_id"
+                                onChange={({target})=>{
+                                    setPatientId(target ? target.value : "0")
+                                }}
                                 defaultValue={""}>
                                     <option value="">Selecciona un paciente</option>
                                     {patients.map((patient)=>{
@@ -112,6 +139,7 @@ export const NewHistoryModal = ({showInsert,setShowInsert,getHistories})=>{
                                 <Form.Label className="text-black">Médico encargado</Form.Label>
                                 <Form.Select
                                 name="doctor_id"
+                                onChange={({target})=>{setDoctorId(target ? target.value : "0")}}
                                 required
                                 defaultValue={""}>
                                     <option value="">Selecciona un médico</option>
@@ -125,6 +153,26 @@ export const NewHistoryModal = ({showInsert,setShowInsert,getHistories})=>{
                                 </Form.Select>
                             </Form.Group>
                         </Col>
+                    </Row>
+
+                    <Row className="mb-3">
+                        <Form.Group>
+                            <Form.Label className="text-black">Cita asignada</Form.Label>
+                            <Form.Select
+                            required
+                            disabled={disabled}
+                            name="appointment_id"
+                            >
+                                <option>Seleccione la fecha de la cita</option>
+                                {dates.length > 0 ? dates.map((date)=>{
+                                    return(
+                                        <option key={date["_id"]} value={date["_id"]}>
+                                            {moment(date["start_date"]).format('DD/MM/YYYY')}
+                                        </option>
+                                    )
+                                }) : ""}
+                            </Form.Select>
+                        </Form.Group>
                     </Row>
 
                     <Row className="mb-3">

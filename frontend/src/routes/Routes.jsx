@@ -2,7 +2,8 @@ import { useState, useEffect } from "react"
 import { Route, Routes, Navigate, useLocation } from "react-router-dom"
 
 // PAGES
-import { HomePage } from "../pages/home/HomePage"
+import { HomePage } from "../pages/home/HomePage.jsx"
+import { DashboardPage } from "../pages/dashboard/DashboardPage.jsx"
 import { UsersPage } from "../pages/users/usersPage"
 import { WorkersPage } from '../pages/workers/WorkersPage'
 import { ItemsPage } from "../pages/items/ItemsPage"
@@ -29,6 +30,7 @@ export const PagesRoutes = () => {
         session && session.role ? "/" : null, session  && session.role ? "/home" : null, 
         session && ["admin","secretaria"].includes(session.role) ? "/usuarios" : null, 
         session && ["admin"].includes(session.role) ? "/empleados" : null, 
+        session && ["admin"].includes(session.role) ? "/dashboard" : null, 
         session && ["admin","medico","farmaceutico"].includes(session.role) ? "/medicamentos" : null,
         session && ["admin","medico"].includes(session.role) ? "/formulas" : null, 
         session && ["admin","medico","secretaria","farmaceutico"].includes(session.role) ? "/horarios" : null, 
@@ -75,8 +77,9 @@ export const PagesRoutes = () => {
         <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/404" element={<NotFound />} />
-            <Route path="/home" element={<HomePage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
             <Route path="/usuarios" element={<UsersPage />} />
             <Route path="/empleados" element={<WorkersPage />} />
             <Route path="/medicamentos" element={<ItemsPage />} />

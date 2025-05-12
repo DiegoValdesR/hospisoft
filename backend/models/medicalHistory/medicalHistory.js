@@ -14,6 +14,10 @@ const MedicalSchema = Schema({
         type:String,
         required:true
     },
+    appointment_date:{
+        type:Schema.Types.ObjectId,
+        ref:"appointments"
+    },
     treatment:{
         type:String,
         required:true

@@ -1,4 +1,5 @@
 import { MedicalModel } from "../../models/medicalHistory/medicalHistory.js"
+import { AppointmentModel } from "../../models/appointments/appointments.js"
 import { UsersModel } from "../../models/user/user.js"
 import { WorkerModel } from "../../models/workers/workers.js"
 import { Types } from "mongoose"
@@ -236,6 +237,7 @@ const InsertMedicalHistory = async(req,res)=>{
         doctor_id:req.body.doctor_id,
         reason:req.body.reason,
         diagnosis:req.body.diagnosis,
+        appointment_id:req.body.appointment_id,
         treatment:req.body.treatment
     }
 
@@ -265,6 +267,14 @@ const InsertMedicalHistory = async(req,res)=>{
             return res.status(404).send({
                 status:"error",
                 message:"No se encontró el médico encargado."
+            })
+        }
+
+        const findAppointment = await AppointmentModel.findOneAndUpdate({"_id":data.appointment_id,"appointment_state":"active"},{"appointment_state":"expired"})
+        if (!findAppointment) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró la cita seleccionada."
             })
         }
 

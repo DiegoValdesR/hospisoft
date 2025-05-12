@@ -21,7 +21,7 @@ export const AsideBar = ()=>{
             {session && (
                 <ul className="sidebar-nav" id="sidebar-nav">
                     {session && ["admin"].includes(session.role) ? (
-                        <a className="nav-link collapsed" href="/home"
+                        <a className="nav-link collapsed" href="/dashboard"
                         >
                             <i className="bi bi-grid"></i>
                             <span>Dashboard</span>
@@ -88,13 +88,12 @@ export const AsideBar = ()=>{
                 
                     <li className="nav-heading">SESIÓN</li>
 
-                    <li className="nav-item">
-                        <button className="nav-link collapsed"
-                        onClick={LogOut}>
+                    <a className="nav-link collapsed"
+                    href='#'
+                    onClick={LogOut}>
                             <i className="bi bi-door-open"></i>
                             <span>Cerrar sesión</span>
-                        </button>
-                    </li>
+                    </a>
 
                 </ul>
             )}

@@ -123,7 +123,7 @@ export const Scheduler = ()=>{
         ) : ""}
         
         <Card>
-            {session && ["admin","secretaria"].includes(session.role) ? (
+            {session && ["admin"].includes(session.role) ? (
                 <Card.Header className='p-3'>
                     <Card.Title>
                         <div className='d-flex flex-row justify-content-between sche-header'>

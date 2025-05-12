@@ -61,6 +61,42 @@ export const appointmentByDoctor = async(doctorId)=>{
     }
 }
 
+export const byDoctorAndPatient = async(doctorId,patientId)=>{
+    try {
+        const request = await fetch(API_URL + `/appointments/bydoctor_patient`,
+            {
+                method:"POST",
+                credentials:"include",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    patient_id:patientId,
+                    doctor_id:doctorId
+                })
+            }
+        )
+
+        if(request.status === 500){
+            throw new Error("Ocurrió un error interno del servidor, por favor intentelo más tarde.");
+        }
+
+        const requestJSON = await request.json()
+        
+        return {
+            status:true,
+            data:requestJSON.data
+        }
+
+    } catch (err) {
+        console.error(err)
+        return {
+            status:false,
+            message:err.message
+        }
+    }
+}
+
 /**
  * Adapta la informacion de las citas para ser mostrada en el calendario
  * @param {object} appointmentsJSON Objeto JSON que contiene un array de objetos con todas las citas 

@@ -70,6 +70,31 @@ const AppointmentsByDoctor = async(req,res)=>{
     }
 }
 
+const ByPatientAndDoctor = async(req,res)=>{
+    const {patient_id,doctor_id} = req.body
+    try {
+        const find = await AppointmentModel.find(
+            {
+                "patient_id":Types.ObjectId.createFromHexString(patient_id),
+                "doctor_id":Types.ObjectId.createFromHexString(doctor_id),
+                "appointment_state":"active"
+            },
+            'start_date'
+        )
+
+        return res.status(200).send({
+            status:"completed",
+            data:find
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(400).send({
+            status:"error",
+            message:"Ocurrió un error, por favor intentelo más tarde."
+        })
+    } 
+}
+
 const InsertAppointment = async(req,res)=>{
     const data = {
         start_date:req.body.start_date,
@@ -272,6 +297,7 @@ export const AppointmentsMethods = {
     AllApointments,
     AppointmentById,
     AppointmentsByDoctor,
+    ByPatientAndDoctor,
     InsertAppointment,
     UpdateAppointment,
     DeactivateAppointment
