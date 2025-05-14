@@ -27,6 +27,23 @@ export async function getAllDoctors() {
     }
 }
 
+export async function getWorkerById(workerId) {
+
+    const request = await fetch(API_URL + `/workers/byid/${workerId}`,{credentials:"include"})
+
+    if(request.status === 500){
+        return "Error interno del servidor, por favor intentelo más tarde."
+    }
+
+    const requestJSON = await request.json()
+
+    if (requestJSON.status === "error") {
+        return requestJSON.message
+    }
+
+    return requestJSON
+}
+
 /**
  * Método que registra usuarios
  * @param {object} data Toda la información del registro

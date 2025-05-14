@@ -1,6 +1,6 @@
 import {WorkersTable} from './WorkersTable.jsx'
 
-export const WorkersPage = ()=>{
+export const WorkersPage = ({session})=>{
     return(
         <main className="main" id="main">
             <div className="pagetitle">
@@ -13,7 +13,7 @@ export const WorkersPage = ()=>{
                 </nav>
             </div>
 
-            <WorkersTable></WorkersTable>
+            <WorkersTable session={session}></WorkersTable>
         </main>
        
     )

@@ -5,9 +5,7 @@ import { ManageWorkersModal } from "./modals/ManageWorkersModal.jsx"
 import { Button, Card, Row, Table } from "react-bootstrap"
 import Swal from "sweetalert2"
 
-export const WorkersTable = ()=>{
-    const session = JSON.parse(sessionStorage.getItem("session"))
-
+export const WorkersTable = ({session})=>{
     const [workers,setWorkers] = useState([])
     const [workerId,setWorkerId] = useState("")
     const [idInfo,setIdInfo] = useState("")

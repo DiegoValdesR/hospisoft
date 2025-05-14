@@ -1,8 +1,26 @@
 import { API_URL } from '../API_URL.js'
+import { useState,useEffect } from 'react'
+import { getSessionData } from "../services/session/session.js"
 
 export const AsideBar = ()=>{
-    const session = JSON.parse(sessionStorage.getItem("session"))
+    const [session,setSession] = useState({})
+
+    const getSession = async()=>{
+        const request = await getSessionData()
+        if (request.status) {
+            setSession(request.data)
+            return
+        }
     
+        setSession({})
+        console.error(request.message)
+    }
+
+    useEffect(()=>{
+        getSession()
+    },[])
+
+
     const LogOut = async()=>{
         const logOut = await fetch(API_URL + '/logout',{
             method:"POST",
@@ -10,17 +28,18 @@ export const AsideBar = ()=>{
         })
 
         if (logOut.ok) {
-            sessionStorage.removeItem("session")
             return window.location.href = "/login"
         }
     }
 
     return (
+        <>
+        
         <aside id="sidebar" className="sidebar">
             
-            {session && (
+            {Object.keys(session).length > 0 && (
                 <ul className="sidebar-nav" id="sidebar-nav">
-                    {session && ["admin"].includes(session.role) ? (
+                    {["admin"].includes(session.role) ? (
                         <a className="nav-link collapsed" href="/dashboard"
                         >
                             <i className="bi bi-grid"></i>
@@ -89,7 +108,13 @@ export const AsideBar = ()=>{
                     <li className="nav-heading">SESIÓN</li>
 
                     <a className="nav-link collapsed"
-                    href='#'
+                    href='/perfil'>
+                            <i className="bi bi-person-circle"></i>
+                            <span>Perfil</span>
+                    </a>
+
+                    <a className="nav-link collapsed"
+                    role='button'
                     onClick={LogOut}>
                             <i className="bi bi-door-open"></i>
                             <span>Cerrar sesión</span>
@@ -98,5 +123,7 @@ export const AsideBar = ()=>{
                 </ul>
             )}
         </aside>
+
+        </>
     )
 }

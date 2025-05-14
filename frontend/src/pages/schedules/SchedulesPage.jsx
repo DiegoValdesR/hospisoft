@@ -1,6 +1,6 @@
 import { Scheduler } from "./Scheduler"
 
-export const SchedulesPage = ()=>{
+export const SchedulesPage = ({session})=>{
 
     return (
         <main className="main" id="main">
@@ -14,7 +14,7 @@ export const SchedulesPage = ()=>{
                 </nav>
             </div>
 
-            <Scheduler></Scheduler>
+            <Scheduler session={session}></Scheduler>
         </main>
     )
 }

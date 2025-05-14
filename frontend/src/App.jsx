@@ -1,4 +1,3 @@
-import { useState,useEffect } from "react"
 
 //MAIN COMPONENTS
 import { AsideBar } from "./components/Aside"
@@ -9,9 +8,10 @@ import { PagesRoutes } from "./routes/Routes"
 
 //REACT-ROUTER-DOM THINGS
 import {useLocation} from 'react-router-dom'
-
+import moment from "moment-timezone"
 //importamos idioma español para la libreria 'moment-timezone'
 import 'moment/dist/locale/es'
+moment.tz.setDefault('America/Bogota')
 
 function App() {
   

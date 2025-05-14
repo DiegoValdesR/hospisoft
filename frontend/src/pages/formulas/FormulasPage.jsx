@@ -1,6 +1,6 @@
 import { FormulasTable } from "./FormulasTable"
 
-export const FormulasPage = ()=>{
+export const FormulasPage = ({session})=>{
     return(
         <main className="main" id="main">
             <div className="pagetitle">
@@ -12,7 +12,7 @@ export const FormulasPage = ()=>{
                     </ol>
                 </nav>
             </div>
-            <FormulasTable></FormulasTable>
+            <FormulasTable session={session}></FormulasTable>
         </main>
        
     )

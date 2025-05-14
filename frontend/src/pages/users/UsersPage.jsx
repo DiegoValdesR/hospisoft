@@ -1,7 +1,7 @@
 import { UsersTable } from "./usersTable"
 
 
-export const UsersPage = ()=>{
+export const UsersPage = ({session})=>{
     return(
         <main className="main" id="main">
             <div className="pagetitle">
@@ -14,7 +14,7 @@ export const UsersPage = ()=>{
                 </nav>
             </div>
 
-            <UsersTable></UsersTable>
+            <UsersTable session={session}></UsersTable>
         </main>
        
     )

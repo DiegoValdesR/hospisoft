@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Container, Form, Button } from 'react-bootstrap'
 import { API_URL } from '../../API_URL.js'
 
@@ -34,7 +34,6 @@ export const Login = () => {
         }).then((res)=>{
         
           if(res.isConfirmed){
-            sessionStorage.setItem("session",JSON.stringify(data.data))
             window.location.href = "/home"
           }
 
@@ -50,7 +49,11 @@ export const Login = () => {
         })
       }
     } catch (error) {
-      alert('Error al conectar con el servidor: ' + error.message)
+      Swal.fire({
+        title:"Error",
+        icon:"error",
+        text:'Error al conectar con el servidor: ' + error.message
+      })
     }
   }
 

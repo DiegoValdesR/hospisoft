@@ -7,10 +7,7 @@ import { ShowFormula } from "./modals/ShowFormula.jsx"
 //libreria para manejar fechas, se llama momentjs
 import moment from 'moment-timezone'
 
-export const FormulasTable = ()=>{
-
-    const session = JSON.parse(sessionStorage.getItem("session"))
-
+export const FormulasTable = ({session})=>{
     const [formulas,setFormulas] = useState([])
     const [formulaId,setFormulaId] = useState("")
     //para mostrar la modal de insertar/actualizar

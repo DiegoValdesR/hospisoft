@@ -105,8 +105,29 @@ const IsLoggedIn = async(req,res)=>{
     })
 }
 
+const SessionData = async(req,res)=>{
+    const token = req.cookies.token
+    
+    try {
+        const tokenDecoded = jwt.decode(token,process.env.SECRET)
+        
+        return res.status(200).send({
+            status:"completed",
+            data:tokenDecoded
+        })
+
+    } catch (error) {
+        console.error(error)
+        return res.status(400).send({
+            status:"error",
+            message:"Ocurrió un error, por favor intentelo más tarde."
+        })
+    }
+}
+
 export const SessionMethods = {
     LogIn,
     LogOut,
+    SessionData,
     IsLoggedIn
 }

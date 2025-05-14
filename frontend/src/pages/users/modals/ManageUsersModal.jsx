@@ -230,7 +230,7 @@ export const ManageUsersModal = ({
                 ></Form.Control>
             </Form.Group>
           </Row>
-
+          {console.log(userById.user_eps)}
           <Row className="mb-3">
             <Form.Group>
               <Form.Label className="text-dark">EPS</Form.Label>
@@ -246,9 +246,9 @@ export const ManageUsersModal = ({
                   "Comfenalco Valle", "Aliansalud", "Anaswayuu", "Familiar de Colombia", "Dusakawi",
                   "Comfaoriente", "Capresoca", "Comfachocó", "Pijaos", "Salud Mía", "Salud Bolívar"
                   ].map((eps) => (
-                  <option key={eps} value={eps}>
-                      {eps}
-                  </option>
+                      <option key={eps} value={eps}>
+                          {eps}
+                      </option>
                   ))}
               </Form.Select>
             </Form.Group>

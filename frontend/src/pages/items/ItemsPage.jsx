@@ -1,6 +1,6 @@
 import { ItemsTable } from "./ItemsTable"
 
-export const ItemsPage = ()=>{
+export const ItemsPage = ({session})=>{
     return(
         <main className="main" id="main">
             <div className="pagetitle">
@@ -13,7 +13,7 @@ export const ItemsPage = ()=>{
                 </nav>
             </div>
 
-            <ItemsTable></ItemsTable>
+            <ItemsTable session={session}></ItemsTable>
         </main>
        
     )

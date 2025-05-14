@@ -9,12 +9,11 @@ import Swal from 'sweetalert2'
 import { NewAppointment } from './modals/NewAppointment.jsx'
 import { ShowAppointment } from './modals/ShowAppointments.jsx'
 
-export const AppontmentsCalendar = ()=>{
+export const AppontmentsCalendar = ({session})=>{
     const localizer = momentLocalizer(moment)
     const [events,setEvents] = useState([])
     const [appointmentData,setAppointmentData] = useState({})
     const [showModal,setShowModal] = useState(false)
-    const session = JSON.parse(sessionStorage.getItem("session"))
 
     const messages = {
         allDay: "Todo el día",

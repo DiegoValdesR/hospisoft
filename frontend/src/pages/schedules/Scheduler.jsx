@@ -13,12 +13,9 @@ import moment from 'moment-timezone'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import '../../assets/css/scheduler/scheduler.css'
 
-export const Scheduler = ()=>{
-    //Ajustamos la zona horaria
-    moment.tz.setDefault('America/Bogota')
+export const Scheduler = ({session})=>{
     //valor para obtener la fecha actual para el calendario
     const localizer = momentLocalizer(moment)
-    const session = JSON.parse(sessionStorage.getItem("session"))
 
     const [workers,setWorkers] = useState([])
     const [workerId,setWorkerId] = useState("")
@@ -118,6 +115,7 @@ export const Scheduler = ()=>{
             scheduleData={scheduleData}
             setScheduleData={setScheduleData}
             workers={workers}
+            session={session}
             getEvents={getEvents}></ShowSchedule>
             </>
         ) : ""}

@@ -5,8 +5,7 @@ import { ManageUsersModal } from "./modals/ManageUsersModal.jsx"
 import Swal from 'sweetalert2'
 import { Button, Card, Row, Table } from "react-bootstrap"
 
-export const UsersTable = ()=>{
-    const session = JSON.parse(sessionStorage.getItem("session"))
+export const UsersTable = ({session})=>{
 
     const [users,setUsers] = useState([])
     const [userId,setUserId] = useState("")

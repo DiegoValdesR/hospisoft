@@ -8,8 +8,7 @@ import { ShowHistoryModal } from "./modal/ShowHistoryModal.jsx"
 import moment from "moment-timezone"
 import '../../assets/css/scheduler/scheduler.css'
 
-export const HistoryTable = ()=>{
-    const session = JSON.parse(sessionStorage.getItem("session"))
+export const HistoryTable = ({session})=>{
     const [history,setHistory] = useState([])
     const [dates,setDates] = useState([])
     const [patients,setPatients] = useState([])
@@ -32,7 +31,7 @@ export const HistoryTable = ()=>{
         }
 
         let request
-        if (patientId.length === 24 || (session && session.role && !["admin"].includes(session.role))) {
+        if (patientId.length === 24 || (session && session.role && ["usuario"].includes(session.role))) {
             request = await getHistoriesByPatient(patientId)
         }else{
             request = await getAllHistories()
@@ -103,8 +102,6 @@ export const HistoryTable = ()=>{
         let request
 
         if (!date) {
-            console.log("loooog");
-            
             request = await getAllHistories()
             setHistory(request.data)
             Swal.close()

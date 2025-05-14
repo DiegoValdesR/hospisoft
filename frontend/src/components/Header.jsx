@@ -1,7 +1,10 @@
-import { useState } from "react"
+import { useState,useEffect } from "react"
+import { getSessionData } from "../services/session/session.js"
 import {API_URL} from '../API_URL.js'
+
 export const Header = ()=>{
     const [toggle,setToggle] = useState(false)
+    const [session,setSession] = useState({})
 
     const ToggleSideBar = ()=>{
         if (toggle === true) {
@@ -14,7 +17,20 @@ export const Header = ()=>{
         setToggle(true)
     }
 
-    const session = JSON.parse(sessionStorage.getItem("session"))
+    const getSession = async()=>{
+        const request = await getSessionData()
+        if (request.status) {
+            setSession(request.data)
+            return
+        }
+    
+        setSession({})
+        console.error(request.message)
+    }
+
+    useEffect(()=>{
+        getSession()
+    },[])
     
     const LogOut = async()=>{
         const logOut = await fetch(API_URL + '/logout',{
@@ -23,7 +39,6 @@ export const Header = ()=>{
         })
 
         if (logOut.ok) {
-            sessionStorage.removeItem("session")
             return window.location.href = "/login"
         }
     }
@@ -59,7 +74,14 @@ export const Header = ()=>{
                             <li>
                                 <hr className="dropdown-divider"></hr>
                             </li>
-
+                            
+                            <li>
+                                <a className="dropdown-item d-flex align-items-center"
+                                href="/perfil">
+                                    <i className="bi bi-person"></i>
+                                    <span>Perfil</span>
+                                </a>
+                            </li>
 
                             <li>
                                 <button className="dropdown-item d-flex align-items-center"
@@ -68,6 +90,8 @@ export const Header = ()=>{
                                 <span>Cerrar sesión</span>
                                 </button>
                             </li>
+
+                            
                         </ul>
                     </li>
                 </ul>

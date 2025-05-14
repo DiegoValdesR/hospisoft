@@ -1,6 +1,6 @@
 import { AppontmentsCalendar } from "./AppontmentsCalendar"
 
-export const AppointmentsPage = ()=>{
+export const AppointmentsPage = ({session})=>{
     return(
         <main className="main" id="main">
             <div className="pagetitle">
@@ -13,7 +13,7 @@ export const AppointmentsPage = ()=>{
                 </nav>
             </div>
 
-            <AppontmentsCalendar></AppontmentsCalendar>
+            <AppontmentsCalendar session={session}></AppontmentsCalendar>
         </main>
     )
 }

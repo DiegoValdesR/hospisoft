@@ -1,5 +1,5 @@
 import { HistoryTable } from "./HistoryTable"
-export const HistoryPage = ()=>{
+export const HistoryPage = ({session})=>{
     return (
         <>
         <main className="main" id="main">
@@ -13,7 +13,7 @@ export const HistoryPage = ()=>{
                     </nav>
             </div>
 
-            <HistoryTable></HistoryTable>
+            <HistoryTable session={session}></HistoryTable>
         </main>
         </>
     )

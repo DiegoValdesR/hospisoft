@@ -4,11 +4,10 @@ import { UpdateSchedule } from "./UpdateSchedule"
 import moment from "moment-timezone"
 import Swal from "sweetalert2"
 
-export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers = [], getEvents})=>{
+export const ShowSchedule = ({API_URL,scheduleData = {},setScheduleData, workers = [], getEvents, session})=>{
     const [show,setShow] = useState(false)
     const [showUpdate,setShowUpdate] = useState(false)
     const [worker,setWorker] = useState("")
-    const session = JSON.parse(sessionStorage.getItem("session"))
 
     const workerById = async()=>{
         const getWorker = await fetch(API_URL + `/workers/byid/${scheduleData.worker_id}`,{credentials: 'include'})

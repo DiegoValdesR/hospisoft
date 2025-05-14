@@ -4,10 +4,9 @@ import { ManageItemsModal } from "./modals/ManageItemsModal.jsx"
 import Swal from 'sweetalert2'
 import { Button, Card, Row, Table } from "react-bootstrap"
 
-export const ItemsTable = ()=>{
+export const ItemsTable = ({session})=>{
     const [items,setItems] = useState([])
     const [itemId,setItemId] = useState("")
-    const session = JSON.parse(sessionStorage.getItem("session"))
     //para mostrar la modal de insertar/actualizar
     const [modalData,setModalData] = useState(false)
 
