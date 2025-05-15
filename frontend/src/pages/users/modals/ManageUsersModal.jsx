@@ -230,7 +230,7 @@ export const ManageUsersModal = ({
                 ></Form.Control>
             </Form.Group>
           </Row>
-          {console.log(userById.user_eps)}
+          
           <Row className="mb-3">
             <Form.Group>
               <Form.Label className="text-dark">EPS</Form.Label>

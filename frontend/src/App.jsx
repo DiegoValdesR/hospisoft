@@ -11,6 +11,12 @@ import {useLocation} from 'react-router-dom'
 import moment from "moment-timezone"
 //importamos idioma español para la libreria 'moment-timezone'
 import 'moment/dist/locale/es'
+
+//PRIME-REACT CSS
+// import 'primereact/resources/primereact.min.css';
+// import 'primereact/resources/themes/lara-light-indigo/theme.css';
+//END
+
 moment.tz.setDefault('America/Bogota')
 
 function App() {
