@@ -61,6 +61,35 @@ export const appointmentByDoctor = async(doctorId)=>{
     }
 }
 
+export const appointmentByPatient = async(patientId)=>{
+    try {
+        const request = await fetch(API_URL + `/appointments/bypatient/${patientId}`,{credentials:"include"})
+
+        if(request.status === 500){
+            throw new Error("Ocurrió un error interno del servidor, por favor intentelo más tarde.");
+        }
+
+        const requestJSON = await request.json()
+        const events = await Promise.resolve(getEvents(requestJSON))
+        
+        if (!Array.isArray(events)) {
+            throw new Error(events)
+        }
+        
+        return {
+            status:true,
+            data:events
+        }
+
+    } catch (err) {
+        console.error(err)
+        return {
+            status:false,
+            message:err.message
+        }
+    }
+}
+
 export const byDoctorAndPatient = async(doctorId,patientId)=>{
     try {
         const request = await fetch(API_URL + `/appointments/bydoctor_patient`,

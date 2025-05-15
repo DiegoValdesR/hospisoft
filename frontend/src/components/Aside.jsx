@@ -1,10 +1,11 @@
 import { API_URL } from '../API_URL.js'
 import { useState,useEffect } from 'react'
 import { getSessionData } from "../services/session/session.js"
-
+import {useLocation} from 'react-router-dom'
 export const AsideBar = ()=>{
     const [session,setSession] = useState({})
-
+    const location = useLocation()
+    
     const getSession = async()=>{
         const request = await getSessionData()
         if (request.status) {
@@ -40,17 +41,21 @@ export const AsideBar = ()=>{
             {Object.keys(session).length > 0 && (
                 <ul className="sidebar-nav" id="sidebar-nav">
                     {["admin"].includes(session.role) ? (
-                        <a className="nav-link collapsed" href="/dashboard"
+                        <>
+                        <li className="nav-heading">INICIO</li>
+                        <a className={`nav-link ${location.pathname === "/dashboard" ? '' : 'collapsed'}`} href="/dashboard"
                         >
                             <i className="bi bi-grid"></i>
                             <span>Dashboard</span>
                         </a> 
+                        </>
+                        
                     ) : ""}
                        
 
-                    <li className="nav-heading">SECCIONES</li>
+                    <li className="nav-heading">PÁGINAS</li>
                     {["admin","secretaria"].includes(session.role) && (
-                        <a className="nav-link collapsed" href="/usuarios"
+                        <a className={`nav-link ${location.pathname === "/usuarios" ? '' : 'collapsed'}`} href="/usuarios"
                         >
                             <i className="bi bi-people"></i>
                             <span>Usuarios</span>
@@ -58,7 +63,7 @@ export const AsideBar = ()=>{
                     )}
                     
                     {["admin"].includes(session.role) && (
-                        <a className="nav-link collapsed" href="/empleados"
+                        <a className={`nav-link ${location.pathname === "/empleados" ? '' : 'collapsed'}`} href="/empleados"
                         >
                             <i className="bi bi-person-vcard"></i>
                             <span>Empleados</span>
@@ -66,7 +71,7 @@ export const AsideBar = ()=>{
                     )}
 
                     {["admin","medico","farmaceutico"].includes(session.role) && (
-                        <a className="nav-link collapsed" href="/medicamentos"
+                        <a className={`nav-link ${location.pathname === "/medicamentos" ? '' : 'collapsed'}`} href="/medicamentos"
                         >
                             <i className="bi bi-capsule"></i>
                             <span>Medicamentos</span>
@@ -74,7 +79,7 @@ export const AsideBar = ()=>{
                     )}
 
                     {["admin","medico"].includes(session.role) && (
-                        <a className="nav-link collapsed" href="/formulas"
+                        <a className={`nav-link ${location.pathname === "/formulas" ? '' : 'collapsed'}`} href="/formulas"
                         >
                             <i className="bi bi-clipboard-pulse"></i>
                             <span>Formulas</span>
@@ -82,15 +87,15 @@ export const AsideBar = ()=>{
                     )}
 
                     {["admin","medico","secretaria","farmaceutico"].includes(session.role) && (
-                        <a className="nav-link collapsed" href="/horarios"
+                        <a className={`nav-link ${location.pathname === "/horarios" ? '' : 'collapsed'}`} href="/horarios"
                         >
                             <i className="bi bi-calendar-plus"></i>
                             <span>Horarios</span>
                         </a>
                     )}
 
-                    {["admin","medico","secretaria"].includes(session.role) && (
-                        <a className="nav-link collapsed" href="/citas"
+                    {["admin","medico","secretaria","usuario"].includes(session.role) && (
+                        <a className={`nav-link ${location.pathname === "/citas" ? '' : 'collapsed'}`} href="/citas"
                         >
                             <i className="bi bi-calendar-check"></i>
                             <span>Citas</span>
@@ -98,7 +103,7 @@ export const AsideBar = ()=>{
                     )}
 
                     {["admin","medico","usuario"].includes(session.role) && (
-                        <a className="nav-link collapsed" href="/historial_medico"
+                        <a className={`nav-link ${location.pathname === "/historial_medico" ? '' : 'collapsed'}`} href="/historial_medico"
                         >
                             <i className="bi bi-clipboard-plus"></i>
                             <span>Historial médico</span>
@@ -107,13 +112,13 @@ export const AsideBar = ()=>{
                 
                     <li className="nav-heading">SESIÓN</li>
 
-                    <a className="nav-link collapsed"
+                    <a className={`nav-link ${location.pathname === "/perfil" ? '' : 'collapsed'}`}
                     href='/perfil'>
                             <i className="bi bi-person-circle"></i>
                             <span>Perfil</span>
                     </a>
 
-                    <a className="nav-link collapsed"
+                    <a className={`nav-link collapsed`}
                     role='button'
                     onClick={LogOut}>
                             <i className="bi bi-door-open"></i>

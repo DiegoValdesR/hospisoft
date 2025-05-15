@@ -3,16 +3,18 @@ import { Validations } from "../../validations/index.js"
 import { AdmittedRoles } from "../../middleware/roles.js"
 import mongoose from "mongoose"
 import bcrypt from 'bcryptjs'
+import {config} from 'dotenv'
+config()
 
 const AllUsers = async(req,res) =>{
 
-    // const errorRole = AdmittedRoles(req,["admin","secretaria"])
-    // if (!errorRole.status) {
-    //     return res.status(401).send({
-    //         status:"error",
-    //         message:errorRole.message
-    //     })
-    // }
+    const errorRole = AdmittedRoles(req,["admin","secretaria"])
+    if (!errorRole.status) {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole.message
+        })
+    }
 
     try {
         const users = await UsersModel.find({"user_state":"active"})
@@ -34,7 +36,7 @@ const AllUsers = async(req,res) =>{
 
 const UserById = async(req,res)=>{
 
-    // const errorRole = AdmittedRoles(req,["admin","secretaria"])
+    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
     // if (!errorRole.status) {
     //     return res.status(401).send({
     //         status:"error",
@@ -69,15 +71,6 @@ const UserById = async(req,res)=>{
 }
 
 const InsertUser = async(req,res) =>{
-
-    // const errorRole = AdmittedRoles(req,["admin","secretaria","usuario"])
-    // if (!errorRole.status) {
-    //     return res.status(401).send({
-    //         status:"error",
-    //         message:errorRole.message
-    //     })
-    // }
-
     const data ={
         user_document:req.body.user_document,
         user_name:req.body.user_name,
@@ -110,6 +103,26 @@ const InsertUser = async(req,res) =>{
         data.user_password = bcrypt.hashSync(data.user_password)
         const insert = new UsersModel(data)
         await insert.save()
+
+        const SendEmail = await fetch(process.env.API_URL + '/sendemail',{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                to: data.user_email,
+                subject: "¡Gracias por registrarte!",
+                text: "Gracias por registrarte en nuestra plataforma.",
+                html: `<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"UTF-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" /><title>¡Gracias por registrarte!</title><style>body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:#f0f2f5;padding:40px 20px;margin:0}.container{background-color:#ffffff;border-radius:12px;max-width:600px;margin:auto;padding:40px 30px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}.header{text-align:center;color:#222;font-size:28px;margin-bottom:20px}p{color:#555;font-size:16px;line-height:1.6}.button{display:inline-block;margin-top:30px;padding:14px 28px;background:linear-gradient(90deg,#007bff,#0056b3);color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;transition:background 0.3s ease}.button:hover{background:linear-gradient(90deg,#0056b3,#003f7f)}.footer{margin-top:40px;font-size:12px;color:#999999;text-align:center}@media(max-width:600px){.container{padding:30px 20px}.header{font-size:24px}.button{padding:12px 24px;font-size:14px}}</style></head><body><div class=\"container\"><h2 class=\"header\">¡Gracias por registrarte!</h2><p>Hola,</p><p>Te damos la más cordial bienvenida a nuestra plataforma. Nos alegra tenerte aquí y esperamos que disfrutes de todos los beneficios que tenemos preparados para ti.</p><p>Si tienes alguna duda o necesitas asistencia, nuestro equipo de soporte está siempre listo para ayudarte.</p><p style=\"text-align: center;\"><a href=\"https://www.tupagina.com\" class=\"button\">Explora ahora</a></p><div class=\"footer\">© 2025 Hospisoft. Todos los derechos reservados.</div></div></body></html>`
+            })
+        })
+
+        if (!SendEmail.ok) {
+            return res.status(400).send({
+                status:"error",
+                message:"No se pudo enviar el email, por favor intentelo más tarde."
+            })
+        }
     
         return res.status(201).send({
             status:"completed",
@@ -127,13 +140,13 @@ const InsertUser = async(req,res) =>{
 
 const UpdateUser = async(req,res)=>{
 
-    // const errorRole = AdmittedRoles(req,["admin"])
-    // if (!errorRole.status) {
-    //     return res.status(401).send({
-    //         status:"error",
-    //         message:errorRole.message
-    //     })
-    // }
+    const errorRole = AdmittedRoles(req,["admin"])
+    if (!errorRole.status) {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole.message
+        })
+    }
 
     const {id} = req.params
     const data ={
@@ -179,14 +192,13 @@ const UpdateUser = async(req,res)=>{
 }
 
 const DeleteUser = async(req,res)=>{
-
-    // const errorRole = AdmittedRoles(req,["admin"])
-    // if (!errorRole.status) {
-    //     return res.status(401).send({
-    //         status:"error",
-    //         message:errorRole.message
-    //     })
-    // }
+    const errorRole = AdmittedRoles(req,["admin"])
+    if (!errorRole.status) {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole.message
+        })
+    }
 
     const {id} = req.params
 

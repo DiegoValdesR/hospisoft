@@ -102,6 +102,12 @@ export const HistoryTable = ({session})=>{
         let request
 
         if (!date) {
+            if (["usuario"].includes(session.role)) {
+                request = await getHistoriesByPatient(session["id"])
+                setHistory(request.data)
+                Swal.close()
+                return
+            }
             request = await getAllHistories()
             setHistory(request.data)
             Swal.close()
@@ -221,6 +227,7 @@ export const HistoryTable = ({session})=>{
                                 <tr>
                                     <th>PACIENTE</th>
                                     <th>MÉDICO ENCARGADO</th>
+                                    <th>FECHA</th>
                                     {session && ["admin","medico","usuario"].includes(session.role) ? (
                                     <th>ACCIONES</th>
                                     ) : ""}
@@ -232,6 +239,7 @@ export const HistoryTable = ({session})=>{
                                 <tr key={element["_id"]}>
                                     <td>{element.patient}</td>
                                     <td>{element.doctor}</td>
+                                    <td>{moment(element.date).format('DD/MM/YYYY')}</td>
                                     <td>
                                     {session && ["admin","medico","usuario"].includes(session.role) ? (
                                         <>

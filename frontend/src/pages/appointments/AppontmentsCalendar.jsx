@@ -1,5 +1,5 @@
 import moment from 'moment-timezone'
-import { getApointments,appointmentByDoctor } from '../../services/appointments/appointments.js'
+import { getApointments,appointmentByDoctor,appointmentByPatient } from '../../services/appointments/appointments.js'
 import { useState,useEffect } from 'react'
 import { Button, Card } from 'react-bootstrap'
 import { Calendar, momentLocalizer} from 'react-big-calendar'
@@ -41,6 +41,27 @@ export const AppontmentsCalendar = ({session})=>{
         })
 
         let appointments
+
+        if (["usuario"].includes(session.role)) {
+            appointments = await appointmentByPatient(session["id"])
+
+            if (!appointments.status) {
+                Swal.close()
+                Swal.fire({
+                    title:"Error",
+                    icon:"error",
+                    text:appointments.message,
+                    allowEscapeKey:false,
+                    allowOutsideClick:false
+                })
+                return
+            }
+
+            setEvents(appointments.data)
+            Swal.close()
+            return
+        }
+
         if (session && session.id.length === 24 && session.role && session.role === "medico") {
             appointments = await Promise.resolve(appointmentByDoctor(session.id))
         }else{
@@ -53,8 +74,12 @@ export const AppontmentsCalendar = ({session})=>{
             Swal.fire({
                 title:"Error",
                 icon:"error",
-                text:appointments
+                text:appointments,
+                allowEscapeKey:false,
+                allowOutsideClick:false
             })
+
+            return  
         }
 
         setEvents(appointments)
@@ -78,7 +103,7 @@ export const AppontmentsCalendar = ({session})=>{
                 </>
             ) : ""}
             
-            {session && ["admin","secretaria","medico"].includes(session.role) ? (
+            {session && ["admin","secretaria","medico","usuario"].includes(session.role) ? (
                 <>
                     <ShowAppointment appointmentData={appointmentData}
                     setAppointmentData={setAppointmentData}

@@ -53,7 +53,7 @@ export const Register = () => {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(120deg, #f8f9fa, #e9ecef)',
+      background: 'linear-gradient(135deg, #dbeafe 0%, #ffffff 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',

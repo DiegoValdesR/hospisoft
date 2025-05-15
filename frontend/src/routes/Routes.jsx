@@ -71,7 +71,7 @@ export const PagesRoutes = () => {
         ["admin","medico","farmaceutico"].includes(session.role) ? "/medicamentos" : null,
         ["admin","medico"].includes(session.role) ? "/formulas" : null, 
         ["admin","medico","secretaria","farmaceutico"].includes(session.role) ? "/horarios" : null, 
-        ["admin","medico","secretaria"].includes(session.role) ? "/citas" : null,
+        ["admin","medico","secretaria","usuario"].includes(session.role) ? "/citas" : null,
         ["admin","usuario","medico"].includes(session.role) ? "/historial_medico" : null,
         Object.keys(session).length > 0 ? "/perfil" : null
     ]

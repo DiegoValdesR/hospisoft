@@ -79,7 +79,13 @@ export const ProfileForm = ({session})=>{
         Swal.fire({
             title:request.status ? "Completado" : "Error",
             icon:request.status ? "success" : "error",
-            text:request.message
+            text:request.message,
+            allowEscapeKey:false,
+            allowOutsideClick:false
+        }).then((res)=>{
+            if (res.isConfirmed && request.status) {
+                window.location.href = '/home'
+            }
         })
     }
 

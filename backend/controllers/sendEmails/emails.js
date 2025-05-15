@@ -20,7 +20,9 @@ export const SendEmail = async(req,res)=>{
     const mailOptions = {
         to:req.body.to,
         subject:req.body.subject,
-        text:req.body.text
+        text:req.body.text,
+        attatchments:req.body.attatchments,
+        html:req.body.html
     }
 
     mailOptions.from = MAILER_EMAIL
