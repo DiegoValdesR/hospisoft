@@ -1,13 +1,28 @@
 import { useState,useEffect } from "react"
 import { API_URL } from "../../API_URL.js"
 import Swal from 'sweetalert2'
-import { Button, Card, Row, Table } from "react-bootstrap"
+import { Card } from "react-bootstrap"
 import { ManageFormulaModal } from "./modals/ManageFormulaModal.jsx"
 import { ShowFormula } from "./modals/ShowFormula.jsx"
 //libreria para manejar fechas, se llama momentjs
 import moment from 'moment-timezone'
+//PRIME REACT THINGS
+import { DataTable } from 'primereact/datatable';
+import { InputText } from 'primereact/inputtext';
+import { FilterMatchMode } from 'primereact/api';
+import { Column } from 'primereact/column';
+import { Button } from 'primereact/button';
+//END PRIME REACT
 
 export const FormulasTable = ({session})=>{
+    //FILTERS PRIME REACT 
+    const [searchFilter,setSearchFilter] = useState('')
+    const [filters,setFilters] =useState(
+        {
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+        }
+    )
+    //END FILTERS PRIME REACT 
     const [formulas,setFormulas] = useState([])
     const [formulaId,setFormulaId] = useState("")
     //para mostrar la modal de insertar/actualizar
@@ -83,6 +98,7 @@ export const FormulasTable = ({session})=>{
             showConfirmButton:true,
             confirmButtonColor:"#dc3545",
             confirmButtonText:"Aceptar",
+            cancelButtonText:"Cancelar"
         }).then(async result =>{
             if (result.isConfirmed) {
                 
@@ -125,6 +141,56 @@ export const FormulasTable = ({session})=>{
             }
         })
     }
+    
+    //PRIME REACT DATATABLE
+    const onGlobalFilterChange = (e) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
+
+        _filters['global'].value = value;
+
+        setFilters(_filters);
+        setSearchFilter(value);
+    }
+
+    const RowActions = (rowData)=>{
+        return (
+            <div className="d-flex flex-row">
+                <>
+                    <div className="p-1">
+                        <Button title="Ver detalles de la fórmula" severity="secondary" icon="pi pi-eye"
+                        onClick={()=>{setFormulaId(rowData["_id"])}} className="rounded rounded-2 table-btn">
+                        </Button>
+                    </div>
+                                                    
+                    <div className="p-1">
+                        <Button title="Eliminar fórmula" severity="danger" icon="pi pi-trash"
+                        onClick={()=>{deactivateFormula(rowData["_id"])}} className="rounded rounded-2 table-btn">
+                        </Button>
+                    </div>
+                </>
+            </div>
+        )
+    }
+
+    const TableHeader = ()=>{
+        return(
+            <>
+                <div className="d-flex justify-content-between align-items-center text-center table-header">
+                    <div>
+                        <p>Administrar Formulas</p>
+                    </div>
+
+                    <div>
+                        <InputText value={searchFilter} type="search" placeholder="Buscar..."
+                        onChange={onGlobalFilterChange}></InputText>
+                    </div>
+                    
+                </div>
+            </>
+        )
+    }
+    //END PRIME REACT DATATABLE
 
     useEffect(()=>{
         getAllFormulas()
@@ -148,78 +214,25 @@ export const FormulasTable = ({session})=>{
             ) : ""}
             
             <Card>
-                {session && ["admin","farmaceutico"].includes(session.role) ? (
-                <Card.Header>
-                    <Card.Title className="d-flex">
-                        <Row className="ms-4">
-                            
-                                <Button variant="primary" type="button"
-                                onClick={()=>{setModalData(true)}}>
-                                    <i className="bi bi-plus-lg"></i>
-                                    <span className="p-1 text-white">
-                                        Nuevo
-                                    </span>
-                                </Button>
-                            
-                        </Row>
-                    </Card.Title>
+                {session && ["admin","medico"].includes(session.role) && (
+                 <Card.Header>
+                    <Button severity="info" className="rounded rounded-5" icon="pi pi-plus" onClick={()=>{setModalData(true)}} label="Nuevo" iconPos="left"></Button>
                 </Card.Header>
-                ) : ""}
-                <Card.Body className="mt-2">
-                    {formulas.length > 0 ? (
-                    <Row className="table-responsive text-center">
-                        <Table hover>
-                            <thead>
-                                <tr>
-                                    <th>FECHA</th>
-                                    <th>HORA</th>
-                                    <th>PACIENTE</th>
-                                    <th>MÉDICO</th>
-                                    {session && ["admin","secretaria"].includes(session.role) ? (
-                                        <th>ACCIONES</th>
-                                    ) : ""}
-                                    
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {formulas.map((formula)=>{
-                                    return(
-                                    <tr key={formula["_id"]}>
-                                        <td>{formula.date}</td>
-                                        <td>{formula.time}</td>
-                                        <td>{formula.patient}</td>
-                                        <td>{formula.doctor}</td>
-                                        {session && ["admin","farmaceutico"].includes(session.role) ? (
-                                        <td>
-                                           <span className="p-1">
-                                                <Button variant="secondary"
-                                                title="Ver detalles de la formula"
-                                                onClick={()=>{setFormulaId(formula["_id"])}}>
-                                                    <i className="bi bi-eye"></i>
-                                                </Button>
-                                            </span>
+                )}
 
-                                            <span className="p-1">
-                                                <Button variant="danger"
-                                                title="Eliminar formula"
-                                                onClick={()=>{deactivateFormula(formula["_id"])}}>
-                                                        <i className="bi bi-trash"></i>
-                                                </Button>
-                                            </span>                 
-                                        </td>
-                                        ) : ""}
-                                    </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </Table>
-                    </Row>
-                    ) : (
-                        <div>
-                            <p className="text-center text-black mt-2 h5">No hay formulas...</p>
-                        </div>
-                        
-                    )}
+                <Card.Body>
+
+                    <DataTable value={formulas} stripedRows header={TableHeader} paginator rows={5} filters={filters}
+                    className="mt-2 p-4 text-center" emptyMessage="No hay fórmulas registradas...">
+                        <Column field="date" header="Fecha" sortable></Column>
+                        <Column field="time" header="Hora" sortable></Column>
+                        <Column field="patient" header="Nombre paciente" sortable></Column>
+                        <Column field="doctor" header="Médico encargado" sortable></Column>
+
+                        {session && ["admin","medico"].includes(session.role) && (
+                            <Column body={RowActions} header="Acciones"></Column>
+                        )}
+                    </DataTable>
                 </Card.Body>
             </Card>
         </>

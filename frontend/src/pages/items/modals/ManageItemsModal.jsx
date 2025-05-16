@@ -51,8 +51,6 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
     const handleHide = ()=>{
         setModalData(false)
         setItemId("")
-        
-        return
     }
     
     useEffect(()=>{

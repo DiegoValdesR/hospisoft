@@ -4,12 +4,13 @@ import { ShowUserModal } from "./modals/ShowUserModal.jsx"
 import { ManageUsersModal } from "./modals/ManageUsersModal.jsx"
 import Swal from 'sweetalert2'
 import { Card} from "react-bootstrap"
-
-import { DataTable } from 'primereact/datatable';
-import { InputText } from 'primereact/inputtext';
-import { FilterMatchMode } from 'primereact/api';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
+//PRIME REACT THINGS
+import { DataTable } from 'primereact/datatable'
+import { InputText } from 'primereact/inputtext'
+import { FilterMatchMode } from 'primereact/api'
+import { Column } from 'primereact/column'
+import { Button } from 'primereact/button'
+//END PRIME REACT
 
 export const UsersTable = ({session})=>{
     const [searchFilter,setSearchFilter] = useState('')
@@ -67,7 +68,8 @@ export const UsersTable = ({session})=>{
             showCancelButton:true,
             showConfirmButton:true,
             confirmButtonColor:"#dc3545",
-            confirmButtonText:"Aceptar"
+            confirmButtonText:"Aceptar",
+            cancelButtonText:"Cancelar"
         }).then(async result =>{
             if (result.isConfirmed) {
                 Swal.fire({
@@ -112,45 +114,47 @@ export const UsersTable = ({session})=>{
         })
     }
 
+
     useEffect(()=>{
         getAllUsers()
     },[])
 
+    //PRIME REACT DATATABLE
     const onGlobalFilterChange = (e) => {
-        const value = e.target.value;
-        let _filters = { ...filters };
+        const value = e.target.value
+        let _filters = { ...filters }
 
-        _filters['global'].value = value;
+        _filters['global'].value = value
 
-        setFilters(_filters);
-        setSearchFilter(value);
+        setFilters(_filters)
+        setSearchFilter(value)
     }
 
-    const ActionsRow = (rowData)=>{
+    const RowActions = (rowData)=>{
         return (
-            <>
-            <span className="p-1">
-                <Button type="button" icon="pi pi-eye" severity="secondary" title="Ver informacion del usuario"
-                onClick={()=>{setIdInfo(rowData["_id"])}} className="rounded rounded-2 table-btn">
-                </Button>
-            </span>
+            <div className="d-flex flex-row">
+                <div className="p-1">
+                    <Button type="button" icon="pi pi-eye" severity="secondary" title="Ver informacion del usuario"
+                    onClick={()=>{setIdInfo(rowData["_id"])}} className="rounded rounded-2 table-btn">
+                    </Button>
+                </div>
 
             {session && ["admin"].includes(session.role) && (
                 <>
-                    <span className="p-1">
+                    <div className="p-1">
                         <Button title="Editar usuario" severity="info" icon="pi pi-pen-to-square"
                         onClick={()=>{setUserId(rowData["_id"])}} className="rounded rounded-2 table-btn">
                         </Button>
-                    </span>
+                    </div>
                                                     
-                    <span className="p-1">
+                    <div className="p-1">
                         <Button title="Eliminar usuario" severity="danger" icon="pi pi-trash"
                         onClick={()=>{deactivateUser(rowData["_id"])}} className="rounded rounded-2 table-btn">
                         </Button>
-                    </span>
+                    </div>
                 </>
             )}
-            </>
+            </div>
         )
     }
 
@@ -159,7 +163,7 @@ export const UsersTable = ({session})=>{
             <>
                 <div className="d-flex justify-content-between align-items-center text-center table-header">
                     <div>
-                        Administrar usuarios
+                        <p>Administrar usuarios</p>
                     </div>
 
                     <div>
@@ -171,10 +175,10 @@ export const UsersTable = ({session})=>{
             </>
         )
     }
+    //END PRIME REACT DATATABLE
 
     return (
         <>
-
             {session && ["admin","secretaria"].includes(session.role) ? (
                 <>
                     <ShowUserModal
@@ -199,17 +203,25 @@ export const UsersTable = ({session})=>{
             ) : ""}
             
             <Card>
-
-                    <div className="card-header">
-                        <Button severity="info" className="rounded rounded-5" icon="pi pi-plus"                 onClick={()=>{setModalData(true)}}
-                        label="Nuevo" iconPos="left"></Button>
-                    </div>
-                    <DataTable value={users} stripedRows header={["admin","secretaria"].includes(session.role) && TableHeader} paginator rows={5} filters={filters}
-                    className="mt-2 p-4 text-center" emptyMessage="No hay usuarios registrados...">
-                        <Column field="user_name" header="Nombre"></Column>
-                        <Column field="user_last_name" header="Apellido"></Column>
-                        <Column body={ActionsRow} header="Acciones"></Column>
-                    </DataTable>
+                    {session && ["admin","secretaria"].includes(session.role) && (
+                        <Card.Header>
+                            <Button severity="info" className="rounded rounded-5" icon="pi pi-plus" onClick={()=>{setModalData(true)}}
+                            label="Nuevo" iconPos="left"></Button>
+                        </Card.Header>
+                    )}
+                    
+                    <Card.Body>
+                        <DataTable value={users} stripedRows header={ TableHeader} paginator rows={5} filters={filters}
+                        className="mt-2 p-4 text-center" emptyMessage="No hay usuarios registrados...">
+                            <Column field="user_name" header="Nombre" sortable></Column>
+                            <Column field="user_last_name" header="Apellido" sortable></Column>
+                            {["admin","secretaria"].includes(session.role) && (
+                                <Column body={RowActions} header="Acciones"></Column>
+                            )}
+                        </DataTable>
+                        
+                    </Card.Body>
+                    
             </Card> 
 
         </>

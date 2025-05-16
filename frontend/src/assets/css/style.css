@@ -1,17 +1,4 @@
 
-/*ICON BUTTONS*/
-.icon-buttons{
-    border-radius: 12px;
-    padding: 12px;
-    transition: .3s all ease-in-out;
-}
-
-.icon-buttons:hover{
-    
-}
-/*END ICON BUTTONS*/
-
-
 /*CARD*/
 .card{
     border-radius: 20px !important;
@@ -51,7 +38,13 @@
         display: block !important;
     }
 }
-/*DATA-TABLES*/
+
+@media screen and (max-width:430px) {
+    .table-header > div > .p-inputtext{
+       width: 75% !important;
+    }
+}
+/*END DATA-TABLES*/
 
 /*TABLES BUTTONS*/
 .table-btn > span{
@@ -59,4 +52,21 @@
 }
 /*END TABLES BUTTONS*/
 
+/*SELECT (FOR SEARCHING)*/
+.select{
+    width: 200px !important;
+}
+
+@media only screen and (max-width:550px) {
+    .sche-header{
+        display: block !important;
+    }
+    .select{
+        width: 100% !important;
+    }
+    .btn-new{
+        margin-top: 20px ;
+    }
+}
+/*END SELECT*/
 

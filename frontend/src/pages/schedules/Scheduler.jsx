@@ -9,9 +9,6 @@ import { NewSchedule } from './modals/NewSchedule.jsx'
 import { ShowSchedule } from './modals/ShowSchedule.jsx'
 //libreria para manjear fechas
 import moment from 'moment-timezone'
-//css
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-import '../../assets/css/scheduler/scheduler.css'
 
 export const Scheduler = ({session})=>{
     //valor para obtener la fecha actual para el calendario
@@ -142,8 +139,7 @@ export const Scheduler = ({session})=>{
                             </div>
                             {session && ["admin"].includes(session.role) ? (
                                 <div className='btn-new'>
-                                    <Button variant='primary'
-                                    onClick={()=>{setShowModal(true)}}>
+                                    <Button onClick={()=>{setShowModal(true)}}>
                                         <i className="bi bi-plus-lg"></i>
                                         <span className="p-1 text-white">
                                             Nuevo

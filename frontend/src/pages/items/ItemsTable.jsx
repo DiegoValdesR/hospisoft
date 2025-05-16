@@ -2,9 +2,25 @@ import { useState,useEffect } from "react"
 import { API_URL } from "../../API_URL.js"
 import { ManageItemsModal } from "./modals/ManageItemsModal.jsx"
 import Swal from 'sweetalert2'
-import { Button, Card, Row, Table } from "react-bootstrap"
+import { Card } from "react-bootstrap"
+//PRIME REACT THINGS
+import { DataTable } from 'primereact/datatable';
+import { InputText } from 'primereact/inputtext';
+import { FilterMatchMode } from 'primereact/api';
+import { Column } from 'primereact/column';
+import { Button } from 'primereact/button';
+//END PRIME REACT
 
 export const ItemsTable = ({session})=>{
+    //FILTERS PRIME REACT 
+    const [searchFilter,setSearchFilter] = useState('')
+    const [filters,setFilters] =useState(
+        {
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+        }
+    )
+    //END FILTERS PRIME REACT 
+
     const [items,setItems] = useState([])
     const [itemId,setItemId] = useState("")
     //para mostrar la modal de insertar/actualizar
@@ -49,7 +65,8 @@ export const ItemsTable = ({session})=>{
             showCancelButton:true,
             showConfirmButton:true,
             confirmButtonColor:"#dc3545",
-            confirmButtonText:"Aceptar"
+            confirmButtonText:"Aceptar",
+            cancelButtonText:"Cancelar"
         }).then(async result =>{
             if (result.isConfirmed) {
                 Swal.fire({
@@ -94,6 +111,55 @@ export const ItemsTable = ({session})=>{
             }
         })
     }
+    //PRIME REACT DATATABLE
+    const onGlobalFilterChange = (e) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
+
+        _filters['global'].value = value;
+
+        setFilters(_filters);
+        setSearchFilter(value);
+    }
+
+    const RowActions = (rowData)=>{
+        return (
+            <div className="d-flex flex-row">
+                <>
+                    <div className="p-1">
+                        <Button title="Editar medicamento" severity="info" icon="pi pi-pen-to-square"
+                        onClick={()=>{setItemId(rowData["_id"])}} className="rounded rounded-2 table-btn">
+                        </Button>
+                    </div>
+                                                    
+                    <div className="p-1">
+                        <Button title="Eliminar medicamento" severity="danger" icon="pi pi-trash"
+                        onClick={()=>{deleteItem(rowData["_id"])}} className="rounded rounded-2 table-btn">
+                        </Button>
+                    </div>
+                </>
+            </div>
+        )
+    }
+
+    const TableHeader = ()=>{
+        return(
+            <>
+                <div className="d-flex justify-content-between align-items-center text-center table-header">
+                    <div>
+                        <p>Administrar medicamentos</p>
+                    </div>
+
+                    <div>
+                        <InputText value={searchFilter} type="search" placeholder="Buscar..."
+                        onChange={onGlobalFilterChange}></InputText>
+                    </div>
+                    
+                </div>
+            </>
+        )
+    }
+    //END PRIME REACT DATATABLE
 
     useEffect(()=>{
         getAllItems()
@@ -114,76 +180,22 @@ export const ItemsTable = ({session})=>{
             
             <Card>
                 {session && ["admin","farmaceutico"].includes(session.role) ? (
-                    <Card.Header>
-                        <Card.Title className="d-flex">
-                            <Row className="ms-4">
-                            <Button variant="primary" type="button"
-                            onClick={()=>{setModalData(true)}}>
-                                <i className="bi bi-plus-lg"></i>
-                                <span className="p-1 text-white">
-                                    Nuevo
-                                </span>
-                            </Button>
-                            </Row>
-                        </Card.Title>
-                    </Card.Header>
+                <Card.Header>
+                    <Button severity="info" className="rounded rounded-5" icon="pi pi-plus"                 onClick={()=>{setModalData(true)}} label="Nuevo" iconPos="left"></Button>
+                </Card.Header>
                 ) : ""}
 
-                <Card.Body className="mt-2">
-                    {items.length > 0 ? (
-                    <Row className="table-responsive text-center">
-                        <Table hover>
-                            <thead>
-                                <tr>
-                                    <th>NOMBRE</th>
-                                    <th>DESCRIPCIÓN</th>
-                                    <th>STOCK</th>
-                                    <th>PRECIO</th>
-                                    {session && ["admin","farmaceutico"].includes(session.role) ? (
-                                        <th>ACCIONES</th>
-                                    ) : ""}
-                                    
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {items.map(item =>{
-                                return (
-                                <tr key={item._id}>
-                                    <td>{item.item_name}</td>
-                                    <td>{item.item_description}</td>
-                                    <td>{item.item_stock}</td>
-                                    <td>{item.item_price}</td>
-                                    
-                                    {session && ["admin","farmaceutico"].includes(session.role) ? (
-                                    <td>
-                                        {/* EDITAR ITEM */}
-                                        <span className="p-1">
-                                            <button className="btn btn-primary" title="Editar medicamento"
-                                            onClick={()=>{
-                                                setItemId(item["_id"])
-                                            }}>
-                                                <i className="bi bi-pencil-square"></i>
-                                            </button>
-                                        </span>
-                                                        
-                                        {/* ELIMINAR ITEM */}
-                                        <span className="p-1">
-                                            <button className="btn btn-danger" title="Eliminar medicamento"
-                                            onClick={()=>{deleteItem(item["_id"])}}>
-                                                <i className="bi bi-trash3"></i>
-                                            </button>
-                                        </span>
-                                    </td>
-                                    ) : ""}
-                                </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </Table>
-                    </Row>
-                    ) : (
-                        <p className="mt-2 text-center text-black h5">No hay medicamentos...</p>
-                    )}
+                <Card.Body>
+                    <DataTable value={items} stripedRows header={TableHeader} paginator rows={5} filters={filters}
+                    className="mt-2 p-4 text-center" emptyMessage="No hay medicamentos disponibles...">
+                        <Column field="item_name" header="Nombre" sortable></Column>
+                        <Column field="item_description" header="Descripción" sortable></Column>
+                        <Column field="item_stock" header="Stock disponible" sortable></Column>
+                        <Column field="item_price" header="Precio" sortable></Column>
+                        {session && ["admin","farmaceutico"].includes(session.role) && (
+                            <Column body={RowActions} header="Acciones"></Column>
+                        )}
+                    </DataTable>
                 </Card.Body>
             </Card> 
         </>

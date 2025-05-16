@@ -1,4 +1,5 @@
 import { API_URL } from "../../API_URL.js"
+import moment from "moment-timezone"
 
 export async function getAllHistories() {
     try {
@@ -73,117 +74,6 @@ export async function getHistoryById(id) {
     }
 }
 
-export async function getHistoriesByPatient(id) {
-    try {
-        const request = await fetch(API_URL + `/medical_history/bypatient/${id}`,{credentials:"include"})
-        if (request.status === 500) {
-            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
-        }
-
-        const requestJSON = await request.json()
-        if (requestJSON.status === "error") {
-            throw new Error(requestJSON.message)
-        }
-
-        const allHistories = requestJSON.data.length > 0 ? await userHistory(requestJSON.data) : []
-
-        if (!Array.isArray(allHistories)) {
-            throw new Error(allHistories.message)
-        }
-
-        return {
-            status:true,
-            data:allHistories
-        }
-
-    } catch (error) {
-        return{
-            status:false,
-            message:error.message
-        }
-    }
-}
-
-export async function getHistoriesByDate(date) {
-    try {
-        const request = await fetch(API_URL + `/medical_history/bydate`,
-        {
-            method:"POST",
-            credentials:"include",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({date:date})
-        })
-
-        if (request.status === 500) {
-            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
-        }
-
-        const requestJSON = await request.json()
-        if (requestJSON.status === "error") {
-            throw new Error(requestJSON.message)
-        }
-
-        const allHistories = requestJSON.data.length > 0 ? await userHistory(requestJSON.data) : []
-
-        if (!Array.isArray(allHistories)) {
-            throw new Error(allHistories.message)
-        }
-
-        return {
-            status:true,
-            data:allHistories
-        }
-
-    } catch (error) {
-        return{
-            status:false,
-            message:error.message
-        }
-    }
-}
-
-export async function byDateAndPatient(patientId,date) {
-    try {
-        const request = await fetch(API_URL + `/medical_history/bydate&patient/${patientId}`,
-        {
-            method:"POST",
-            credentials:"include",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({date:date})
-        })
-        
-        if (request.status === 500) {
-            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
-        }
-
-        const requestJSON = await request.json()
-        if (requestJSON.status === "error") {
-            throw new Error(requestJSON.message)
-        }
-
-        const allHistories = requestJSON.data.length > 0 ? await userHistory(requestJSON.data) : []
-
-        if (!Array.isArray(allHistories)) {
-            throw new Error(allHistories.message)
-        }
-
-        return {
-            status:true,
-            data:allHistories
-        }
-
-    } catch (error) {
-        return{
-            status:false,
-            message:error.message
-        }
-    }
-}
-
 export async function insertHistory(data) {
     try {
         const insert = await fetch(API_URL + '/medical_history/new',{
@@ -217,49 +107,6 @@ export async function insertHistory(data) {
     }
 }
 
-export async function getDates() {
-    try {
-        const request  = await fetch(API_URL + `/medical_history/getdates/all`,{credentials:"include"})
-        if (!request.ok) {
-            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
-        }
-
-        const requestJSON = await request.json()
-        return {
-            status:true,
-            data:requestJSON.data
-        }
-
-    } catch (error) {
-        return {
-            status:false,
-            message:error.message    
-        }
-    }
-}
-
-export async function getDatesByPatient(patientId) {
-    try {
-        const request  = await fetch(API_URL + `/medical_history/getdates/bypatient/${patientId}`,{credentials:"include",})
-
-        if (!request.ok) {
-            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
-        }
-
-        const requestJSON = await request.json()
-        return {
-            status:true,
-            data:requestJSON.data
-        }
-
-    } catch (error) {
-        return {
-            status:false,
-            message:error.message    
-        }
-    }
-}
-
 /**
  * Recibe los datos y los adapta para mostrarlos
  * @param {array} data Array con la informacion traida de la base de datos
@@ -287,7 +134,7 @@ async function userHistory(data) {
                     _id:object["_id"],
                     patient:`${userInfoJSON.data.user_name} ${userInfoJSON.data.user_last_name}`,
                     doctor:`${doctorInfoJSON.data.worker_name} ${doctorInfoJSON.data.worker_last_name}`,
-                    date:object.createdAt
+                    date:moment(object.createdAt).format('DD/MM/YYYY')
                 }
                 
                 historyArray.push(historyInfo)

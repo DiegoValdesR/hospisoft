@@ -3,11 +3,11 @@ import { getApointments,appointmentByDoctor,appointmentByPatient } from '../../s
 import { useState,useEffect } from 'react'
 import { Button, Card } from 'react-bootstrap'
 import { Calendar, momentLocalizer} from 'react-big-calendar'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-import '../../assets/css/scheduler/scheduler.css'
 import Swal from 'sweetalert2'
 import { NewAppointment } from './modals/NewAppointment.jsx'
 import { ShowAppointment } from './modals/ShowAppointments.jsx'
+
+
 
 export const AppontmentsCalendar = ({session})=>{
     const localizer = momentLocalizer(moment)

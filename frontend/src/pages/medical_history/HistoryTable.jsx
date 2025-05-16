@@ -1,16 +1,34 @@
-import { Table ,Button, Card, Row, Form } from "react-bootstrap"
 import { useState, useEffect} from 'react'
-import { getAllHistories,getHistoriesByPatient,getDates,getDatesByPatient,getHistoriesByDate,byDateAndPatient } from "../../services/medical_history/history.js"
+import { getAllHistories} from "../../services/medical_history/history.js"
 import { getAllUsers } from "../../services/users/users.js"
-import Swal from 'sweetalert2'
+//MODALS
 import { NewHistoryModal } from "./modal/NewHistoryModal.jsx"
 import { ShowHistoryModal } from "./modal/ShowHistoryModal.jsx"
+//END MODALS
 import moment from "moment-timezone"
-import '../../assets/css/scheduler/scheduler.css'
+import Swal from 'sweetalert2'
+import { Table, Card, Row, Form } from "react-bootstrap"
+//PRIME REACT THINGS
+import { DataTable } from 'primereact/datatable';
+import { InputText } from 'primereact/inputtext';
+import { FilterMatchMode } from 'primereact/api';
+import { Column } from 'primereact/column';
+import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
+
+//END PRIME REACT
 
 export const HistoryTable = ({session})=>{
-    const [history,setHistory] = useState([])
-    const [dates,setDates] = useState([])
+    //FILTERS PRIME REACT 
+    const [searchFilter,setSearchFilter] = useState('')
+    const [filters,setFilters] =useState(
+        {
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+        }
+    )
+    //END FILTERS PRIME REACT 
+    const [histories,setHistories] = useState([])
+    const [date,setDate] = useState('')
     const [patients,setPatients] = useState([])
     const [patientId,setPatientId] = useState("")
     const [historyId, setHistoryId] = useState("")
@@ -26,12 +44,12 @@ export const HistoryTable = ({session})=>{
             }
         })
 
-        if (session && (session.role && ["usuario"].includes(session.role))) {
+        if (session && (["usuario"].includes(session.role))) {
             setPatientId(session["id"])
         }
 
         let request
-        if (patientId.length === 24 || (session && session.role && ["usuario"].includes(session.role))) {
+        if (patientId.length === 24 || (["usuario"].includes(session.role))) {
             request = await getHistoriesByPatient(patientId)
         }else{
             request = await getAllHistories()
@@ -53,7 +71,7 @@ export const HistoryTable = ({session})=>{
             return
         }
         
-        setHistory(request.data)
+        setHistories(request.data)
         Swal.close()
     }
 
@@ -63,8 +81,17 @@ export const HistoryTable = ({session})=>{
 
     const getPatients = async()=>{
         const request = await getAllUsers()
+        const arrayPatients = []
         if (request.status) {
-            setPatients(request.data)
+            for (const object of request.data) {
+                const data = {
+                    name: `${object.user_name} ${object.user_last_name}`,
+                    id:object["_id"]
+                }
+                arrayPatients.push(data)
+            }
+            
+            setPatients(arrayPatients)
             return
         }
         console.error(request.message)
@@ -77,63 +104,66 @@ export const HistoryTable = ({session})=>{
         }else{
             request = await getDatesByPatient(patientId)
         }
-
+        
         if (request.status) {
-            setDates(request.data)
+            const arrayDates = []
+
+            for (const object of request.data) {
+                const data = {
+                    date:moment(object["_id"]).format('DD/MM/YYYY')
+                }
+                arrayDates.push(data)
+            }
+
+            setDates(arrayDates)
             return
         }
         console.error(request)
     }
 
-    const handleChange = async({target})=>{
-        setPatientId(target.value)
+    //PRIME REACT DATATABLE
+    const onGlobalFilterChange = (e) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
+
+        _filters['global'].value = value;
+
+        setFilters(_filters);
+        setSearchFilter(value);
     }
 
-    const selectDate = async({target})=>{
-        Swal.fire({
-            title:"Cargando...",
-            allowEscapeKey:false,
-            allowOutsideClick:false,
-            didOpen:()=>{
-                Swal.showLoading()
-            }
-        })
-        const date = target.value ? target.value : undefined
-        let request
-
-        if (!date) {
-            if (["usuario"].includes(session.role)) {
-                request = await getHistoriesByPatient(session["id"])
-                setHistory(request.data)
-                Swal.close()
-                return
-            }
-            request = await getAllHistories()
-            setHistory(request.data)
-            Swal.close()
-            return
-        }
-
-        if (patientId.length === 24) {
-            request = await byDateAndPatient(patientId,date) 
-        }else{
-            request = await getHistoriesByDate(date)
-        }
-
-        if (!request.status) {
-            Swal.close()
-            Swal.fire({
-                title:"Error",
-                icon:"error",
-                message:request.message,
-                allowEscapeKey:false,
-                allowOutsideClick:false
-            })
-            return
-        }
-        setHistory(request.data)
-        Swal.close()
+    const RowActions = (rowData)=>{
+        return (
+            <div className="d-flex flex-row">
+                <>
+                    <div className="p-1">
+                        <Button title="Ver detalles de la fórmula" severity="secondary" icon="pi pi-eye"
+                        onClick={()=>{setHistoryId(rowData["_id"])}} className="rounded rounded-2 table-btn">
+                        </Button>
+                    </div>
+                </>
+            </div>
+        )
     }
+
+    const TableHeader = ()=>{
+        return(
+            <>
+                <div className="d-flex justify-content-between align-items-center text-center table-header">
+                    <div>
+                        <p>Administrar Historiales</p>
+                    </div>
+
+                    <div>
+                        <InputText value={searchFilter} type="search" placeholder="Buscar..."
+                        onChange={onGlobalFilterChange}></InputText>
+                    </div>
+                </div>
+            </>
+        )
+    }
+    
+    //END PRIME REACT DATATABLE
 
     useEffect(()=>{
         if (patients.length < 1) {
@@ -145,7 +175,6 @@ export const HistoryTable = ({session})=>{
 
     return (
         <>
-
         {session && ["admin","medico","usuario"].includes(session.role) ? (
             <>
                 <NewHistoryModal
@@ -162,108 +191,27 @@ export const HistoryTable = ({session})=>{
         ) : ""}
 
         <Card>
-            {session && ["admin","medico","usuario"].includes(session.role) ? (
+            
+            {session && ["admin","medico"].includes(session.role) && (
                 <Card.Header>
-                    <Card.Title>
-                        <div className='d-flex flex-row justify-content-between sche-header'>
-                            {["admin","medico"].includes(session.role) ? (
-                                <div className='d-flex flex-row align-items-center'>
-                                    <span className='text-black text-break'>Seleccionar paciente</span>
-
-                                    <Form.Select className='ms-3 border-dark-subtle select'
-                                    defaultValue={""} onChange={handleChange}>
-                                        <option value=""></option>
-                                        {patients.map((patient)=>{
-                                            return (
-                                                <option key={patient["_id"]} value={patient["_id"]}>
-                                                    {patient.user_name} {patient.user_last_name}
-                                                </option>
-                                            )
-                                        })}
-                                    </Form.Select>
-                                </div>
-                            ) : ""}
-                            
-                            {dates.length > 0 && (
-                                <div className="d-flex flex-row align-items-center">
-                                    <span className='text-black text-break'>Buscar por fechas:</span>
-
-                                    <Form.Select className='ms-3 border-dark-subtle select'
-                                    defaultValue={""} onChange={selectDate}>
-                                        <option value=""></option>
-                                        {dates.map((date)=>{
-                                            return (
-                                                <option key={date["_id"]} value={date["_id"]}>
-                                                    {moment(date["_id"]).format("DD/MM/YYYY")}
-                                                </option>
-                                            )
-                                        })}
-                                    </Form.Select>
-                                </div>
-                            )}
-                            
-
-                            {session && ["admin","medico"].includes(session.role) ?  (
-                                <div className='btn-new'>
-                                    <Button variant='primary'
-                                    onClick={()=>{setShowInsert(true)}}>
-                                        <i className="bi bi-plus-lg"></i>
-                                        <span className="p-1 text-white">
-                                            Nuevo
-                                        </span>
-                                    </Button>
-                                </div>
-                            ) : ""}
-                        </div>
-                    </Card.Title>
+                    <Button severity='info' label='Nuevo' className='rounded rounded-5'
+                        icon="pi pi-plus" 
+                        onClick={()=>{setShowInsert(true)}}>
+                    </Button>
                 </Card.Header>
-            ) : ""}
+            )}
 
-            <Card.Body className="mt-3">
-                {history.length > 0 ? (
-                <Row className="table-responsive text-center">
-                        <Table hover>
-                            <thead>
-                                <tr>
-                                    <th>PACIENTE</th>
-                                    <th>MÉDICO ENCARGADO</th>
-                                    <th>FECHA</th>
-                                    {session && ["admin","medico","usuario"].includes(session.role) ? (
-                                    <th>ACCIONES</th>
-                                    ) : ""}
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {history.map(element =>{
-                                return (
-                                <tr key={element["_id"]}>
-                                    <td>{element.patient}</td>
-                                    <td>{element.doctor}</td>
-                                    <td>{moment(element.date).format('DD/MM/YYYY')}</td>
-                                    <td>
-                                    {session && ["admin","medico","usuario"].includes(session.role) ? (
-                                        <>
-                                        {/* VER DETALLES*/}
-                                        <span className="p-1">
-                                            <button className="btn btn-secondary" title="Ver más detalles"
-                                            onClick={()=>{
-                                                getHistoryId(element["_id"])
-                                            }}>
-                                                <i className="bi bi-eye"></i>
-                                            </button>
-                                        </span>
-                                        </>
-                                    ) : ""}
-                                    </td>
-                                </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </Table>
-                </Row>
-                ) : (
-                    <p className="mt-3 text-center text-black h5">No hay historiales médicos...</p>
-                )}
+            <Card.Body>
+                    <DataTable value={histories} stripedRows header={TableHeader} paginator rows={5} filters={filters}
+                    className="mt-2 p-4 text-center" emptyMessage="No hay fórmulas registradas...">
+                        <Column field="date" header="Fecha" sortable style={{maxWidth:"250px"}}></Column>
+                        <Column field="patient" header="Nombre paciente" sortable></Column>
+                        <Column field="doctor" header="Médico encargado" sortable></Column>
+
+                        {session && ["admin","medico","usuario"].includes(session.role) && (
+                            <Column body={RowActions} header="Acciones"></Column>
+                        )}
+                    </DataTable>
             </Card.Body>
         </Card>
         

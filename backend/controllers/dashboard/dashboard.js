@@ -1,5 +1,4 @@
 import { ItemsModel } from "../../models/item/item.js";
-import mongoose from "mongoose";
 
 const GetItemsAndStock = async(req,res) =>{
     try {
@@ -17,5 +16,5 @@ const GetItemsAndStock = async(req,res) =>{
 }
 
 export const DashMethods = {
-    GetItemsAndStock,
+    GetItemsAndStock
 }
