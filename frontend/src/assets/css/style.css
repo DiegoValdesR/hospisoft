@@ -1,0 +1,62 @@
+
+/*ICON BUTTONS*/
+.icon-buttons{
+    border-radius: 12px;
+    padding: 12px;
+    transition: .3s all ease-in-out;
+}
+
+.icon-buttons:hover{
+    
+}
+/*END ICON BUTTONS*/
+
+
+/*CARD*/
+.card{
+    border-radius: 20px !important;
+}
+
+.card-header{
+    padding: 20px;
+}
+
+
+/*DATA-TABLES*/
+.p-datatable-header,.p-datatable-thead,.p-datatable-tbody{
+    font-size: 17px !important;
+}
+
+.p-datatable-header{
+    border: 1px solid rgba(172, 171, 171, 0.466) !important;
+}
+
+.p-datatable-thead{
+    border-bottom: 1px solid rgba(172, 171, 171, 0.466) !important;
+    border-left: 1px solid rgba(172, 171, 171, 0.466) !important;
+    border-right: 1px solid rgba(172, 171, 171, 0.466) !important;
+}
+
+.p-datatable-tbody > tr > td{
+    border: 1px solid rgba(172, 171, 171, 0.466) !important;
+}
+
+.p-datatable .p-datatable-thead > tr > th{
+    border-left: 1px solid rgba(172, 171, 171, 0.466) !important;
+}
+
+
+@media screen and (max-width:570px) {
+    .table-header{
+        display: block !important;
+    }
+}
+/*DATA-TABLES*/
+
+/*TABLES BUTTONS*/
+.table-btn > span{
+    font-size: 18px !important;
+}
+/*END TABLES BUTTONS*/
+
+

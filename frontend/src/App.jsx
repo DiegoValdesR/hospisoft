@@ -12,10 +12,12 @@ import moment from "moment-timezone"
 //importamos idioma español para la libreria 'moment-timezone'
 import 'moment/dist/locale/es'
 
-//PRIME-REACT CSS
-// import 'primereact/resources/primereact.min.css';
-// import 'primereact/resources/themes/lara-light-indigo/theme.css';
+//PRIME REACT CSS
+import "primereact/resources/themes/lara-light-cyan/theme.css";
+import 'primeicons/primeicons.css';
 //END
+
+import './assets/css/style.css'
 
 moment.tz.setDefault('America/Bogota')
 
