@@ -4,9 +4,11 @@ import { Form } from 'react-bootstrap'
 import { InputText } from 'primereact/inputtext'
 import { FloatLabel } from 'primereact/floatlabel'
 import { Button } from 'primereact/button'
+import { ProgressBar } from 'primereact/progressbar'
+
 import Swal from 'sweetalert2'
 
-export const RecoverForm = ({setValidEmail,setContentPage})=>{
+export const CheckEmailForm = ({setUser,setContentPage})=>{
     const [loading,setLoading] = useState(false)
 
     const handleSubmit = async(e)=>{
@@ -17,11 +19,12 @@ export const RecoverForm = ({setValidEmail,setContentPage})=>{
         setLoading(true)
         try {
             const request = await GenToken(email)
+            
             if (!request.status) {
                 throw new Error(request.message)
             }
 
-            setValidEmail(email)
+            setUser(request.data)
             setContentPage("check_code")
 
         } catch (error) {
@@ -51,6 +54,10 @@ export const RecoverForm = ({setValidEmail,setContentPage})=>{
             <div className='mt-2 mb-2'>
                 <small style={{color:"#6c757d"}}>Ingresa tu correo electrónico para continuar con el proceso de recuperación de tu contraseña.</small>
             </div>
+
+            {loading && (
+                <ProgressBar mode="indeterminate" style={{ height: '6px'}}></ProgressBar>
+            )}
 
             <div className='mt-4 text-center'>
                 <Button className='rounded rounded-2'label='Enviar' severity='info' icon="pi pi-send" disabled={loading ? true : false} ></Button>

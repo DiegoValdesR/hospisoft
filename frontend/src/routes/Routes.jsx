@@ -16,7 +16,7 @@ import { NotFound } from "../pages/404/NotFound"
 import { Register } from "../pages/register/register.jsx"
 import { HistoryPage } from "../pages/medical_history/HistoryPage.jsx"
 import { ProfilePage } from "../pages/profile/ProfilePage.jsx"
-import { PassRecoverPage } from "../pages/password_recover/PassRecover.jsx"
+import { PassRecoverPage } from "../pages/password_recover/PassRecoverPage.jsx"
 //END PAGES
 
 import { API_URL } from "../API_URL.js"

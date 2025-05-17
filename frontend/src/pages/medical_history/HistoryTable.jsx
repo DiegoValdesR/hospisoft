@@ -1,5 +1,5 @@
 import { useState, useEffect} from 'react'
-import { getAllHistories} from "../../services/medical_history/history.js"
+import { getAllHistories,getHistoryById,getHistoriesByPatient} from "../../services/medical_history/history.js"
 import { getAllUsers } from "../../services/users/users.js"
 //MODALS
 import { NewHistoryModal } from "./modal/NewHistoryModal.jsx"
@@ -7,14 +7,13 @@ import { ShowHistoryModal } from "./modal/ShowHistoryModal.jsx"
 //END MODALS
 import moment from "moment-timezone"
 import Swal from 'sweetalert2'
-import { Table, Card, Row, Form } from "react-bootstrap"
+import { Card } from "react-bootstrap"
 //PRIME REACT THINGS
 import { DataTable } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
 import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
 
 //END PRIME REACT
 
@@ -28,7 +27,6 @@ export const HistoryTable = ({session})=>{
     )
     //END FILTERS PRIME REACT 
     const [histories,setHistories] = useState([])
-    const [date,setDate] = useState('')
     const [patients,setPatients] = useState([])
     const [patientId,setPatientId] = useState("")
     const [historyId, setHistoryId] = useState("")
@@ -180,8 +178,7 @@ export const HistoryTable = ({session})=>{
                 <NewHistoryModal
                 showInsert={showInsert}
                 setShowInsert={setShowInsert}
-                getHistories={getHistories}
-                allHistoryDates={allHistoryDates}></NewHistoryModal>
+                getHistories={getHistories}></NewHistoryModal>
 
                 <ShowHistoryModal
                 historyId={historyId}

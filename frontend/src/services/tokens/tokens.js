@@ -25,7 +25,40 @@ export async function GenToken(email) {
 
         return {
             status:true,
-            message:"Correo enviado correctamente!"
+            message:"Correo enviado correctamente!",
+            data:requestJSON.data
+        }
+
+    } catch (error) {
+        return {
+            status:false,
+            message:error.message
+        }
+    }
+}
+
+export async function ValidateToken(token) {
+    try {
+        const request = await fetch(API_URL + '/tokens/validate',{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({token:token})
+        })
+
+        if (request.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const requestJSON = await request.json()
+        if (requestJSON.status === "error") {
+            throw new Error(requestJSON.message)
+        }
+
+        return {
+            status:true,
+            message:requestJSON.message
         }
 
     } catch (error) {

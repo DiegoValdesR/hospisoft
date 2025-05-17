@@ -4,6 +4,7 @@ const router = express.Router()
 
 router.get('/medical_history/all',MedicalMethods.AllMedicalHistory)
 router.get('/medical_history/byid/:id',MedicalMethods.MedicalHistoryById)
+router.get('/medical_history/bypatient/:patient_id',MedicalMethods.MedicalHistoryByPatient)
 router.post('/medical_history/new',MedicalMethods.InsertMedicalHistory)
 
 export default router

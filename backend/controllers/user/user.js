@@ -8,14 +8,6 @@ config()
 
 const AllUsers = async(req,res) =>{
 
-    const errorRole = AdmittedRoles(req,["admin","secretaria"])
-    if (!errorRole.status) {
-        return res.status(401).send({
-            status:"error",
-            message:errorRole.message
-        })
-    }
-
     try {
         const users = await UsersModel.find({"user_state":"active"})
         return res.status(200).send({
@@ -35,15 +27,6 @@ const AllUsers = async(req,res) =>{
 }
 
 const UserById = async(req,res)=>{
-
-    // const errorRole = AdmittedRoles(req,["admin","secretaria","medico"])
-    // if (!errorRole.status) {
-    //     return res.status(401).send({
-    //         status:"error",
-    //         message:errorRole.message
-    //     })
-    // }
-
     const {id} = req.params
 
     try {

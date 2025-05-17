@@ -7,7 +7,7 @@ import { insertHistory } from "../../../services/medical_history/history.js"
 import Swal from "sweetalert2"
 import moment from "moment-timezone";
 
-export const NewHistoryModal = ({showInsert,setShowInsert,getHistories,allHistoryDates})=>{
+export const NewHistoryModal = ({showInsert,setShowInsert,getHistories})=>{
     const [patients,setPatients] = useState([])
     const [patientId,setPatientId] = useState("")
     const [doctorId,setDoctorId] = useState("")
@@ -74,7 +74,6 @@ export const NewHistoryModal = ({showInsert,setShowInsert,getHistories,allHistor
         if (request.status) {
             await getHistories()
             handleHide()
-            await allHistoryDates()
         }
 
         Swal.close()

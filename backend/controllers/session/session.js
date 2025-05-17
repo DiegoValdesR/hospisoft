@@ -117,10 +117,65 @@ const SessionData = async(req,res)=>{
         })
 
     } catch (error) {
-        console.error(error)
         return res.status(400).send({
             status:"error",
             message:"Ocurrió un error, por favor intentelo más tarde."
+        })
+    }
+}
+
+const RecoverPassword = async(req,res)=>{
+    const {new_password,confirm_password,email} = req.body
+    
+    try {
+        if (new_password !== confirm_password) {
+            return res.status(409).send({
+                status:"error",
+                message:"Las contraseñas no coinciden."
+            })
+        }
+
+        const [findUser,findWorker] = await Promise.all([
+            UsersModel.findOne({"user_email":email,"user_state":"active"}),
+            WorkerModel.findOne({"worker_email":email,"worker_state":"active"})
+        ])
+        
+        if (!findUser && !findWorker) {
+            return res.status(404).send({
+                status:"error",
+                message:"El correo proporcionado no existe dentro de nuestra base de datos."
+            })
+        }
+
+        let data
+        if (findUser) {
+            data = {
+                user_password:bcrypt.hashSync(new_password)
+            }
+        }else{
+            data = {
+                worker_password : bcrypt.hashSync(new_password)
+            }
+        }
+
+        const update = findUser ? await UsersModel.findOneAndUpdate({"user_email":email},data) : await WorkerModel.findOneAndUpdate({"worker_email":email},data)
+
+        if (!update) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el usuario."
+            })
+        }
+
+        return res.status(200).send({
+            status:"completed",
+            message:"Contraseña actualizada correctamente!"
+        })
+
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
         })
     }
 }
@@ -130,4 +185,5 @@ export const SessionMethods = {
     LogOut,
     SessionData,
     IsLoggedIn,
+    RecoverPassword
 }

@@ -37,6 +37,23 @@ const MedicalHistoryById = async(req,res)=>{
     }
 }
 
+const MedicalHistoryByPatient = async(req,res)=>{
+    const {patient_id} = req.params
+    try {
+        const findAll = await MedicalModel.find({"patient_id":Types.ObjectId.createFromHexString(patient_id),"state":"active"})
+        return res.status(200).send({
+            status:"completed",
+            data:findAll
+        })
+
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
 const InsertMedicalHistory = async(req,res)=>{
     const data = {
         patient_id:req.body.patient_id,
@@ -76,7 +93,7 @@ const InsertMedicalHistory = async(req,res)=>{
             })
         }
 
-        const findAppointment = await AppointmentModel.findOneAndUpdate({"_id":data.appointment_id,"appointment_state":"active"},{"appointment_state":"expired"})
+        const findAppointment = await AppointmentModel.findOneAndUpdate({"_id":data.appointment_id,"appointment_state":"active"},{"appointment_state":"completed"})
         if (!findAppointment) {
             return res.status(404).send({
                 status:"error",
@@ -103,5 +120,6 @@ const InsertMedicalHistory = async(req,res)=>{
 export const MedicalMethods = {
     AllMedicalHistory,
     MedicalHistoryById,
-    InsertMedicalHistory
+    InsertMedicalHistory,
+    MedicalHistoryByPatient
 }

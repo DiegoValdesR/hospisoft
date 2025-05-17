@@ -85,7 +85,7 @@ const GenToken = async(req,res)=>{
 
                             <div class="code-box">${token}</div>
 
-                            <p>Este código es válido por 3 minutos.</p>
+                            <p>Este código es válido por 3 minutos, NO COMPARTAS ESTE CÓDIGO CON NADIE.</p>
                             <p>Si tú no solicitaste este cambio, puedes ignorar este mensaje.</p>
 
                         </div>
@@ -95,7 +95,10 @@ const GenToken = async(req,res)=>{
         })
         
         return res.status(201).send({
-            status:"completed"
+            status:"completed",
+            data:{
+                email:user ? user["user_email"] : worker["worker_email"]
+            }
         })
 
     } catch (error) {
@@ -109,17 +112,17 @@ const GenToken = async(req,res)=>{
 const ValidateToken = async(req,res)=>{
     const {token} = req.body
     try {
-        const findOne = await TokensModel.findOne({"token":token,"used":false})
+        const findOne = await TokensModel.findOneAndUpdate({"token":token,"used":false},{"used":true})
         if (!findOne) {
             return res.status(404).send({
                 status:"error",
-                message:"Código equivocado"
+                message:"El código ingresado es incorrecto."
             })
         }
-
+        
         return res.status(200).send({
             status:"completed",
-            message:"Código verificado!"
+            message:"Código verificado correctamente!"
         })
 
     } catch (error) {
@@ -131,5 +134,6 @@ const ValidateToken = async(req,res)=>{
 }
 
 export const TokensMethods = {
-    GenToken
+    GenToken,
+    ValidateToken
 }

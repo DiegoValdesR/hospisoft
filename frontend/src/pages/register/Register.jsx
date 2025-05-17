@@ -1,5 +1,5 @@
 import { insertUser } from '../../services/users/users.js'
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import Swal from 'sweetalert2'
 
@@ -45,7 +45,7 @@ export const Register = () => {
       allowOutsideClick:false
     }).then((res)=>{
       if (request.status && res.isConfirmed) {
-        window.location.href = "/home" 
+        window.location.href = "/login" 
       }
     })
   }
@@ -100,7 +100,9 @@ export const Register = () => {
                 value={formData.user_document}
                 onChange={handleChange}
                 required
-                placeholder="Ej: 123456789"
+                minLength={10}
+                maxLength={10}
+                placeholder="Ej: 1234567890"
               />
             </Col>
             <Col md={6}>
@@ -126,6 +128,7 @@ export const Register = () => {
                   value={formData.user_password}
                   onChange={handleChange}
                   required
+                  minLength={6}
                   placeholder="Mínimo 6 caracteres"
                 />
                 <div

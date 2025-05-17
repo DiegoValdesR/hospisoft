@@ -29,7 +29,8 @@ const WorkerSchema = Schema(
         },
         worker_password:{
             type:String,
-            required:true
+            required:true,
+            minlength:6
         },
         worker_speciality:{
             type:String,

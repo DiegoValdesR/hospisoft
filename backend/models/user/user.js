@@ -25,7 +25,8 @@ export const UserSchema = Schema(
         },
         user_password:{
             type:String,
-            required:true
+            required:true,
+            minlength:6,
         },
         user_phone_number:{
             type:String,

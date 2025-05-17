@@ -74,6 +74,33 @@ export async function getHistoryById(id) {
     }
 }
 
+export async function getHistoriesByPatient(patientId) {
+    try {
+        const request = await fetch(API_URL + `/medical_history/bypatient/${patientId}`,{credentials:"include"})
+        if (request.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const requestJSON = await request.json()
+        const allHistories = requestJSON.data.length > 0 ? await userHistory(requestJSON.data) : []
+
+        if (!Array.isArray(allHistories)) {
+            throw new Error(allHistories.message)
+        }
+
+        return {
+            status:true,
+            data:allHistories
+        }
+
+    } catch (error) {
+        return{
+            status:false,
+            message:error.message
+        }
+    }
+}
+
 export async function insertHistory(data) {
     try {
         const insert = await fetch(API_URL + '/medical_history/new',{

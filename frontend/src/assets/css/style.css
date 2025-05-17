@@ -70,3 +70,16 @@
 }
 /*END SELECT*/
 
+/*PASSWORD INPUT*/
+.p-password-input{
+    width: 100% !important;
+}
+
+/*RECOVER PASSWORD PAGE*/
+@media screen and (max-width:650px) {
+    .recover-password-container{
+        width: 100% !important;
+    }
+}
+
+/*END RECOVER PASSWORD PAGE*/
