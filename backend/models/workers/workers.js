@@ -24,6 +24,7 @@ const WorkerSchema = Schema(
         },
         worker_email:{
             type:String,
+            unique:true,
             required:true
         },
         worker_password:{

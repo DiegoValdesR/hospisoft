@@ -129,5 +129,5 @@ export const SessionMethods = {
     LogIn,
     LogOut,
     SessionData,
-    IsLoggedIn
+    IsLoggedIn,
 }

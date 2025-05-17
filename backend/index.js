@@ -27,11 +27,13 @@ import MedicalRoutes from './routes/medical_history/medical_history.js'
 import SessionRoutes from './routes/session/session.js'
 import EmailRoutes from './routes/sendEmail/email.js'
 import DashRoutes from './routes/dashboard/dashboard.js'
+import TokenRoutes from './routes/tokens/tokens.js'
 import { AuthorizationToken } from './middleware/auth.js'
 
 app.use('/api',SessionRoutes)
 app.use('/api',EmailRoutes)
 app.use('/api',UserRoutes)
+app.use('/api',TokenRoutes)
 
 //auth es el middleware que verifica que haya iniciado sesión (revisar middleware para entender)
 app.use(AuthorizationToken)

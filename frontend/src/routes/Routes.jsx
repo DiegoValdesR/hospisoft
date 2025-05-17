@@ -16,6 +16,7 @@ import { NotFound } from "../pages/404/NotFound"
 import { Register } from "../pages/register/register.jsx"
 import { HistoryPage } from "../pages/medical_history/HistoryPage.jsx"
 import { ProfilePage } from "../pages/profile/ProfilePage.jsx"
+import { PassRecoverPage } from "../pages/password_recover/PassRecover.jsx"
 //END PAGES
 
 import { API_URL } from "../API_URL.js"
@@ -60,7 +61,9 @@ export const PagesRoutes = () => {
         isLoggedIn()
     }, [location.pathname])
 
-    const publicRoutes = ["/login", Object.keys(session).length === 0 ? "/registro" : null]
+    const publicRoutes = ["/login", Object.keys(session).length === 0 ? "/registro" : null,
+        Object.keys(session).length === 0 ? "/recuperar_pass" : null
+    ]
 
     let knownRoutes = [
         ...publicRoutes,
@@ -88,8 +91,6 @@ export const PagesRoutes = () => {
         return <Navigate to="/404" replace />
     }
 
-    
-
     return (
         <Routes>
             <Route path="/login" element={<Login />} />
@@ -106,6 +107,7 @@ export const PagesRoutes = () => {
             <Route path="/registro" element={<Register />} />
             <Route path="/historial_medico" element={<HistoryPage session={session}/>} />
             <Route path="/perfil" element={<ProfilePage session={session}/>} />
+            <Route path="/recuperar_pass" element={<PassRecoverPage/>} />
         </Routes>
     )
 }

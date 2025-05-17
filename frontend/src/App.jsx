@@ -11,10 +11,11 @@ import {useLocation} from 'react-router-dom'
 function App() {
   
   const location = useLocation()
-  
+  const excludedPaths = ["/404","/login","/registro","/recuperar_pass"]
+
   return (
     <>
-      {!["/404","/login","/registro"].includes(location.pathname) && (
+      {!excludedPaths.includes(location.pathname) && (
         <>
           <Header />
           <AsideBar />
@@ -23,7 +24,7 @@ function App() {
 
       <PagesRoutes></PagesRoutes>
 
-      {!["/404","/login","/registro"].includes(location.pathname) && <Footer />}
+      {!excludedPaths.includes(location.pathname) && <Footer />}
     </>
   )
 }

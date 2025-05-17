@@ -20,6 +20,7 @@ export const UserSchema = Schema(
         },
         user_email:{
             type:String,
+            unique:true,
             required:true
         },
         user_password:{
@@ -42,7 +43,6 @@ export const UserSchema = Schema(
             type:String,
             default:"active"
         }
-        
     },
     {
         collection:"users"

@@ -132,7 +132,7 @@ export const Login = () => {
           </Button>
           <div className="d-flex flex-row justify-content-between">
             <div className="text-center mt-3">
-              <a href='#' className="link-secondary">¿Olvidaste tu contraseña?</a>
+              <a href='/recuperar_pass' className="link-primary">¿Olvidaste tu contraseña?</a>
             </div>
 
             <div className="text-center mt-3">
