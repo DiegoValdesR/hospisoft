@@ -4,6 +4,8 @@ const RecoveryTokens = Schema({
         token:{
             type:String,
             required:true,
+            unique:true,
+            dropDups:true,
             minlength:6,
             maxlength:6
         },

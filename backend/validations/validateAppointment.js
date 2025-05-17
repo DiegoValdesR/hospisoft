@@ -9,12 +9,12 @@ export const validateAppointment = (arrayDates)=>{
     try {
         if (arrayDates.length !== 2) throw new Error("No se envió todas las fechas.")
         
-        if(moment(arrayDates[0]).format("YYYY") < moment().format("YYYY")){   
-            throw new Error("No puede agendar una cita para el año pasado")
+        if(moment(arrayDates[0]).format("YYYY/MM/DD") < moment().format("YYYY/MM/DD")){   
+            throw new Error("No puede agendar una cita para una fecha pasada.")
         }
 
         if(moment(arrayDates[0]).format("YYYY") >= moment().format("YYYY") + 2){   
-            throw new Error("No puede agendar una cita para dentro de 2 años o más")
+            throw new Error("No puede agendar una cita para dentro de 2 años o más.")
         }
 
         if(arrayDates[0] > arrayDates[1]){
@@ -26,15 +26,15 @@ export const validateAppointment = (arrayDates)=>{
         }
         
         if (moment.utc(arrayDates[0]).format("HH:mm") < moment("2025-04-01T06:00").format("HH:mm")){
-            throw new Error("Solo se aceptan citas desde las 06:00 am")
+            throw new Error("Solo se aceptan citas desde las 06:00 am.")
         }
 
         if (moment.utc(arrayDates[0]).format("HH:mm") >= moment("2025-04-01T18:00").format("HH:mm")){
-            throw new Error("No se aceptan citas después de las 06:00 pm")
+            throw new Error("No se aceptan citas después de las 06:00 pm.")
         }
         
         if (moment.utc(arrayDates[1]).format("HH:mm") > moment("2025-04-01T18:00").format("HH:mm")){
-            throw new Error("No se aceptan citas después de las 06:00 pm")
+            throw new Error("No se aceptan citas después de las 06:00 pm.")
         }
 
         return response
