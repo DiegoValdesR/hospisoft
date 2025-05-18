@@ -23,6 +23,10 @@ export const AppointmentSchema = Schema(
         appointment_state:{
             type:String,
             default:"active"
+        },
+        appointment_price:{
+            type:Number,
+            default:10000
         }
     },
     {

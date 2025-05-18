@@ -21,56 +21,22 @@ ChartJS.register(
 );
 
 export const DashboardPage = () => {
-  const pacientesData = {
-    labels: ["Enero", "Febrero", "Marzo", "Abril","Mayo","Junio","Julio","Agosto","Septiembre", "Octubre", "Noviembre", "Diciembre"],
-    datasets: [
-      {
-        label: "Pacientes atendidos - 2025",
-        data: [6,1,2,1,2,3,1,2,5,2,1,3],
-        backgroundColor: ["#a3e4d7", "#a3d0e4", "#a3b0e4", "#b6a3e4"],
-      },
-    ],
-  }
 
-  const chartOptionsPaciente = {
-    responsive: true,
-    plugins: {
-      legend: { position: "none" },
-      title: { display: false },
-    },
-  }
+const [medicos, setMedicos] = useState([]);
+const [item,setItem] = useState({})
+const [price, setPrice] = useState({ data: 0, difference: 0 });
+const [monthlyPatients, setMonthlyPatients] = useState([]);
 
-  const medicoData = {
-    labels: ["Dr. Goku", "Dra. Skill Issue", "Dr. Schweisteiger"],
-    datasets: [
-      {
-        label: "Dr. Goku",
-        data: [14],
-        backgroundColor: ["#bddeb4"],
-      },
-      {
-        label: "Dra. Skill Issue",
-        data: [0,6],
-        backgroundColor: ["#b4ded5"],
-      },
-      {
-        label: "Dr. Schweisteiger",
-        data: [0,0,9],
-        backgroundColor: ["#a3d8b9"],
-      },
-    ],
-  }
-  
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: "top" },
-      title: { display: false },
-    },
-  }
-  
 
-  const [item,setItem] = useState({})
+const getTopDoctors = async () => {
+  try {
+    const response = await fetch(API_URL + '/dash/doctors', { credentials: "include" });
+    const json = await response.json();
+    setMedicos(json.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const getItemsAndStock = async()=>{
     try {
@@ -83,9 +49,87 @@ export const DashboardPage = () => {
     }
   }
 
+const getPrice = async () => {
+  try {
+    const response = await fetch(API_URL + '/dash/facture', { credentials: "include" });
+    const json = await response.json();
+    setPrice({
+      data: json.data,
+      difference: parseFloat(json.difference)
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const getMonthlyPatients = async () => {
+  try {
+    const res = await fetch(API_URL + '/dash/patients', { credentials: "include" });
+    const json = await res.json();
+    setMonthlyPatients(json.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+const colores = ["#bddeb4", "#b4ded5", "#a3d8b9", "#f4bfbf", "#f7d794", "#d1d8e0"];
+
+const medicoLabels = medicos.map(m => m.doctor);
+
+const medicoData = {
+  labels: medicoLabels,
+  datasets: medicos.map((medico, i) => ({
+    label: medico.doctor,
+    data: medicoLabels.map((_, j) => (i === j ? medico.appointments : 0)),
+    backgroundColor: colores[i % colores.length],
+  }))
+};
+
+  const pacientesData = {
+    labels: ["Enero", "Febrero", "Marzo", "Abril","Mayo","Junio","Julio","Agosto","Septiembre", "Octubre", "Noviembre", "Diciembre"],
+    datasets: [
+      {
+        label: "Pacientes atendidos - 2025",
+        data: monthlyPatients,
+        backgroundColor: "#a3e4d7"
+      }
+    ]
+  };
+
+
+  const chartOptionsPaciente = {
+    responsive: true,
+    plugins: {
+      legend: { position: "none" },
+      title: { display: false },
+    },
+  }
+
+  
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" },
+      title: { display: false },
+    },
+  }
+
     useEffect(() => {
       getItemsAndStock()
   }, [])
+
+    useEffect(() => {
+      getPrice()
+  }, [])
+
+    useEffect(() => {
+      getTopDoctors();
+  }, []);
+
+  useEffect(() => {
+    getMonthlyPatients();
+  }, []);
 
 
 
@@ -119,9 +163,18 @@ export const DashboardPage = () => {
                       <i className="bi bi-cash-stack"></i>
                     </div>
                     <div className="ps-3">
-                      <h6><strong>$145.400</strong></h6>
-                      <span className="text-success small pt-1 fw-bold">+12%</span>
-                      <span className="text-muted small pt-2 ps-1">más que ayer</span>
+                      <h6><strong>${price.data.toLocaleString()}</strong></h6>
+
+                      {typeof price.difference === "number" && !isNaN(price.difference) ? (
+                        <>
+                          <span className={`small pt-1 fw-bold ${price.difference >= 0 ? 'text-success' : 'text-danger'}`}>
+                            {price.difference}%
+                          </span>
+                          <span className="text-muted small pt-2 ps-1">
+                            {price.difference >= 0 ? 'más que el mes pasado' : 'menos que el mes pasado'}
+                          </span>
+                        </>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -140,7 +193,7 @@ export const DashboardPage = () => {
                     <div className="ps-3">
                       <h6><strong>{item.item_name}</strong></h6>
                       <span className={`small pt-1 fw-bold ${item.item_stock < 10 ? 'text-danger ' : 'text-success'}`}>{item.item_stock} unidades</span>
-                      <span className="text-muted small pt-2 ps-1">{item.item_stocl < 10 ? 'Inventario Crítico' : 'Inventario Estable' }</span>
+                      <span className="text-muted small pt-2 ps-1">{item.item_stock < 10 ? 'Inventario Crítico' : 'Inventario Estable' }</span>
                     </div>
                   </div>
                 </div>
