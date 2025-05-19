@@ -42,15 +42,30 @@ export const AsideBar = ()=>{
                 <ul className="sidebar-nav" id="sidebar-nav">
                     {["admin"].includes(session.role) ? (
                         <>
-                        <li className="nav-heading">INICIO</li>
-                        <a className={`nav-link ${location.pathname === "/dashboard" ? '' : 'collapsed'}`} href="/dashboard"
-                        >
-                            <i className="bi bi-grid"></i>
-                            <span>Dashboard</span>
-                        </a> 
+                            <li className="nav-heading">INICIO</li>
+                            <a className={`nav-link ${location.pathname === "/dashboard" ? '' : 'collapsed'}`} href="/dashboard"
+                            >
+                                <i className="bi bi-grid"></i>
+                                <span>Dashboard</span>
+                            </a> 
+
+                            <a className={`nav-link ${location.pathname === "/home" ? '' : 'collapsed'}`} href="/home"
+                            >
+                                <i className="bi bi-house-door"></i>
+                                <span>Inicio</span>
+                            </a> 
                         </>
                         
-                    ) : ""}
+                    ) : (
+                        <>
+                            <li className="nav-heading">INICIO</li>
+                            <a className={`nav-link ${location.pathname === "/home" ? '' : 'collapsed'}`} href="/home"
+                            >
+                                <i className="bi bi-house-door"></i>
+                                <span>Inicio</span>
+                            </a> 
+                        </>
+                    )}
                        
 
                     <li className="nav-heading">PÁGINAS</li>

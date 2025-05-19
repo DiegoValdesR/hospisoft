@@ -1,13 +1,50 @@
-import {Button, Card,Col,Form, Row} from 'react-bootstrap'
+import { Card,Col,Form, Row} from 'react-bootstrap'
 import { useState,useEffect } from 'react'
 
 import { getUserById,updateUser } from '../../services/users/users.js'
 import { getWorkerById,updateWorker } from '../../services/workers/workers.js'
 import Swal from 'sweetalert2'
 
+import { FloatLabel } from 'primereact/floatlabel'
+import { InputText } from 'primereact/inputtext'
+import { InputNumber } from 'primereact/inputnumber'
+import { Dropdown } from 'primereact/dropdown'
+import { Button } from 'primereact/button'
+
 export const ProfileForm = ({session})=>{
 
     const [profileData,setProfileData] = useState({})
+    const [userEps,setUserEps] = useState("")
+    
+    const epsArray = [
+        { label: "Nueva EPS", value: "Nueva EPS" },
+        { label: "Sanitas", value: "Sanitas" },
+        { label: "Sura", value: "Sura" },
+        { label: "Salud Total", value: "Salud Total" },
+        { label: "Coosalud", value: "Coosalud" },
+        { label: "Famisanar", value: "Famisanar" },
+        { label: "Mutual Ser", value: "Mutual Ser" },
+        { label: "Compensar", value: "Compensar" },
+        { label: "Emssanar", value: "Emssanar" },
+        { label: "Savia Salud", value: "Savia Salud" },
+        { label: "Asmet Salud", value: "Asmet Salud" },
+        { label: "Cajacopi", value: "Cajacopi" },
+        { label: "Capital Salud", value: "Capital Salud" },
+        { label: "Servicio Occidental de Salud", value: "Servicio Occidental de Salud" },
+        { label: "Asociación Indígena del Cauca", value: "Asociación Indígena del Cauca" },
+        { label: "Mallamás", value: "Mallamás" },
+        { label: "Comfenalco Valle", value: "Comfenalco Valle" },
+        { label: "Aliansalud", value: "Aliansalud" },
+        { label: "Anaswayuu", value: "Anaswayuu" },
+        { label: "Familiar de Colombia", value: "Familiar de Colombia" },
+        { label: "Dusakawi", value: "Dusakawi" },
+        { label: "Comfaoriente", value: "Comfaoriente" },
+        { label: "Capresoca", value: "Capresoca" },
+        { label: "Comfachocó", value: "Comfachocó" },
+        { label: "Pijaos", value: "Pijaos" },
+        { label: "Salud Mía", value: "Salud Mía" },
+        { label: "Salud Bolívar", value: "Salud Bolívar" }
+    ]
 
     const getProfileData = async()=>{
         const request = ["usuario"].includes(session.role) ? await getUserById(session["id"]) : await getWorkerById(session["id"])
@@ -84,7 +121,11 @@ export const ProfileForm = ({session})=>{
             allowOutsideClick:false
         }).then((res)=>{
             if (res.isConfirmed && request.status) {
-                window.location.href = '/home'
+                if (!["admin"].includes(session.role)) {
+                    window.location.href = '/home'
+                }else{
+                    window.location.href = '/dashboard'
+                }
             }
         })
     }
@@ -93,95 +134,107 @@ export const ProfileForm = ({session})=>{
         getProfileData()
     },[])
 
+    useEffect(()=>{
+        if (["usuario"].includes(session.role)) {
+            setUserEps(profileData.eps)
+        }   
+    },[profileData])
+
     return (
         <>
             <Card>
                 <Card.Body className='p-3'>
                     <Form className='mt-2' onSubmit={handleSubmit}>
-                        <Row className='mb-3'>
+                        <Row className='mt-4'>
                             <Col>
-                                <Form.Group>
-                                    <Form.Label className='text-black'>Nombre</Form.Label>
-                                    <Form.Control
-                                    type='text'
-                                    name='name' required defaultValue={profileData.name}></Form.Control>
-                                </Form.Group>
-                            </Col>
-
-                            <Col>
-                                <Form.Group>
-                                    <Form.Label className='text-black'>Apellido</Form.Label>
-                                    <Form.Control
-                                    type='text'
-                                    name='last_name' required defaultValue={profileData.last_name}></Form.Control>
-                                </Form.Group>
+                                <FloatLabel>
+                                    <label htmlFor="name">Nombre</label>
+                                    <InputText defaultValue={profileData.name}
+                                    name='name'
+                                    id='name'
+                                    required
+                                    ></InputText>
+                                </FloatLabel>
                             </Col>
                         </Row>
 
-                        <Row className='mb-3'>
+                        <Row style={{marginTop:"40px"}}>
                             <Col>
-                                <Form.Group>
-                                    <Form.Label className='text-black'>Correo electrónico</Form.Label>
-                                    <Form.Control
-                                    type='text'
-                                    name='email' required defaultValue={profileData.email}></Form.Control>
-                                </Form.Group>
+                                <FloatLabel>
+                                    <label htmlFor="last_name">Apellido</label>
+                                    <InputText defaultValue={profileData.last_name}
+                                    name='last_name'
+                                    id='last_name'
+                                    required
+                                    ></InputText>
+                                </FloatLabel>
                             </Col>
                         </Row>
 
-                        <Row className='mb-3'>
+                        <Row style={{marginTop:"40px"}}>
                             <Col>
-                                <Form.Group>
-                                    <Form.Label className='text-black'>Número telefónico</Form.Label>
-                                    <Form.Control
-                                    type='number'
-                                    minLength={10}
+                                <FloatLabel>
+                                    <label htmlFor="email">Correo electrónico</label>
+                                    <InputText defaultValue={profileData.email}
+                                    name='email'
+                                    id='email'
+                                    required
+                                    ></InputText>
+                                </FloatLabel>
+                            </Col>
+                        </Row>
+                        
+                        <Row style={{marginTop:"40px"}}>
+                            <Col>
+                                <FloatLabel>
+                                    <label htmlFor="phone_number">Número de teléfono</label>
+                                    <InputNumber
+                                    style={{width:"100%"}}
+                                    name='phone_number'
+                                    id='phone_number'
+                                    value={profileData.phone_number}
                                     maxLength={10}
-                                    name='phone_number' required defaultValue={profileData.phone_number}></Form.Control>
-                                </Form.Group>
+                                    useGrouping={false}
+                                    required
+                                    ></InputNumber>
+                                </FloatLabel>
                             </Col>
                         </Row>
-                        {console.log(profileData.eps)}
+
                         {["usuario"].includes(session.role) && profileData.eps && (
-                            <Row className='mb-3'>
+                            <Row style={{marginTop:"30px"}}>
                                 <Col>
-                                    <Form.Group>
-                                        <Form.Label className='text-black'>EPS</Form.Label>
-                                        <Form.Select required name="eps" defaultValue={profileData.eps}>
-                                            <option value="">Selecciona una EPS</option>
-                                            {[
-                                            "Nueva EPS", "Sanitas", "Sura", "Salud Total", "Coosalud", "Famisanar", "Mutual Ser",
-                                            "Compensar", "Emssanar", "Savia Salud", "Asmet Salud", "Cajacopi", "Capital Salud",
-                                            "Servicio Occidental de Salud", "Asociación Indígena del Cauca", "Mallamás",
-                                            "Comfenalco Valle", "Aliansalud", "Anaswayuu", "Familiar de Colombia", "Dusakawi",
-                                            "Comfaoriente", "Capresoca", "Comfachocó", "Pijaos", "Salud Mía", "Salud Bolívar"
-                                            ].map((eps) => (
-                                                <option key={eps} value={eps}>
-                                                    {eps}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
-                                    </Form.Group>
+                                    <Dropdown
+                                    style={{width:"100%"}}
+                                    placeholder='Selecciona una EPS'
+                                    name='eps'
+                                    required options={epsArray}
+                                    optionLabel='label' optionValue='value'
+                                    value={userEps}
+                                    onChange={(e)=>{setUserEps(e.value)}}
+                                    ></Dropdown>
                                 </Col>
                             </Row>
                         )}
 
                         {!["usuario"].includes(session.role) && (
-                            <Row className='mb-3'>
+                            <Row style={{marginTop:"40px"}}>
                                 <Col>
-                                    <Form.Group>
-                                        <Form.Label className='text-black'>Especialidad</Form.Label>
-                                        <Form.Control
-                                        type='text'
-                                        name='phone_number' defaultValue={profileData.speciality}
-                                        disabled={["medico"].includes(session.role) ? false : true}></Form.Control>
-                                    </Form.Group>
+                                    <FloatLabel>
+                                        <label htmlFor="speciality">Especialidad</label>
+                                        <InputText defaultValue={profileData.speciality}
+                                        name='speciality'
+                                        id='speciality'
+                                        required
+                                        disabled={["medico"].includes(session.role) ? false : true}
+                                        ></InputText>
+                                    </FloatLabel>
                                 </Col>
                             </Row>
                         )}
 
-                        <Card.Footer>
-                            <Button variant='primary' type='submit'>Actualizar</Button>
+                        <Card.Footer style={{marginTop:"20px"}}>
+                            <Button severity='info' className='rounded rounded-2' type='submit'>Actualizar</Button>
                         </Card.Footer>
                     </Form>
                 </Card.Body>

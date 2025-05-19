@@ -81,5 +81,16 @@
         width: 100% !important;
     }
 }
-
 /*END RECOVER PASSWORD PAGE*/
+
+/*DROPDOWN*/
+.p-dropdown-items{
+    padding: 0px !important;
+}
+/*END DROPDOWN*/
+
+/*INPUT*/
+.p-inputtext{
+    width: 100% !important;
+}
+/*END INPUT*/

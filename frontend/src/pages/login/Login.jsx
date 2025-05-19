@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Container, Form, Button } from 'react-bootstrap'
 import { API_URL } from '../../API_URL.js'
+import { getSessionData } from '../../services/session/session.js'
 
 import Swal from 'sweetalert2'
 
@@ -9,7 +10,7 @@ export const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault()
 
     try {
@@ -31,10 +32,24 @@ export const Login = () => {
           text:"Sesión iniciada correctamente!",
           allowOutsideClick:false,
           allowEscapeKey:false
-        }).then((res)=>{
+        }).then(async(res)=>{
         
           if(res.isConfirmed){
-            window.location.href = "/home"
+              const request = await getSessionData()
+              if (request.status) {
+                if (["admin"].includes(request.data.role)) {
+                  window.location.href = "/dashboard"
+                }else{
+                   window.location.href = "/home"
+                }
+                return
+              }
+
+              Swal.fire({
+                title:"Error",
+                icon:"error",
+                text:request.message
+              })
           }
 
         })

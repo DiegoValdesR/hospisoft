@@ -1,5 +1,29 @@
 import { API_URL } from "../../API_URL.js"
 
+export async function getAllWorkers() {
+    try {
+        const request = await fetch(API_URL + "/workers/all",{credentials:"include"})
+        if (request.status === 500) {
+            throw new Error("Error interno del servidor, por favor intentelo más tarde.")
+        }
+
+        const requestJSON = await request.json()
+        if (requestJSON.status === "error") {
+            throw new Error(requestJSON.message)
+        }
+
+        return {
+            status:true,
+            data:requestJSON.data
+        }
+        
+    } catch (error) {
+        return {
+            status:false,
+            message:error.message
+        }
+    }
+}
 export async function getAllDoctors() {
     try {
         const request = await fetch(API_URL + `/workers/alldoctors`,{credentials:"include"})

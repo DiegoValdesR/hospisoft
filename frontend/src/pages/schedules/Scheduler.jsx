@@ -1,12 +1,19 @@
-import { Button, Card, Form, Row } from 'react-bootstrap'
+import {  Card } from 'react-bootstrap'
 import { useState,useEffect } from 'react'
 import { API_URL } from '../../API_URL.js'
+
 import { allSchedules,scheduleByWorker } from '../../services/schedule/schedule.js'
+import { getAllWorkers } from '../../services/workers/workers.js'
+
 import Swal from 'sweetalert2'
 //libreria para el calendario
 import {Calendar,momentLocalizer} from 'react-big-calendar'
 import { NewSchedule } from './modals/NewSchedule.jsx'
 import { ShowSchedule } from './modals/ShowSchedule.jsx'
+
+import {Button} from 'primereact/button'
+import {Dropdown} from 'primereact/dropdown'
+
 //libreria para manjear fechas
 import moment from 'moment-timezone'
 
@@ -21,14 +28,21 @@ export const Scheduler = ({session})=>{
     const [events,setEvents] = useState([])
 
     const getWorkers = async()=>{
-        const allWorkers = await fetch(API_URL + '/workers/all',{credentials: 'include'})
-        if (!allWorkers.ok) {
-            console.error("Error en el fecth: "+allWorkers.statusText)
+        const request = await getAllWorkers()
+        if (!request.status) {
+            console.error(request.message)
+            return
         }
-        const workersJSON = await allWorkers.json()
-        if (workersJSON && workersJSON.status === "completed") {
-            setWorkers(workersJSON.data)
+
+        const arrayWorkers = []
+        for(const object of request.data){
+            const data = {
+                id:object["_id"],
+                name:`${object["worker_name"]} ${object["worker_last_name"]}`
+            }
+            arrayWorkers.push(data)
         }
+        setWorkers(arrayWorkers)
     }
 
     const getEvents = async()=>{
@@ -94,19 +108,14 @@ export const Scheduler = ({session})=>{
     return (
         <>
         {session && ["admin"].includes(session.role) ? (
-            <>
-                {/* Modal nuevo horario */}
-                <NewSchedule API_URL={API_URL}
-                showModal={showModal}
-                setShowModal={setShowModal}
-                workers={workers}
-                getEvents={getEvents}></NewSchedule>
-            </>
+           <NewSchedule API_URL={API_URL}
+            showModal={showModal}
+            setShowModal={setShowModal}
+            workers={workers}
+            getEvents={getEvents}></NewSchedule>
         ) : ""}
 
-        {session && ["admin","medico","secretaria","farmaceutico"].includes(session.role) ? (
-            <>
-            {/* Mostrar detalles del horario */}
+        {session && ["admin","medico","secretaria","farmaceutico"].includes(session.role) && events.length > 0 ? (
             <ShowSchedule
             API_URL={API_URL}
             scheduleData={scheduleData}
@@ -114,42 +123,36 @@ export const Scheduler = ({session})=>{
             workers={workers}
             session={session}
             getEvents={getEvents}></ShowSchedule>
-            </>
         ) : ""}
         
         <Card>
             {session && ["admin"].includes(session.role) ? (
                 <Card.Header className='p-3'>
-                    <Card.Title>
-                        <div className='d-flex flex-row justify-content-between sche-header'>
-                            <div className='d-flex flex-row align-items-center'>
-                                <span className='text-black text-break'>Seleccionar empleado</span>
+                    <div className='d-flex flex-row justify-content-between sche-header'>
+                        <div className="d-flex flex-row gap-2">
+                            <Dropdown placeholder='Selecciona un empleado'
+                            value={workerId} onChange={handleChange} options={workers}
+                            optionLabel='name' optionValue='id'
+                            ></Dropdown>
 
-                                <Form.Select className='ms-3 border-dark-subtle select'
-                                defaultValue={""} onChange={handleChange}>
-                                    <option value=""></option>
-                                    {workers.map((worker)=>{
-                                        return (
-                                            <option key={worker["_id"]} value={worker["_id"]}>
-                                                {worker.worker_name} {worker.worker_last_name}
-                                            </option>
-                                        )
-                                    })}
-                                </Form.Select>
-                            </div>
-                            {session && ["admin"].includes(session.role) ? (
-                                <div className='btn-new'>
-                                    <Button onClick={()=>{setShowModal(true)}}>
-                                        <i className="bi bi-plus-lg"></i>
-                                        <span className="p-1 text-white">
-                                            Nuevo
-                                        </span>
-                                    </Button>
-                                </div>
-                            ) : ""}
-                            
+                            {workerId.length === 24 && (
+                                <Button severity="info" className="rounded rounded-5" 
+                                aria-label='Botón para mostrar todos los horarios' icon="pi pi-refresh" 
+                                onClick={async()=>{
+                                    setWorkerId("")
+                                    await getEvents()
+                                }}>
+                                </Button>
+                            )}
                         </div>
-                    </Card.Title>
+                       
+                        
+                        <div className='btn-new'>
+                            <Button severity="info" className="rounded rounded-5" 
+                                icon="pi pi-plus" onClick={()=>{setShowModal(true)}} label="Nuevo" iconPos="left">
+                            </Button>
+                        </div>
+                    </div>
                 </Card.Header>
             ) : ""}
             

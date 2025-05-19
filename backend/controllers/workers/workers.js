@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs"
 
 const AllWorkers = async(req,res)=>{
     try {
-        const workers = await WorkerModel.find({"worker_state":"active","worker_role":{"$ne":"admin"}})
+        const workers = await WorkerModel.find({"worker_state":"active","worker_role":{"$ne":"admin"}},"worker_name worker_last_name")
         return res.status(200).send({
             status:"completed",
             data:workers
@@ -25,7 +25,7 @@ const AllDoctors = async(req,res)=>{
         const findOne = await WorkerModel.find({
             "worker_state":"active",
             "worker_role":"medico"
-        })
+        },"worker_name worker_last_name")
 
         if (!findOne) {
             return res.status(404).send({
@@ -53,7 +53,7 @@ const WorkerById = async(req,res)=>{
     try {
         const findOne = await WorkerModel.findOne({
             "_id":mongoose.Types.ObjectId.createFromHexString(id)
-        })
+        },"worker_document worker_name worker_last_name worker_email worker_role worker_speciality worker_birthdate worker_phone_number")
 
         if (!findOne) {
             return res.status(404).send({
@@ -76,6 +76,15 @@ const WorkerById = async(req,res)=>{
 }
 
 const InsertWorker = async(req,res) =>{
+
+    const errorRole = AdmittedRoles(req,["admin"])
+    if (!errorRole.status) {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole.message
+        })
+    }
+
     const data = {
         worker_document:req.body.worker_document,
         worker_name:req.body.worker_name,
@@ -130,6 +139,14 @@ const InsertWorker = async(req,res) =>{
 }
 
 const UpdateWorker = async(req,res)=>{
+    const errorRole = AdmittedRoles(req,["admin","secretaria","medico","farmaceutico"])
+    if (!errorRole.status) {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole.message
+        })
+    }
+
     const {id} = req.params
     const data = {
         worker_name:req.body.worker_name,
@@ -177,6 +194,14 @@ const UpdateWorker = async(req,res)=>{
 }
 
 const DeleteWorker = async(req,res)=>{
+    const errorRole = AdmittedRoles(req,["admin"])
+    if (!errorRole.status) {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole.message
+        })
+    }
+
     const {id} = req.params
 
     try {

@@ -7,9 +7,8 @@ import {config} from 'dotenv'
 config()
 
 const AllUsers = async(req,res) =>{
-
     try {
-        const users = await UsersModel.find({"user_state":"active"})
+        const users = await UsersModel.find({"user_state":"active"},"user_name user_last_name")
         return res.status(200).send({
             status:"completed",
             data: users
@@ -21,16 +20,16 @@ const AllUsers = async(req,res) =>{
             status:"error",
             message:"Error interno del servidor, por favor intentelo más tarde."
         })
-
     }
-    
 }
 
 const UserById = async(req,res)=>{
     const {id} = req.params
 
     try {
-        const findOne = await UsersModel.findOne({"_id":mongoose.Types.ObjectId.createFromHexString(id)})
+        const findOne = await UsersModel.findOne({"_id":mongoose.Types.ObjectId.createFromHexString(id)},
+            "user_document user_name user_last_name user_email user_birthdate user_phone_number user_eps"
+        )
 
         if (!findOne) {
             return res.status(404).send({
@@ -123,7 +122,7 @@ const InsertUser = async(req,res) =>{
 
 const UpdateUser = async(req,res)=>{
 
-    const errorRole = AdmittedRoles(req,["admin"])
+    const errorRole = AdmittedRoles(req,["admin","usuario"])
     if (!errorRole.status) {
         return res.status(401).send({
             status:"error",

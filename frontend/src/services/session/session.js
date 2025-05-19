@@ -25,6 +25,7 @@ export async function getSessionData() {
         }
     }
 }
+
 /**
  * Cambia la contraseña actual del usuario por la nueva
  * @param {string} new_password Contraseña nueva

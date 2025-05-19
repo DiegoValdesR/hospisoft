@@ -1,12 +1,14 @@
 import moment from 'moment-timezone'
 import { getApointments,appointmentByDoctor,appointmentByPatient } from '../../services/appointments/appointments.js'
 import { useState,useEffect } from 'react'
-import { Button, Card } from 'react-bootstrap'
+import { Card } from 'react-bootstrap'
 import { Calendar, momentLocalizer} from 'react-big-calendar'
 import Swal from 'sweetalert2'
 import { NewAppointment } from './modals/NewAppointment.jsx'
 import { ShowAppointment } from './modals/ShowAppointments.jsx'
 
+import {Button} from 'primereact/button'
+import {Dropdown} from 'primereact/dropdown'
 
 
 export const AppontmentsCalendar = ({session})=>{
@@ -103,7 +105,7 @@ export const AppontmentsCalendar = ({session})=>{
                 </>
             ) : ""}
             
-            {session && ["admin","secretaria","medico","usuario"].includes(session.role) ? (
+            {session && ["admin","secretaria","medico","usuario"].includes(session.role) && events.length > 0 ? (
                 <>
                     <ShowAppointment appointmentData={appointmentData}
                     setAppointmentData={setAppointmentData}
@@ -115,17 +117,10 @@ export const AppontmentsCalendar = ({session})=>{
             <Card>
                 {session && ["admin","secretaria"].includes(session.role) ? (
                     <Card.Header>
-                        <Card.Title>
-                            {session && ["admin","secretaria"].includes(session.role) ? (
-                            <Button variant='primary' className='ms-4'
-                            onClick={()=>{setShowModal(true)}}>
-                                <i className="bi bi-plus-lg"></i>
-                                <span className="p-1 text-white">
-                                    Nuevo
-                                </span>
-                            </Button>
-                            ) : ""}
-                        </Card.Title>
+                        <Button severity='info' label='Nuevo' icon='pi pi-plus'
+                        className='rounded rounded-5'
+                        onClick={()=>{setShowModal(true)}}>       
+                        </Button>
                     </Card.Header>
                 ) : ""}
                 
