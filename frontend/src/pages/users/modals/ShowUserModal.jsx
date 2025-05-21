@@ -57,6 +57,9 @@ export const ShowUserModal = ({modalInfo,setModalInfo,idInfo,setIdInfo})=>{
                 <Modal.Body>
                     <ListGroup>
                         <ListGroup.Item>
+                            <strong>Número de documento: </strong>{user.user_document}
+                        </ListGroup.Item>
+                        <ListGroup.Item>
                             <strong>Nombre: </strong>{user.user_name}
                         </ListGroup.Item>
                         <ListGroup.Item>

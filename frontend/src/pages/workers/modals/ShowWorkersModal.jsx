@@ -56,6 +56,10 @@ export const ShowWorkersModal = ({modalInfo,setModalInfo,idInfo,setIdInfo})=>{
 
                 <Modal.Body>
                     <ListGroup>
+                         <ListGroup.Item>
+                            <strong>Número de documento: </strong>{worker.worker_document}
+                        </ListGroup.Item>
+
                         <ListGroup.Item>
                             <strong>Nombre: </strong>{worker.worker_name}
                         </ListGroup.Item>
