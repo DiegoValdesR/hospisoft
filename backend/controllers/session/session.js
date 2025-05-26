@@ -51,7 +51,7 @@ const LogIn = async(req,res) =>{
         res.cookie('token', token, {
             httpOnly: true,         //Evita que sea accesible desde JS malicioso
             secure: true,        //DEBE SER FALSE CUANDO ES LOCAL, TRUE cuando se trabaja con https
-            sameSite: 'Lax',     //LAX cuando el front y el back estan en el mismo dominio (local), NONE cuando no
+            sameSite: 'none',     //LAX cuando el front y el back estan en el mismo dominio (local), NONE cuando no
             maxAge: 4 * 60 * 60 * 1000,
             path: '/',
         })
@@ -106,9 +106,9 @@ const IsLoggedIn = async(req,res)=>{
 
 const SessionData = async(req,res)=>{
     const token = req.cookies.token
-    
     try {
         const tokenDecoded = jwt.decode(token,process.env.SECRET)
+        console.log(token,tokenDecoded);
         
         return res.status(200).send({
             status:"completed",

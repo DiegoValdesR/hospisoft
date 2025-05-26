@@ -9,6 +9,8 @@ export async function getSessionData() {
         }
 
         const requestJSON = await request.json()
+        console.log(requestJSON);
+        
         if (requestJSON.status === "error") {
             throw new Error(requestJSON.message)
         }
