@@ -29,7 +29,7 @@ const GenToken = async(req,res)=>{
         const insert = new TokensModel(data)
         await insert.save()
 
-        await fetch(process.env.API_URL + '/sendemail',{
+        await fetch(process.env.API_URL + '/api/sendemail',{
             method:"POST",
             headers:{
                 "Content-Type":"application/json"
