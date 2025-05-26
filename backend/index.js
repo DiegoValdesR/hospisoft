@@ -1,5 +1,8 @@
 import cors from 'cors'
 import express, { json } from 'express'
+import { config } from 'dotenv';
+config()
+
 // Galletas Free <------------------------------- <------------------------ <------------------------
 import cookieParser from 'cookie-parser';
 import { MongoDbConnection } from './db/db.js'
@@ -7,7 +10,7 @@ const app = express()
 const serverPort = process.env.DB_PORT
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.API_URL,
     credentials: true
 }))
 app.use(json())

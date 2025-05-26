@@ -5,15 +5,15 @@ import { getSessionData } from "../services/session/session.js"
 // PAGES
 import { HomePage } from "../pages/home/HomePage.jsx"
 import { DashboardPage } from "../pages/dashboard/DashboardPage.jsx"
-import { UsersPage } from "../pages/users/usersPage"
-import { WorkersPage } from '../pages/workers/WorkersPage'
-import { ItemsPage } from "../pages/items/ItemsPage"
-import { FormulasPage } from "../pages/formulas/FormulasPage"
-import { SchedulesPage } from "../pages/schedules/SchedulesPage"
-import { AppointmentsPage } from "../pages/appointments/AppointmentsPage"
-import { Login } from '../pages/login/Login'
-import { NotFound } from "../pages/404/NotFound"
-import { Register } from "../pages/register/register.jsx"
+import { UsersPage } from "../pages/users/UsersPage.jsx"
+import { WorkersPage } from '../pages/workers/WorkersPage.jsx'
+import { ItemsPage } from "../pages/items/ItemsPage.jsx"
+import { FormulasPage } from "../pages/formulas/FormulasPage.jsx"
+import { SchedulesPage } from "../pages/schedules/SchedulesPage.jsx"
+import { AppointmentsPage } from "../pages/appointments/AppointmentsPage.jsx"
+import { Login } from '../pages/login/Login.jsx'
+import { NotFound } from "../pages/404/NotFound.jsx"
+import { Register } from "../pages/register/Register.jsx"
 import { HistoryPage } from "../pages/medical_history/HistoryPage.jsx"
 import { ProfilePage } from "../pages/profile/ProfilePage.jsx"
 import { PassRecoverPage } from "../pages/password_recover/PassRecoverPage.jsx"

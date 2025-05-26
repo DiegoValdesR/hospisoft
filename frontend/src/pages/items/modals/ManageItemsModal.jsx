@@ -89,7 +89,7 @@ export const ManageItemsModal = ({modalData, setModalData, itemId = "", setItemI
         Swal.fire({
             title: request.status ? "Completado" : "Error",
             icon: request.status ? "success" : "error",
-            title: request.message
+            text: request.message
         })
     }
 

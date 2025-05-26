@@ -24,6 +24,8 @@ export const Login = () => {
       })
 
       const data = await response.json();
+      console.log(data);
+      
 
       if (response.ok) {
         Swal.fire({
@@ -36,6 +38,8 @@ export const Login = () => {
         
           if(res.isConfirmed){
               const request = await getSessionData()
+              console.log(request);
+              
               if (request.status) {
                 if (["admin"].includes(request.data.role)) {
                   window.location.href = "/dashboard"
@@ -95,6 +99,7 @@ export const Login = () => {
             <Form.Control
               type="email"
               placeholder="Ingrese su correo"
+              autoComplete='username'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -109,6 +114,7 @@ export const Login = () => {
               <Form.Control
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Ingrese su contraseña"
+                autoComplete='current-password'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

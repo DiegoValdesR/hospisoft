@@ -1,4 +1,4 @@
-import { UsersTable } from "./usersTable"
+import { UsersTable } from "./UsersTable"
 
 
 export const UsersPage = ({session})=>{
