@@ -24,7 +24,6 @@ export const Login = () => {
       })
 
       const data = await response.json();
-      console.log(data);
       
       if (response.ok) {
         Swal.fire({
@@ -37,7 +36,6 @@ export const Login = () => {
         
           if(res.isConfirmed){
               const request = await getSessionData()
-              console.log(request);
               
               if (request.status) {
                 if (["admin"].includes(request.data.role)) {

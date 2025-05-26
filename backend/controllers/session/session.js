@@ -108,8 +108,6 @@ const SessionData = async(req,res)=>{
     const token = req.cookies.token
     try {
         const tokenDecoded = jwt.decode(token,process.env.SECRET)
-        console.log(token,tokenDecoded);
-        
         return res.status(200).send({
             status:"completed",
             data:tokenDecoded
