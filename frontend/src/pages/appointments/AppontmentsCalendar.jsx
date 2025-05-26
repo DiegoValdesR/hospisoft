@@ -8,7 +8,6 @@ import { NewAppointment } from './modals/NewAppointment.jsx'
 import { ShowAppointment } from './modals/ShowAppointments.jsx'
 
 import {Button} from 'primereact/button'
-import {Dropdown} from 'primereact/dropdown'
 
 
 export const AppontmentsCalendar = ({session})=>{
@@ -110,6 +109,7 @@ export const AppontmentsCalendar = ({session})=>{
                     <ShowAppointment appointmentData={appointmentData}
                     setAppointmentData={setAppointmentData}
                     getEvents={getEvents}
+                    session={session}
                     ></ShowAppointment>
                 </>
             ) : ""}

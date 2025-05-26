@@ -6,14 +6,12 @@ import { deactivateAppointment } from "../../../services/appointments/appointmen
 import Swal from "sweetalert2"
 import { UpdateAppointment } from "./UpdateAppointment.jsx"
 
-export const ShowAppointment = ({getEvents,appointmentData,setAppointmentData})=>{
+export const ShowAppointment = ({session,getEvents,appointmentData,setAppointmentData})=>{
     
     const [show,setShow] = useState(false)
     const [patient,setPatient] = useState({})
     const [doctor,setDoctor] = useState({})
     const [showUpdate,setShowUpdate] = useState(false)
-
-    const session = JSON.parse(sessionStorage.getItem("session"))
 
     const getDoctor = async()=>{
         const doctor = await fetch(API_URL + '/workers/byid/'+appointmentData.doctor_id,{
