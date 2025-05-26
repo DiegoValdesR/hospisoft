@@ -58,8 +58,7 @@ const LogIn = async(req,res) =>{
         
         return res.status(200).send({
             status: "completed",
-            message: "Sesión iniciada correctamente.",
-            data:objectUser
+            message: "Sesión iniciada correctamente."
         })
         
     } catch (error) {
