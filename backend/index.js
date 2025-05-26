@@ -10,7 +10,7 @@ const app = express()
 const serverPort = process.env.DB_PORT
 
 app.use(cors({
-    origin: process.env.API_URL,
+    origin: ["http://localhost:5174",process.env.API_URL],
     credentials: true
 }))
 app.use(json())
