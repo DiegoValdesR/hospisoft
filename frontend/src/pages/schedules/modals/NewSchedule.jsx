@@ -91,8 +91,8 @@ export const NewSchedule = ({API_URL,workers = [],showModal,setShowModal,getEven
                                 <option value="">Selecciona un empleado</option>
                                 {workers.map((worker)=>{
                                     return (
-                                        <option key={worker["_id"]} value={worker["_id"]}>
-                                            {worker.worker_name} {worker.worker_last_name}
+                                        <option key={worker["id"]} value={worker["id"]}>
+                                            {worker.name} {worker.name}
                                         </option>
                                     )
                                 })}

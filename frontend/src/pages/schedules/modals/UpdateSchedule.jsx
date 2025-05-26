@@ -82,7 +82,7 @@ export const UpdateSchedule = ({API_URL, scheduleData, setScheduleData, workers 
                             ></Form.Control>
                         </Form.Group>
                     </Row>
-
+                    {console.log(scheduleData)}
                     <Row className="mb-3">
                         <Form.Group>
                             <Form.Label className="text-black">Empleado</Form.Label>
@@ -91,8 +91,8 @@ export const UpdateSchedule = ({API_URL, scheduleData, setScheduleData, workers 
                                 <option value="">Selecciona un empleado</option>
                                 {workers.map((worker)=>{
                                     return (
-                                        <option key={worker["_id"]} value={worker["_id"]}>
-                                            {worker.worker_name} {worker.worker_last_name}
+                                        <option key={worker["id"]} value={worker["id"]}>
+                                            {worker.name} {worker.name}
                                         </option>
                                     )
                                 })}
