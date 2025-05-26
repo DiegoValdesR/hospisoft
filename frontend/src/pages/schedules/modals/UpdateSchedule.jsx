@@ -82,7 +82,7 @@ export const UpdateSchedule = ({API_URL, scheduleData, setScheduleData, workers 
                             ></Form.Control>
                         </Form.Group>
                     </Row>
-                    {console.log(scheduleData)}
+
                     <Row className="mb-3">
                         <Form.Group>
                             <Form.Label className="text-black">Empleado</Form.Label>
