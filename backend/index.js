@@ -10,7 +10,7 @@ const app = express()
 const serverPort = process.env.DB_PORT
 
 app.use(cors({
-    origin: ["http://localhost:5173",process.env.API_URL],
+    origin: ["http://localhost:5173","https://starlit-speculoos-3e31e4.netlify.app"],
     credentials: true
 }))
 app.use(json())
