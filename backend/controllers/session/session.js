@@ -70,16 +70,24 @@ const LogIn = async(req,res) =>{
 }
 
 const LogOut = async(req,res) =>{
-    res.clearCookie('token', {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'Lax'
-    })
-    
-    return res.status(200).send({
-        status: 'completed',
-        message: 'Chao gorda puta'
-    })
+    try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        })
+
+        return res.status(200).send({
+            status: 'completed'
+        })
+
+    } catch (error) {
+       return res.status(500).send({
+            status: 'error',
+            message:"Error interno del servidor, por favor, intentelo más tarde."
+       })
+    }
+
 }
 
 const IsLoggedIn = async(req,res)=>{
