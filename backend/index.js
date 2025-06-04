@@ -10,7 +10,7 @@ const app = express()
 const serverPort = process.env.DB_PORT
 
 app.use(cors({
-    origin: ["http://localhost:5173","https://aesthetic-starlight-164cbc.netlify.app"],
+    origin: ["http://localhost:5173","https://neglisoft.netlify.app"],
     credentials: true
 }))
 app.use(json())
