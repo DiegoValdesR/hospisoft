@@ -216,15 +216,15 @@ const InsertAppointment = async(req,res)=>{
         }
 
         const findOne = await AppointmentModel.findOne({
-            "$and":[
-                {"start_date":{"$gte":data.start_date}},
-                {"end_date":{"$lte":data.end_date}},
-            ],
             "doctor_id":data.doctor_id,
-            "appointment_state":"active"
+            "appointment_state":"active",
+            "$or":[
+                {"start_date":{"$lt":data.end_date}},
+                {"end_date":{"$gt":data.start_date}},
+            ]
         })
         
-        if (findOne && data.start_date < findOne.end_date) {
+        if (findOne) {
             return res.status(409).send({
                 status:"error",
                 message:"No puede registrar una cita a esa hora, el médico encargado tiene otra cita."
