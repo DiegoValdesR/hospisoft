@@ -1,6 +1,6 @@
 import mongoose, { Schema,model } from "mongoose";
 
-export const FormulaSchema = Schema(
+const FormulaSchema = Schema(
     {
         formula_date:{
             type:Date,

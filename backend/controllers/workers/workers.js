@@ -4,6 +4,13 @@ import { AdmittedRoles } from "../../middleware/roles.js"
 import mongoose from "mongoose"
 import bcrypt from "bcryptjs"
 
+/**
+ * Obtiene todos los trabajadores activos que no sean administradores.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Lista de trabajadores con nombre y apellido.
+ */
 const AllWorkers = async(req,res)=>{
     try {
         const workers = await WorkerModel.find({"worker_state":"active","worker_role":{"$ne":"admin"}},"worker_name worker_last_name")
@@ -20,6 +27,13 @@ const AllWorkers = async(req,res)=>{
     }
 }
 
+/**
+ * Obtiene todos los trabajadores activos cuyo rol sea "medico".
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Lista de médicos con nombre y apellido o error si no encuentra.
+ */
 const AllDoctors = async(req,res)=>{
     try {
         const findOne = await WorkerModel.find({
@@ -47,6 +61,13 @@ const AllDoctors = async(req,res)=>{
     }
 }
 
+/**
+ * Obtiene un trabajador por su ID, mostrando datos relevantes.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con parámetro `id` en URL.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Datos del trabajador o error si no se encuentra.
+ */
 const WorkerById = async(req,res)=>{
     const {id} = req.params
     
@@ -75,6 +96,13 @@ const WorkerById = async(req,res)=>{
     }
 }
 
+/**
+ * Inserta un nuevo trabajador, validando rol, email y fecha, y enviando correo de bienvenida.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con datos del trabajador en `req.body`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Mensaje de éxito o error en validación, permiso o inserción.
+ */
 const InsertWorker = async(req,res) =>{
 
     const errorRole = AdmittedRoles(req,["admin"])
@@ -151,6 +179,14 @@ const InsertWorker = async(req,res) =>{
 
 }
 
+/**
+ * Actualiza datos de un trabajador existente por su ID,
+ * validando roles permitidos y que el correo no esté duplicado.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con parámetro `id` en URL y datos en `req.body`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Mensaje de éxito o error en validación, permiso o actualización.
+ */
 const UpdateWorker = async(req,res)=>{
     const errorRole = AdmittedRoles(req,["admin","secretaria","medico","farmaceutico"])
     if (!errorRole.status) {
@@ -206,6 +242,14 @@ const UpdateWorker = async(req,res)=>{
 
 }
 
+/**
+ * Cambia el estado de un trabajador a "inactive" (borrado lógico),
+ * validando que el usuario tenga rol de admin.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con parámetro `id` en URL.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Mensaje de éxito o error en permiso o eliminación.
+ */
 const DeleteWorker = async(req,res)=>{
     const errorRole = AdmittedRoles(req,["admin"])
     if (!errorRole.status) {

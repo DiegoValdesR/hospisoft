@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/formula/formula.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/formula/formula.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { FormulaModel } from "../../models/formula/formula.js"
+import { UsersModel } from "../../models/user/user.js"
+import { WorkerModel } from "../../models/workers/workers.js"
+import { ItemsModel } from "../../models/item/item.js"
+//validaciones
+import { Validations } from "../../validations/index.js"
+import mongoose from "mongoose"
+
+/**
+ * Todos los métodos usados para las formulas.
+ * 
+ */
+
+/**
+ * Consigue todas las formulas que estén activas.
+ * 
+ * @var {array} formulas - Consulta que reune todas las formulas con el estado "active".
+ * @returns {json} - Json con un estado, un mensaje de error (si aplica) y un array de objetos con la información solicitada.
+ */
+const AllFormulas = async(req,res)=>{
+    try {
+        const formulas = await FormulaModel.find({"formula_state":"active"})
+        return res.status(200).send({
+            status:"completed",
+            data:formulas
+        })
+
+    } catch (error) {
+        res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
+/**
+ * Consigue una formula específica.
+ * 
+ * @property {string} id - Id de la fórmula.
+ * @returns {json} - Json con un estado, un mensaje de error (si aplica) y un objeto con la información solicitada.
+ */
+const FormulaById = async(req,res)=>{
+    const {id} = req.params
+    
+    try {
+
+        const findOne = await FormulaModel.findOne({
+            "_id":mongoose.Types.ObjectId.createFromHexString(id)
+        })
+
+        if (!findOne) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró la formula."
+            })
+        }
+        
+        return res.status(200).send({
+            status:"completed",
+            data: findOne
+        })
+        
+    } catch (error) {
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
+        })
+    }
+}
+
+/**
+ * Inserta una fórmula.
+ * 
+ * @property {object} data - Objeto recibido por el body de la request con toda la información necesaria.
+ * @returns {json} - Json con un estado y un mensaje de error o de confirmación.
+ */
+const InsertFormula = async(req,res)=>{
+    const data = {
+        patient_id : req.body.patient_id,
+        doctor_id : req.body.doctor_id,
+        items:req.body.items,
+        posology:req.body.posology
+    }
+
+    try {
+        data.patient_id = mongoose.Types.ObjectId.createFromHexString(data.patient_id)
+        data.doctor_id = mongoose.Types.ObjectId.createFromHexString(data.doctor_id)
+
+        const findPatient = await UsersModel.findOne({"_id":data.patient_id,"user_state":"active"})
+        const findDoctor = await WorkerModel.findOne({
+            "_id":data.doctor_id,
+            "worker_role":"medico",
+            "worker_state":"active"
+        })
+
+        if (!findPatient) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el paciente."
+            })
+        }
+
+        if (!findDoctor) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el médico encargado."
+            })
+        }
+
+        //restar el stock a los items puestos en la formula
+        for(const object of data.items){
+            let {item_id,item_amount} = object
+            item_id = mongoose.Types.ObjectId.createFromHexString(item_id)
+            const findStock = await ItemsModel.findOne({
+                "_id":item_id
+            },'item_stock')
+            
+            const errorStock = await Validations.HasCorrectStock(item_id,item_amount)
+            if (errorStock.length !== 0) {
+                return res.status(400).send({
+                    status:"error",
+                    message:errorStock
+                })
+            }
+            
+            await ItemsModel.findOneAndUpdate({"_id":item_id},{"item_stock":findStock.item_stock - item_amount})
+        }
+
+        const insert = new FormulaModel(data)
+        await insert.save()
+        
+
+        return res.status(201).send({
+            status:"completed",
+            message:"Fórmula creada correctamente!"
+        })
+
+    } catch (error) {
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
+        })
+    }
+}
+
+/**
+ * Desactuva una formula.
+ * 
+ * @property {object} id - Id de la fórmula.
+ * @returns {json} - Json con un estado y un mensaje de error o de confirmación.
+ */
+const DeleteFormula = async(req,res)=>{
+    const {id} = req.params
+    try {
+        const formula = await FormulaModel.findOne({"_id":mongoose.Types.ObjectId.createFromHexString(id)})
+    
+        for(const object of formula.items){
+            let {item_id,item_amount} = object
+
+            const findItem = await ItemsModel.findOne({"_id":item_id})
+
+            await ItemsModel.findOneAndUpdate({"_id":item_id},{"item_stock":findItem.item_stock + item_amount})
+        }
+
+        await FormulaModel.findOneAndUpdate({
+            "_id":mongoose.Types.ObjectId.createFromHexString(id)
+        },{"formula_state":"inactive"})
+    
+        return res.status(200).send({
+            status:"completed",
+            message:"Fórmula inhabilitada!"
+        })
+    
+    } catch (error) {
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
+        })
+    }
+}
+
+export const FormulaMethods = {
+    AllFormulas,
+    FormulaById,
+    InsertFormula,
+    DeleteFormula
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AdmittedRoles">AdmittedRoles</a></li><li><a href="global.html#AllApointments">AllApointments</a></li><li><a href="global.html#AllDoctors">AllDoctors</a></li><li><a href="global.html#AllMedicalHistory">AllMedicalHistory</a></li><li><a href="global.html#AllSchedules">AllSchedules</a></li><li><a href="global.html#AllUsers">AllUsers</a></li><li><a href="global.html#AllWorkers">AllWorkers</a></li><li><a href="global.html#AppointmentById">AppointmentById</a></li><li><a href="global.html#AppointmentModel">AppointmentModel</a></li><li><a href="global.html#AppointmentsByDoctor">AppointmentsByDoctor</a></li><li><a href="global.html#AppointmentsByPatient">AppointmentsByPatient</a></li><li><a href="global.html#AuthorizationToken">AuthorizationToken</a></li><li><a href="global.html#ByPatientAndDoctor">ByPatientAndDoctor</a></li><li><a href="global.html#DeactivateAppointment">DeactivateAppointment</a></li><li><a href="global.html#DeactivateSchedule">DeactivateSchedule</a></li><li><a href="global.html#DeleteFormula">DeleteFormula</a></li><li><a href="global.html#DeleteItem">DeleteItem</a></li><li><a href="global.html#DeleteUser">DeleteUser</a></li><li><a href="global.html#DeleteWorker">DeleteWorker</a></li><li><a href="global.html#FormulaById">FormulaById</a></li><li><a href="global.html#GenToken">GenToken</a></li><li><a href="global.html#GetDoctorsWithMostAppointments">GetDoctorsWithMostAppointments</a></li><li><a href="global.html#GetItemById">GetItemById</a></li><li><a href="global.html#GetItems">GetItems</a></li><li><a href="global.html#GetItemsAndStock">GetItemsAndStock</a></li><li><a href="global.html#GetMonthlyPatients">GetMonthlyPatients</a></li><li><a href="global.html#HasCorrectStock">HasCorrectStock</a></li><li><a href="global.html#InsertAppointment">InsertAppointment</a></li><li><a href="global.html#InsertFormula">InsertFormula</a></li><li><a href="global.html#InsertItem">InsertItem</a></li><li><a href="global.html#InsertMedicalHistory">InsertMedicalHistory</a></li><li><a href="global.html#InsertSchedule">InsertSchedule</a></li><li><a href="global.html#InsertUser">InsertUser</a></li><li><a href="global.html#InsertWorker">InsertWorker</a></li><li><a href="global.html#IsDateValid">IsDateValid</a></li><li><a href="global.html#IsHourValid">IsHourValid</a></li><li><a href="global.html#IsLoggedIn">IsLoggedIn</a></li><li><a href="global.html#ItemsMethods">ItemsMethods</a></li><li><a href="global.html#LogIn">LogIn</a></li><li><a href="global.html#LogOut">LogOut</a></li><li><a href="global.html#MedicalHistoryById">MedicalHistoryById</a></li><li><a href="global.html#MedicalHistoryByPatient">MedicalHistoryByPatient</a></li><li><a href="global.html#MedicalMethods">MedicalMethods</a></li><li><a href="global.html#MongoDbConnection">MongoDbConnection</a></li><li><a href="global.html#RecoverPassword">RecoverPassword</a></li><li><a href="global.html#ScheduleByWorker">ScheduleByWorker</a></li><li><a href="global.html#ScheduleMethods">ScheduleMethods</a></li><li><a href="global.html#SendEmail">SendEmail</a></li><li><a href="global.html#SessionData">SessionData</a></li><li><a href="global.html#SessionMethods">SessionMethods</a></li><li><a href="global.html#UpdateAppointment">UpdateAppointment</a></li><li><a href="global.html#UpdateItem">UpdateItem</a></li><li><a href="global.html#UpdateSchedule">UpdateSchedule</a></li><li><a href="global.html#UpdateUser">UpdateUser</a></li><li><a href="global.html#UpdateWorker">UpdateWorker</a></li><li><a href="global.html#UserById">UserById</a></li><li><a href="global.html#UserMethods">UserMethods</a></li><li><a href="global.html#ValidateToken">ValidateToken</a></li><li><a href="global.html#WorkerById">WorkerById</a></li><li><a href="global.html#formulas">formulas</a></li><li><a href="global.html#lastMonthTotal">lastMonthTotal</a></li><li><a href="global.html#transporter">transporter</a></li><li><a href="global.html#validateAppointment">validateAppointment</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 08:45:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

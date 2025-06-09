@@ -1,6 +1,6 @@
 import mongoose,{Schema, model } from "mongoose";
 
-export const AppointmentSchema = Schema(
+const AppointmentSchema = Schema(
     {
         start_date:{
             type:Date,

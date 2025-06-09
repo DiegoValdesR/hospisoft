@@ -3,10 +3,12 @@ import { AppointmentModel } from "../../models/appointments/appointments.js";
 
 /**
  * Todos los métodos usados para las gráficas de sitio.
+ * 
  */
 
 /**
  * Consigue el nombre y stock del medicamento con más stock.
+ * 
  * @returns {json} Json con un estado string y un objeto con la información solicitada.
  */
 const GetItemsAndStock = async(req,res) =>{
@@ -26,6 +28,7 @@ const GetItemsAndStock = async(req,res) =>{
 
 /**
  * Consigue las ganancias del mes actual comparadas al mes anterior.
+ * 
  * @var {date} now - Fecha actual.
  * @var {date} startOfCurrentMonth - Inicio del mes actual.
  * @var {date} endOfCurrentMonth - Fin del mes actual.
@@ -102,6 +105,7 @@ const GetMonthlyBilling = async (req, res) => {
 
 /**
  * Consigue un listado de los médicos con mayor número de citas atendidas.
+ * 
  * @returns {json} Json con un estado string, un mensaje de error (si aplica) un objeto con la información solicitada.
  */
 const GetDoctorsWithMostAppointments = async (req, res) => {
@@ -174,6 +178,7 @@ const GetDoctorsWithMostAppointments = async (req, res) => {
 
 /**
  * Consigue un listado de los pacientes de cada mes.
+ * 
  * @returns {json} Json con un estado string, un mensaje de error (si aplica) un objeto con la información solicitada.
  */
 const GetMonthlyPatients = async (req, res) => {

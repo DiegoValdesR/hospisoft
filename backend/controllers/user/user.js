@@ -6,6 +6,13 @@ import bcrypt from 'bcryptjs'
 import {config} from 'dotenv'
 config()
 
+/**
+ * Obtiene todos los usuarios activos y devuelve solo su nombre y apellido.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Lista de usuarios activos o error en caso de fallo.
+ */
 const AllUsers = async(req,res) =>{
     try {
         const users = await UsersModel.find({"user_state":"active"},"user_name user_last_name")
@@ -23,6 +30,13 @@ const AllUsers = async(req,res) =>{
     }
 }
 
+/**
+ * Busca un usuario activo por su ID y devuelve información detallada.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con parámetro `id` en URL.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Datos del usuario encontrado o error si no existe o falla.
+ */
 const UserById = async(req,res)=>{
     const {id} = req.params
 
@@ -52,6 +66,14 @@ const UserById = async(req,res)=>{
     
 }
 
+/**
+ * Inserta un nuevo usuario en la base de datos luego de validar fecha y verificar que
+ * el email no esté registrado. Envía un correo de bienvenida al usuario.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con datos del usuario en `req.body`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Mensaje de éxito o error en validaciones o inserción.
+ */
 const InsertUser = async(req,res) =>{
     const data ={
         user_document:req.body.user_document,
@@ -113,6 +135,14 @@ const InsertUser = async(req,res) =>{
 
 }
 
+/**
+ * Actualiza datos de un usuario existente por su ID, validando roles permitidos y
+ * que el correo no esté duplicado en otro usuario.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con parámetro `id` en URL y datos en `req.body`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Mensaje de éxito o error en validación, permiso o actualización.
+ */
 const UpdateUser = async(req,res)=>{
 
     const errorRole = AdmittedRoles(req,["admin","usuario"])
@@ -166,6 +196,14 @@ const UpdateUser = async(req,res)=>{
 
 }
 
+/**
+ * Cambia el estado de un usuario a "inactive" (eliminación lógica), solo si el
+ * solicitante tiene rol de administrador.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con parámetro `id` en URL.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Mensaje de éxito o error en permisos o eliminación.
+ */
 const DeleteUser = async(req,res)=>{
     const errorRole = AdmittedRoles(req,["admin"])
     if (!errorRole.status) {
@@ -202,6 +240,9 @@ const DeleteUser = async(req,res)=>{
     }
 }
 
+/**
+ * Exporta los métodos relacionados con usuarios para ser usados en rutas o controladores.
+ */
 export const UserMethods = {
     AllUsers,
     UserById,

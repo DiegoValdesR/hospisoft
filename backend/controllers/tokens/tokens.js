@@ -4,6 +4,14 @@ import { TokensModel } from "../../models/tokens/tokens.js"
 import {config} from 'dotenv'
 config()
 
+/**
+ * Genera un token para verificación y lo envía por email al usuario o trabajador
+ * registrado con el correo proporcionado, si está activo.
+ *
+ * @param {Request} req - Objeto de solicitud con `email` en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Estado con email al que se envió el token o error.
+ */
 const GenToken = async(req,res)=>{
     const {email} = req.body
 
@@ -109,6 +117,13 @@ const GenToken = async(req,res)=>{
     }
 }
 
+/**
+ * Valida el token enviado por el usuario para verificar identidad.
+ *
+ * @param {Request} req - Objeto de solicitud con `token` en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Estado con mensaje de éxito o error.
+ */
 const ValidateToken = async(req,res)=>{
     const {token} = req.body
     try {

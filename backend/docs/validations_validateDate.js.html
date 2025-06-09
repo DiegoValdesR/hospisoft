@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: validations/validateDate.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: validations/validateDate.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Valida una fecha en formato 'YYYY-MM-DD' según el tipo de fecha especificado,
+ * verificando formato, rango válido y condiciones específicas para cada tipo.
+ *
+ * @param {string} date - Fecha en formato 'YYYY-MM-DD' a validar.
+ * @param {string} typeOfDate - Tipo de fecha para validar reglas específicas. Puede ser:
+ *                              - "birthdate": fecha de nacimiento (debe tener entre 18 y 90 años).
+ *                              - "appointment": fecha de cita (debe estar entre el año actual y el siguiente).
+ *                              - "schedule": fecha para horario (entre año actual y 5 años en el futuro).
+ *
+ * @returns {string} - Mensaje vacío si la fecha es válida, o mensaje de error indicando el motivo.
+ */
+export const IsDateValid = (date,typeOfDate)=>{
+    let response = ""
+    
+    if (date &amp;&amp; typeof date === "string") {
+        //dividimos en un arreglo la fecha por cada '-', tienen que haber 3 posiciones si o si
+        const splitDate = date.split('-')
+
+        //sino pues chao
+        if(splitDate.length &lt; 3){
+            response = `${date} no es una fecha válida.`
+            return response
+        }
+
+        //que todos sean números, sino chao
+        if (isNaN(splitDate[0]) || 
+            isNaN(splitDate[1]) || 
+            isNaN(splitDate[2])
+        ) {
+            response = `${date} no es una fecha válida.`
+            return response
+        }
+
+        const dateObject = {
+            year:parseInt(splitDate[0]),
+            month: parseInt(splitDate[1]),
+            day:parseInt(splitDate[2])
+        }
+
+        let min,max
+        const today = new Date()
+
+        switch (typeOfDate) {
+            case "birthdate":
+                min = today.getFullYear() - 90
+                max = today.getFullYear() - 18
+                break
+            case "appointment":
+                min = today.getFullYear()
+                max = today.getFullYear() + 1
+                break
+            case "schedule":
+                min = today.getFullYear()
+                max = today.getFullYear() + 5
+                break
+            default:
+                break;
+        }
+
+        const options = {
+            year:{
+                min:min,
+                max:max
+            },
+            month:{
+                min:1,
+                max:12
+            },
+            day:{
+                min:1,
+                max:31
+            }
+        }
+
+        for(const key in dateObject){
+
+            if (dateObject[key] &lt; options[key].min) {
+
+                if (key === "year") {
+                    switch (typeOfDate) {
+                        case "appointment":
+                            response = "No puede agendar una cita para un año anterior."
+                        break;
+
+                        case "schedule":
+                            response = "No puede registrar un horario para un año anterior."
+                            break
+                    
+                        default:
+                            response = `El año no puede ser menor que ${options[key].min}`
+                            break;
+                    }
+                }
+
+                if (key === "month") {
+                    response = `El mes no puede ser menor que 1.`
+                }
+
+                if (key === "day") {
+                    response = `El día no puede ser menor que 1.`
+                }
+
+                return response
+            }
+            
+            if (dateObject[key] > options[key].max) {
+                
+                if (key === "year") {
+                    switch (typeOfDate) {
+                        case "birthdate":
+                            response = "No eres mayor de edad."
+                            break;
+
+                        case "appointment":
+                            response = "No puede agendar una cita para más de un año."
+                            break;
+
+                        case "schedule":
+                            response = `No puede registrar un horario para dentro de ${options[key].max} años.`
+                            break
+                    
+                        default:
+                            response = `El año no puede ser mayor que ${options[key].max}`
+                            break;
+                    }
+                }
+
+                if (key === "month") {
+                    response = `El mes no puede ser mayor que 12.`
+                }
+
+                if (key === "day") {
+                    response = `El dia no puede ser mayor que 31.`
+                }
+
+                return response
+            }
+        }
+
+        const newDate = new Date(dateObject.year,dateObject.month - 1,dateObject.day)
+        
+        if (newDate.getFullYear() !== dateObject.year
+            || newDate.getMonth() + 1  !== dateObject.month
+            || newDate.getDate() !== dateObject.day 
+        ) {
+            response = `${date} no es una fecha válida.`
+            return response
+        }
+
+        //calculando si cumplió 18 años el dia de hoy (puta madre)
+        if (typeOfDate === "birthdate") {
+            let age = today.getFullYear() - newDate.getFullYear()
+            const monthsDiff = today.getMonth() - newDate.getMonth()
+
+            if (monthsDiff &lt; 0 || (monthsDiff === 0 &amp;&amp; today.getDate() &lt; newDate.getDate()) ) {
+                age --
+            }
+            
+            if(age &lt; 18){
+                response = `No eres mayor de edad.`
+            }
+        }
+
+    }else{
+        response = `${date} no es una fecha válida.`
+    }
+
+    return response
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AdmittedRoles">AdmittedRoles</a></li><li><a href="global.html#AllApointments">AllApointments</a></li><li><a href="global.html#AllDoctors">AllDoctors</a></li><li><a href="global.html#AllMedicalHistory">AllMedicalHistory</a></li><li><a href="global.html#AllSchedules">AllSchedules</a></li><li><a href="global.html#AllUsers">AllUsers</a></li><li><a href="global.html#AllWorkers">AllWorkers</a></li><li><a href="global.html#AppointmentById">AppointmentById</a></li><li><a href="global.html#AppointmentModel">AppointmentModel</a></li><li><a href="global.html#AppointmentsByDoctor">AppointmentsByDoctor</a></li><li><a href="global.html#AppointmentsByPatient">AppointmentsByPatient</a></li><li><a href="global.html#AuthorizationToken">AuthorizationToken</a></li><li><a href="global.html#ByPatientAndDoctor">ByPatientAndDoctor</a></li><li><a href="global.html#DeactivateAppointment">DeactivateAppointment</a></li><li><a href="global.html#DeactivateSchedule">DeactivateSchedule</a></li><li><a href="global.html#DeleteFormula">DeleteFormula</a></li><li><a href="global.html#DeleteItem">DeleteItem</a></li><li><a href="global.html#DeleteUser">DeleteUser</a></li><li><a href="global.html#DeleteWorker">DeleteWorker</a></li><li><a href="global.html#FormulaById">FormulaById</a></li><li><a href="global.html#GenToken">GenToken</a></li><li><a href="global.html#GetDoctorsWithMostAppointments">GetDoctorsWithMostAppointments</a></li><li><a href="global.html#GetItemById">GetItemById</a></li><li><a href="global.html#GetItems">GetItems</a></li><li><a href="global.html#GetItemsAndStock">GetItemsAndStock</a></li><li><a href="global.html#GetMonthlyPatients">GetMonthlyPatients</a></li><li><a href="global.html#HasCorrectStock">HasCorrectStock</a></li><li><a href="global.html#InsertAppointment">InsertAppointment</a></li><li><a href="global.html#InsertFormula">InsertFormula</a></li><li><a href="global.html#InsertItem">InsertItem</a></li><li><a href="global.html#InsertMedicalHistory">InsertMedicalHistory</a></li><li><a href="global.html#InsertSchedule">InsertSchedule</a></li><li><a href="global.html#InsertUser">InsertUser</a></li><li><a href="global.html#InsertWorker">InsertWorker</a></li><li><a href="global.html#IsDateValid">IsDateValid</a></li><li><a href="global.html#IsHourValid">IsHourValid</a></li><li><a href="global.html#IsLoggedIn">IsLoggedIn</a></li><li><a href="global.html#ItemsMethods">ItemsMethods</a></li><li><a href="global.html#LogIn">LogIn</a></li><li><a href="global.html#LogOut">LogOut</a></li><li><a href="global.html#MedicalHistoryById">MedicalHistoryById</a></li><li><a href="global.html#MedicalHistoryByPatient">MedicalHistoryByPatient</a></li><li><a href="global.html#MedicalMethods">MedicalMethods</a></li><li><a href="global.html#MongoDbConnection">MongoDbConnection</a></li><li><a href="global.html#RecoverPassword">RecoverPassword</a></li><li><a href="global.html#ScheduleByWorker">ScheduleByWorker</a></li><li><a href="global.html#ScheduleMethods">ScheduleMethods</a></li><li><a href="global.html#SendEmail">SendEmail</a></li><li><a href="global.html#SessionData">SessionData</a></li><li><a href="global.html#SessionMethods">SessionMethods</a></li><li><a href="global.html#UpdateAppointment">UpdateAppointment</a></li><li><a href="global.html#UpdateItem">UpdateItem</a></li><li><a href="global.html#UpdateSchedule">UpdateSchedule</a></li><li><a href="global.html#UpdateUser">UpdateUser</a></li><li><a href="global.html#UpdateWorker">UpdateWorker</a></li><li><a href="global.html#UserById">UserById</a></li><li><a href="global.html#UserMethods">UserMethods</a></li><li><a href="global.html#ValidateToken">ValidateToken</a></li><li><a href="global.html#WorkerById">WorkerById</a></li><li><a href="global.html#formulas">formulas</a></li><li><a href="global.html#lastMonthTotal">lastMonthTotal</a></li><li><a href="global.html#transporter">transporter</a></li><li><a href="global.html#validateAppointment">validateAppointment</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 08:45:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

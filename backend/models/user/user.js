@@ -1,6 +1,6 @@
 import {Schema, model } from "mongoose";
 
-export const UserSchema = Schema(
+const UserSchema = Schema(
     {
         user_document:{
             type:Number,

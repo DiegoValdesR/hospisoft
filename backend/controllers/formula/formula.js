@@ -6,6 +6,17 @@ import { ItemsModel } from "../../models/item/item.js"
 import { Validations } from "../../validations/index.js"
 import mongoose from "mongoose"
 
+/**
+ * Todos los métodos usados para las formulas.
+ * 
+ */
+
+/**
+ * Consigue todas las formulas que estén activas.
+ * 
+ * @var {array} formulas - Consulta que reune todas las formulas con el estado "active".
+ * @returns {json} - Json con un estado, un mensaje de error (si aplica) y un array de objetos con la información solicitada.
+ */
 const AllFormulas = async(req,res)=>{
     try {
         const formulas = await FormulaModel.find({"formula_state":"active"})
@@ -22,6 +33,12 @@ const AllFormulas = async(req,res)=>{
     }
 }
 
+/**
+ * Consigue una formula específica.
+ * 
+ * @property {string} id - Id de la fórmula.
+ * @returns {json} - Json con un estado, un mensaje de error (si aplica) y un objeto con la información solicitada.
+ */
 const FormulaById = async(req,res)=>{
     const {id} = req.params
     
@@ -51,6 +68,12 @@ const FormulaById = async(req,res)=>{
     }
 }
 
+/**
+ * Inserta una fórmula.
+ * 
+ * @property {object} data - Objeto recibido por el body de la request con toda la información necesaria.
+ * @returns {json} - Json con un estado y un mensaje de error o de confirmación.
+ */
 const InsertFormula = async(req,res)=>{
     const data = {
         patient_id : req.body.patient_id,
@@ -120,6 +143,12 @@ const InsertFormula = async(req,res)=>{
     }
 }
 
+/**
+ * Desactuva una formula.
+ * 
+ * @property {object} id - Id de la fórmula.
+ * @returns {json} - Json con un estado y un mensaje de error o de confirmación.
+ */
 const DeleteFormula = async(req,res)=>{
     const {id} = req.params
     try {

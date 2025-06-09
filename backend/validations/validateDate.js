@@ -1,3 +1,15 @@
+/**
+ * Valida una fecha en formato 'YYYY-MM-DD' según el tipo de fecha especificado,
+ * verificando formato, rango válido y condiciones específicas para cada tipo.
+ *
+ * @param {string} date - Fecha en formato 'YYYY-MM-DD' a validar.
+ * @param {string} typeOfDate - Tipo de fecha para validar reglas específicas. Puede ser:
+ *                              - "birthdate": fecha de nacimiento (debe tener entre 18 y 90 años).
+ *                              - "appointment": fecha de cita (debe estar entre el año actual y el siguiente).
+ *                              - "schedule": fecha para horario (entre año actual y 5 años en el futuro).
+ *
+ * @returns {string} - Mensaje vacío si la fecha es válida, o mensaje de error indicando el motivo.
+ */
 export const IsDateValid = (date,typeOfDate)=>{
     let response = ""
     

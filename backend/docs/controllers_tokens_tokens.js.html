@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/tokens/tokens.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/tokens/tokens.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { UsersModel } from "../../models/user/user.js"
+import { WorkerModel } from "../../models/workers/workers.js"
+import { TokensModel } from "../../models/tokens/tokens.js"
+import {config} from 'dotenv'
+config()
+
+/**
+ * Genera un token para verificación y lo envía por email al usuario o trabajador
+ * registrado con el correo proporcionado, si está activo.
+ *
+ * @param {Request} req - Objeto de solicitud con `email` en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Estado con email al que se envió el token o error.
+ */
+const GenToken = async(req,res)=>{
+    const {email} = req.body
+
+    try {
+        const [user,worker] = await Promise.all([
+            UsersModel.findOne({"user_email":email,"user_state":"active"},'user_email'),
+            WorkerModel.findOne({"worker_email":email,"worker_state":"active"},'worker_email')
+        ])
+
+        if (!user &amp;&amp; !worker) {
+            return res.status(404).send({
+                status:"error",
+                message:"El correo ingresado es incorrecto."
+            })
+        }
+        
+        const token = Math.round(10000 + Math.random() * 900000)
+        
+        const data = {
+            token:token,
+            user_id: user ? user["_id"] : worker["_id"]
+        }
+        const insert = new TokensModel(data)
+        await insert.save()
+
+        await fetch(process.env.API_URL + '/api/sendemail',{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                to:user ? user.user_email : worker.worker_email,
+                subject:"Verificar identidad",
+                html:`&lt;!DOCTYPE html>
+                        &lt;html lang="es">
+                        &lt;head>
+                        &lt;meta charset="UTF-8" />
+                        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                        &lt;title>Recuperación de Contraseña&lt;/title>
+                        &lt;style>
+                            body {
+                            font-family: Arial, sans-serif;
+                            background-color: #f4f4f7;
+                            padding: 20px;
+                            color: #333;
+                            }
+
+                            .container {
+                            max-width: 500px;
+                            margin: auto;
+                            background-color: #ffffff;
+                            padding: 30px;
+                            border-radius: 10px;
+                            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+                            }
+
+                            h2 {
+                            color: #2e7dff;
+                            }
+
+                            .code-box {
+                            font-size: 32px;
+                            font-weight: bold;
+                            background-color: #f0f4ff;
+                            color: #2e7dff;
+                            padding: 15px;
+                            text-align: center;
+                            border-radius: 8px;
+                            letter-spacing: 8px;
+                            margin: 20px 0;
+                            }
+                        &lt;/style>
+                        &lt;/head>
+                        &lt;body>
+                        &lt;div class="container">
+                            &lt;h2>Recuperación de contraseña&lt;/h2>
+                            &lt;p>Hola,&lt;/p>
+                            &lt;p>Recibimos una solicitud para restablecer tu contraseña. Usa el siguiente código para continuar con el proceso:&lt;/p>
+
+                            &lt;div class="code-box">${token}&lt;/div>
+
+                            &lt;p>Este código es válido por 3 minutos, NO COMPARTAS ESTE CÓDIGO CON NADIE.&lt;/p>
+                            &lt;p>Si tú no solicitaste este cambio, puedes ignorar este mensaje.&lt;/p>
+
+                        &lt;/div>
+                        &lt;/body>
+                &lt;/html>`
+            })
+        })
+        
+        return res.status(201).send({
+            status:"completed",
+            data:{
+                email:user ? user["user_email"] : worker["worker_email"]
+            }
+        })
+
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde"
+        })
+    }
+}
+
+/**
+ * Valida el token enviado por el usuario para verificar identidad.
+ *
+ * @param {Request} req - Objeto de solicitud con `token` en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Estado con mensaje de éxito o error.
+ */
+const ValidateToken = async(req,res)=>{
+    const {token} = req.body
+    try {
+        const findOne = await TokensModel.findOneAndUpdate({"token":token,"used":false},{"used":true})
+        if (!findOne) {
+            return res.status(404).send({
+                status:"error",
+                message:"El código ingresado es incorrecto."
+            })
+        }
+        
+        return res.status(200).send({
+            status:"completed",
+            message:"Código verificado correctamente!"
+        })
+
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde"
+        })
+    }
+}
+
+export const TokensMethods = {
+    GenToken,
+    ValidateToken
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AdmittedRoles">AdmittedRoles</a></li><li><a href="global.html#AllApointments">AllApointments</a></li><li><a href="global.html#AllDoctors">AllDoctors</a></li><li><a href="global.html#AllMedicalHistory">AllMedicalHistory</a></li><li><a href="global.html#AllSchedules">AllSchedules</a></li><li><a href="global.html#AllUsers">AllUsers</a></li><li><a href="global.html#AllWorkers">AllWorkers</a></li><li><a href="global.html#AppointmentById">AppointmentById</a></li><li><a href="global.html#AppointmentModel">AppointmentModel</a></li><li><a href="global.html#AppointmentsByDoctor">AppointmentsByDoctor</a></li><li><a href="global.html#AppointmentsByPatient">AppointmentsByPatient</a></li><li><a href="global.html#AuthorizationToken">AuthorizationToken</a></li><li><a href="global.html#ByPatientAndDoctor">ByPatientAndDoctor</a></li><li><a href="global.html#DeactivateAppointment">DeactivateAppointment</a></li><li><a href="global.html#DeactivateSchedule">DeactivateSchedule</a></li><li><a href="global.html#DeleteFormula">DeleteFormula</a></li><li><a href="global.html#DeleteItem">DeleteItem</a></li><li><a href="global.html#DeleteUser">DeleteUser</a></li><li><a href="global.html#DeleteWorker">DeleteWorker</a></li><li><a href="global.html#FormulaById">FormulaById</a></li><li><a href="global.html#GenToken">GenToken</a></li><li><a href="global.html#GetDoctorsWithMostAppointments">GetDoctorsWithMostAppointments</a></li><li><a href="global.html#GetItemById">GetItemById</a></li><li><a href="global.html#GetItems">GetItems</a></li><li><a href="global.html#GetItemsAndStock">GetItemsAndStock</a></li><li><a href="global.html#GetMonthlyPatients">GetMonthlyPatients</a></li><li><a href="global.html#HasCorrectStock">HasCorrectStock</a></li><li><a href="global.html#InsertAppointment">InsertAppointment</a></li><li><a href="global.html#InsertFormula">InsertFormula</a></li><li><a href="global.html#InsertItem">InsertItem</a></li><li><a href="global.html#InsertMedicalHistory">InsertMedicalHistory</a></li><li><a href="global.html#InsertSchedule">InsertSchedule</a></li><li><a href="global.html#InsertUser">InsertUser</a></li><li><a href="global.html#InsertWorker">InsertWorker</a></li><li><a href="global.html#IsDateValid">IsDateValid</a></li><li><a href="global.html#IsHourValid">IsHourValid</a></li><li><a href="global.html#IsLoggedIn">IsLoggedIn</a></li><li><a href="global.html#ItemsMethods">ItemsMethods</a></li><li><a href="global.html#LogIn">LogIn</a></li><li><a href="global.html#LogOut">LogOut</a></li><li><a href="global.html#MedicalHistoryById">MedicalHistoryById</a></li><li><a href="global.html#MedicalHistoryByPatient">MedicalHistoryByPatient</a></li><li><a href="global.html#MedicalMethods">MedicalMethods</a></li><li><a href="global.html#MongoDbConnection">MongoDbConnection</a></li><li><a href="global.html#RecoverPassword">RecoverPassword</a></li><li><a href="global.html#ScheduleByWorker">ScheduleByWorker</a></li><li><a href="global.html#ScheduleMethods">ScheduleMethods</a></li><li><a href="global.html#SendEmail">SendEmail</a></li><li><a href="global.html#SessionData">SessionData</a></li><li><a href="global.html#SessionMethods">SessionMethods</a></li><li><a href="global.html#UpdateAppointment">UpdateAppointment</a></li><li><a href="global.html#UpdateItem">UpdateItem</a></li><li><a href="global.html#UpdateSchedule">UpdateSchedule</a></li><li><a href="global.html#UpdateUser">UpdateUser</a></li><li><a href="global.html#UpdateWorker">UpdateWorker</a></li><li><a href="global.html#UserById">UserById</a></li><li><a href="global.html#UserMethods">UserMethods</a></li><li><a href="global.html#ValidateToken">ValidateToken</a></li><li><a href="global.html#WorkerById">WorkerById</a></li><li><a href="global.html#formulas">formulas</a></li><li><a href="global.html#lastMonthTotal">lastMonthTotal</a></li><li><a href="global.html#transporter">transporter</a></li><li><a href="global.html#validateAppointment">validateAppointment</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 08:45:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

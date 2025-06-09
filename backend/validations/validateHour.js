@@ -1,3 +1,14 @@
+/**
+ * Valida una o más horas en formato 'HH:MM' según el tipo especificado,
+ * verificando formato, rango permitido y consistencia entre horas (inicio y fin).
+ *
+ * @param {array} hours - Arreglo de cadenas con horas en formato 'HH:MM' a validar.
+ * @param {string} [typeOfHour="no aplica"] - Tipo de hora para validar reglas específicas. Puede ser:
+ *                                            - "appointment": valida horas entre 6 a.m. y 6 p.m.
+ *                                            - cualquier otro valor: valida horas entre 0 y 23.
+ *
+ * @returns {string} - Mensaje vacío si las horas son válidas, o mensaje de error indicando el motivo.
+ */
 export const IsHourValid = (hours = [],typeOfHour = "no aplica")=>{
     let response = ""
 

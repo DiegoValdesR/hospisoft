@@ -4,6 +4,9 @@ config()
 
 const {MAILER_EMAIL,MAILER_PASSWORD} = process.env
 
+/**
+ * Configuración del transporte de correo usando Gmail y Nodemailer.
+ */
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
@@ -15,6 +18,13 @@ const transporter = nodemailer.createTransport({
     }
 })
 
+/**
+ * Envía un correo electrónico usando Nodemailer.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con los datos del correo en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un mensaje de éxito o error.
+ */
 export const SendEmail = async(req,res)=>{
 
     const mailOptions = {

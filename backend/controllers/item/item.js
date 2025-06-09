@@ -1,6 +1,13 @@
 import { ItemsModel } from "../../models/item/item.js";
 import mongoose from "mongoose";
 
+/**
+ * Obtiene todos los ítems almacenados en la base de datos.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un array de ítems.
+ */
 const GetItems = async(req,res) =>{
     try {
         const findItems = await ItemsModel.find();
@@ -16,6 +23,13 @@ const GetItems = async(req,res) =>{
     }
 }
 
+/**
+ * Obtiene un ítem específico mediante su ID.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el parámetro `id`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y los datos del ítem si existe.
+ */
 const GetItemById = async(req,res)=>{
     const {id} = req.params
 
@@ -44,6 +58,13 @@ const GetItemById = async(req,res)=>{
     }
 }
 
+/**
+ * Inserta un nuevo ítem en la base de datos.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con los datos del ítem en `body`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un mensaje de éxito o error.
+ */
 const InsertItem = async(req,res)=>{
 
     const data = {
@@ -73,6 +94,13 @@ const InsertItem = async(req,res)=>{
     }
 }
 
+/**
+ * Actualiza un ítem existente mediante su ID.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el `id` en los parámetros y los nuevos datos en `body`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un mensaje correspondiente.
+ */
 const UpdateItem = async(req,res)=>{
     const {id} = req.params
     const data = {
@@ -108,6 +136,13 @@ const UpdateItem = async(req,res)=>{
 
 }
 
+/**
+ * Elimina un ítem existente mediante su ID.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el `id` en los parámetros.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un mensaje de éxito o error.
+ */
 const DeleteItem = async(req,res)=>{
     const {id} = req.params
 
@@ -136,6 +171,9 @@ const DeleteItem = async(req,res)=>{
     }
 }
 
+/**
+ * Objeto que exporta todos los métodos relacionados con los ítems.
+ */
 export const ItemsMethods = {
     GetItems,
     GetItemById,

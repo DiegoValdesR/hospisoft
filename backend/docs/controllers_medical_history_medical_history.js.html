@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/medical_history/medical_history.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/medical_history/medical_history.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { MedicalModel } from "../../models/medicalHistory/medicalHistory.js"
+import { AppointmentModel } from "../../models/appointments/appointments.js"
+import { UsersModel } from "../../models/user/user.js"
+import { WorkerModel } from "../../models/workers/workers.js"
+import { Types } from "mongoose"
+
+/**
+ * Obtiene todos los historiales médicos con estado "active".
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un array de historiales médicos.
+ */
+const AllMedicalHistory = async(req,res)=>{
+    try {
+        const findAll = await MedicalModel.find({"state":"active"})
+
+        return res.status(200).send({
+            status:"completed",
+            data:findAll
+        })
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
+/**
+ * Obtiene un historial médico por su ID, siempre que esté activo.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el parámetro `id`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y los datos del historial médico.
+ */
+const MedicalHistoryById = async(req,res)=>{
+    const {id} = req.params
+    try {
+        const findOne = await MedicalModel.findOne({"_id":Types.ObjectId.createFromHexString(id),"state":"active"})
+        return res.status(200).send({
+            status:"completed",
+            data:findOne
+        })
+
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
+/**
+ * Obtiene todos los historiales médicos de un paciente específico.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el parámetro `patient_id`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un array de historiales médicos del paciente.
+ */
+const MedicalHistoryByPatient = async(req,res)=>{
+    const {patient_id} = req.params
+    try {
+        const findAll = await MedicalModel.find({"patient_id":Types.ObjectId.createFromHexString(patient_id),"state":"active"})
+        return res.status(200).send({
+            status:"completed",
+            data:findAll
+        })
+
+    } catch (error) {
+        return res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
+/**
+ * Inserta un nuevo historial médico después de validar al paciente, al médico y actualizar la cita.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con los datos del historial en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un mensaje de confirmación o error.
+ */
+const InsertMedicalHistory = async(req,res)=>{
+    const data = {
+        patient_id:req.body.patient_id,
+        doctor_id:req.body.doctor_id,
+        reason:req.body.reason,
+        diagnosis:req.body.diagnosis,
+        appointment_id:req.body.appointment_id,
+        treatment:req.body.treatment
+    }
+
+    try {
+        data.patient_id = Types.ObjectId.createFromHexString(data.patient_id)
+        data.doctor_id = Types.ObjectId.createFromHexString(data.doctor_id)
+        
+        const findPatient  = await UsersModel.findOne({
+            "_id":data.patient_id,
+            "user_state":"active"
+        })
+
+        if (!findPatient) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el paciente."
+            })
+        }
+
+        const findDoctor  = await WorkerModel.findOne({
+            "_id":data.doctor_id,
+            "worker_role":"medico",
+            "worker_state":"active"
+        })
+
+        if (!findDoctor) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el médico encargado."
+            })
+        }
+
+        const findAppointment = await AppointmentModel.findOneAndUpdate({"_id":data.appointment_id,"appointment_state":"active"},{"appointment_state":"completed"})
+        if (!findAppointment) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró la cita seleccionada."
+            })
+        }
+
+        const insert = new MedicalModel(data)
+        await insert.save()
+        
+        return res.status(201).send({
+            status:"completed",
+            message:"Historial médico insertado!"
+        })
+
+    } catch (error) {
+        return res.status(400).send({
+            status:"error",
+            message:error.ToString()
+        })
+    }
+}
+
+/**
+ * Objeto que agrupa todos los métodos relacionados con el historial médico.
+ */
+export const MedicalMethods = {
+    AllMedicalHistory,
+    MedicalHistoryById,
+    InsertMedicalHistory,
+    MedicalHistoryByPatient
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AdmittedRoles">AdmittedRoles</a></li><li><a href="global.html#AllApointments">AllApointments</a></li><li><a href="global.html#AllDoctors">AllDoctors</a></li><li><a href="global.html#AllMedicalHistory">AllMedicalHistory</a></li><li><a href="global.html#AllSchedules">AllSchedules</a></li><li><a href="global.html#AllUsers">AllUsers</a></li><li><a href="global.html#AllWorkers">AllWorkers</a></li><li><a href="global.html#AppointmentById">AppointmentById</a></li><li><a href="global.html#AppointmentModel">AppointmentModel</a></li><li><a href="global.html#AppointmentsByDoctor">AppointmentsByDoctor</a></li><li><a href="global.html#AppointmentsByPatient">AppointmentsByPatient</a></li><li><a href="global.html#AuthorizationToken">AuthorizationToken</a></li><li><a href="global.html#ByPatientAndDoctor">ByPatientAndDoctor</a></li><li><a href="global.html#DeactivateAppointment">DeactivateAppointment</a></li><li><a href="global.html#DeactivateSchedule">DeactivateSchedule</a></li><li><a href="global.html#DeleteFormula">DeleteFormula</a></li><li><a href="global.html#DeleteItem">DeleteItem</a></li><li><a href="global.html#DeleteUser">DeleteUser</a></li><li><a href="global.html#DeleteWorker">DeleteWorker</a></li><li><a href="global.html#FormulaById">FormulaById</a></li><li><a href="global.html#GenToken">GenToken</a></li><li><a href="global.html#GetDoctorsWithMostAppointments">GetDoctorsWithMostAppointments</a></li><li><a href="global.html#GetItemById">GetItemById</a></li><li><a href="global.html#GetItems">GetItems</a></li><li><a href="global.html#GetItemsAndStock">GetItemsAndStock</a></li><li><a href="global.html#GetMonthlyPatients">GetMonthlyPatients</a></li><li><a href="global.html#HasCorrectStock">HasCorrectStock</a></li><li><a href="global.html#InsertAppointment">InsertAppointment</a></li><li><a href="global.html#InsertFormula">InsertFormula</a></li><li><a href="global.html#InsertItem">InsertItem</a></li><li><a href="global.html#InsertMedicalHistory">InsertMedicalHistory</a></li><li><a href="global.html#InsertSchedule">InsertSchedule</a></li><li><a href="global.html#InsertUser">InsertUser</a></li><li><a href="global.html#InsertWorker">InsertWorker</a></li><li><a href="global.html#IsDateValid">IsDateValid</a></li><li><a href="global.html#IsHourValid">IsHourValid</a></li><li><a href="global.html#IsLoggedIn">IsLoggedIn</a></li><li><a href="global.html#ItemsMethods">ItemsMethods</a></li><li><a href="global.html#LogIn">LogIn</a></li><li><a href="global.html#LogOut">LogOut</a></li><li><a href="global.html#MedicalHistoryById">MedicalHistoryById</a></li><li><a href="global.html#MedicalHistoryByPatient">MedicalHistoryByPatient</a></li><li><a href="global.html#MedicalMethods">MedicalMethods</a></li><li><a href="global.html#MongoDbConnection">MongoDbConnection</a></li><li><a href="global.html#RecoverPassword">RecoverPassword</a></li><li><a href="global.html#ScheduleByWorker">ScheduleByWorker</a></li><li><a href="global.html#ScheduleMethods">ScheduleMethods</a></li><li><a href="global.html#SendEmail">SendEmail</a></li><li><a href="global.html#SessionData">SessionData</a></li><li><a href="global.html#SessionMethods">SessionMethods</a></li><li><a href="global.html#UpdateAppointment">UpdateAppointment</a></li><li><a href="global.html#UpdateItem">UpdateItem</a></li><li><a href="global.html#UpdateSchedule">UpdateSchedule</a></li><li><a href="global.html#UpdateUser">UpdateUser</a></li><li><a href="global.html#UpdateWorker">UpdateWorker</a></li><li><a href="global.html#UserById">UserById</a></li><li><a href="global.html#UserMethods">UserMethods</a></li><li><a href="global.html#ValidateToken">ValidateToken</a></li><li><a href="global.html#WorkerById">WorkerById</a></li><li><a href="global.html#formulas">formulas</a></li><li><a href="global.html#lastMonthTotal">lastMonthTotal</a></li><li><a href="global.html#transporter">transporter</a></li><li><a href="global.html#validateAppointment">validateAppointment</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 08:45:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

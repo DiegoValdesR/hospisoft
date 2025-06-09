@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/workers/workers.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/workers/workers.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { WorkerModel } from "../../models/workers/workers.js"
+import { Validations } from "../../validations/index.js"
+import { AdmittedRoles } from "../../middleware/roles.js"
+import mongoose from "mongoose"
+import bcrypt from "bcryptjs"
+
+/**
+ * Obtiene todos los trabajadores activos que no sean administradores.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Lista de trabajadores con nombre y apellido.
+ */
+const AllWorkers = async(req,res)=>{
+    try {
+        const workers = await WorkerModel.find({"worker_state":"active","worker_role":{"$ne":"admin"}},"worker_name worker_last_name")
+        return res.status(200).send({
+            status:"completed",
+            data:workers
+        })
+
+    } catch (error) {
+        res.status(500).send({
+            status:"error",
+            message:"Error interno del servidor, por favor intentelo más tarde."
+        })
+    }
+}
+
+/**
+ * Obtiene todos los trabajadores activos cuyo rol sea "medico".
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Lista de médicos con nombre y apellido o error si no encuentra.
+ */
+const AllDoctors = async(req,res)=>{
+    try {
+        const findOne = await WorkerModel.find({
+            "worker_state":"active",
+            "worker_role":"medico"
+        },"worker_name worker_last_name")
+
+        if (!findOne) {
+            return res.status(404).send({
+                status:"error",
+                message: "No se encontró el empleado."
+            })
+        }
+    
+        return res.status(200).send({
+            status:"completed",
+            data: findOne
+        })
+    
+    } catch (error) {
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
+        })
+    }
+}
+
+/**
+ * Obtiene un trabajador por su ID, mostrando datos relevantes.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con parámetro `id` en URL.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Datos del trabajador o error si no se encuentra.
+ */
+const WorkerById = async(req,res)=>{
+    const {id} = req.params
+    
+    try {
+        const findOne = await WorkerModel.findOne({
+            "_id":mongoose.Types.ObjectId.createFromHexString(id)
+        },"worker_document worker_name worker_last_name worker_email worker_role worker_speciality worker_birthdate worker_phone_number")
+
+        if (!findOne) {
+            return res.status(404).send({
+                status:"error",
+                message: "No se encontró el empleado."
+            })
+        }
+    
+        return res.status(200).send({
+            status:"completed",
+            data: findOne
+        })
+    
+    } catch (error) {
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
+        })
+    }
+}
+
+/**
+ * Inserta un nuevo trabajador, validando rol, email y fecha, y enviando correo de bienvenida.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con datos del trabajador en `req.body`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Mensaje de éxito o error en validación, permiso o inserción.
+ */
+const InsertWorker = async(req,res) =>{
+
+    const errorRole = AdmittedRoles(req,["admin"])
+    if (!errorRole.status) {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole.message
+        })
+    }
+
+    const data = {
+        worker_document:req.body.worker_document,
+        worker_name:req.body.worker_name,
+        worker_last_name:req.body.worker_last_name,
+        worker_birthdate:req.body.worker_birthdate,
+        worker_email:req.body.worker_email,
+        worker_password:req.body.worker_password,
+        worker_phone_number:req.body.worker_phone_number,
+        worker_role:req.body.worker_role,
+        worker_speciality:req.body.worker_speciality
+    }
+
+    const errorDate = Validations.IsDateValid(data.worker_birthdate,"birthdate")
+    if (errorDate.length !== 0) {
+        return res.status(400).send({
+            status:"error",
+            message:errorDate
+        })
+    }
+
+    try {
+        const emailExist = await WorkerModel.findOne({
+            "worker_email": data.worker_email
+        })
+        
+        if (emailExist) {
+            return res.status(409).send({
+                status:"error",
+                message: "El correo ingresado ya ha sido registrado por otro empleado."
+            })
+        }
+
+        //si no ingresa nada o es null que coloque el default
+        if (!data.worker_speciality || data.worker_speciality.length === 0) data.worker_speciality = "No aplica"
+        //encriptamos la contraseña
+        data.worker_password = bcrypt.hashSync(data.worker_password)
+        const insert = new WorkerModel(data)
+        await insert.save()
+        
+        await fetch(process.env.API_URL + '/api/sendemail',{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                to: data.user_email,
+                subject: "¡Gracias por registrarte!",
+                text: "Gracias por registrarte en nuestra plataforma.",
+                html: `&lt;!DOCTYPE html>&lt;html lang=\"es\">&lt;head>&lt;meta charset=\"UTF-8\" />&lt;meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />&lt;title>¡Gracias por registrarte!&lt;/title>&lt;style>body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:#f0f2f5;padding:40px 20px;margin:0}.container{background-color:#ffffff;border-radius:12px;max-width:600px;margin:auto;padding:40px 30px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}.header{text-align:center;color:#222;font-size:28px;margin-bottom:20px}p{color:#555;font-size:16px;line-height:1.6}.button{display:inline-block;margin-top:30px;padding:14px 28px;background:linear-gradient(90deg,#007bff,#0056b3);color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;transition:background 0.3s ease}.button:hover{background:linear-gradient(90deg,#0056b3,#003f7f)}.footer{margin-top:40px;font-size:12px;color:#999999;text-align:center}@media(max-width:600px){.container{padding:30px 20px}.header{font-size:24px}.button{padding:12px 24px;font-size:14px}}&lt;/style>&lt;/head>&lt;body>&lt;div class=\"container\">&lt;h2 class=\"header\">¡Gracias por registrarte!&lt;/h2>&lt;p>Hola,&lt;/p>&lt;p>Te damos la más cordial bienvenida a nuestra plataforma. Nos alegra tenerte aquí y esperamos que disfrutes de todos los beneficios que tenemos preparados para ti.&lt;/p>&lt;p>Si tienes alguna duda o necesitas asistencia, nuestro equipo de soporte está siempre listo para ayudarte.&lt;/p>&lt;p style=\"text-align: center;\">&lt;a href=\"https://www.tupagina.com\" class=\"button\">Explora ahora&lt;/a>&lt;/p>&lt;div class=\"footer\">© 2025 Hospisoft. Todos los derechos reservados.&lt;/div>&lt;/div>&lt;/body>&lt;/html>`
+            })
+        })
+        
+        return res.status(201).send({
+            status:"completed",
+            message:"Empleado insertado!"
+        })
+
+    } catch (error) {
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
+        })
+    }
+
+}
+
+/**
+ * Actualiza datos de un trabajador existente por su ID,
+ * validando roles permitidos y que el correo no esté duplicado.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con parámetro `id` en URL y datos en `req.body`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Mensaje de éxito o error en validación, permiso o actualización.
+ */
+const UpdateWorker = async(req,res)=>{
+    const errorRole = AdmittedRoles(req,["admin","secretaria","medico","farmaceutico"])
+    if (!errorRole.status) {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole.message
+        })
+    }
+
+    const {id} = req.params
+    const data = {
+        worker_name:req.body.worker_name,
+        worker_last_name:req.body.worker_last_name,
+        worker_email:req.body.worker_email,
+        worker_phone_number:req.body.worker_phone_number,
+        worker_role:req.body.worker_role,
+        worker_speciality:req.body.worker_speciality
+    }
+
+    try {
+        //si encuentra un registro que tenga el mismo email que el del body del request y no es el mismo id que el
+        //del usuario retorna un objeto, sino null
+        const findEmail = await WorkerModel.findOne({
+            "_id":{"$ne":mongoose.Types.ObjectId.createFromHexString(id)},
+            "worker_email":data.worker_email
+        })
+
+       if (findEmail) {
+            return res.status(409).send({
+                status:"error",
+                message:"Ese correo ya ha sido registrado por otro empleado."
+            })
+       }
+
+       if (!data.worker_speciality || data.worker_speciality.length === 0) data.worker_speciality = "No aplica"
+
+        await WorkerModel.findOneAndUpdate({
+            "_id":mongoose.Types.ObjectId.createFromHexString(id)
+        },data)
+        
+        return res.status(200).send({
+            status:"completed",
+            message:"Empleado actualizado correctamente!",
+        })
+        
+    } catch (error) {
+
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
+        })
+    }
+
+}
+
+/**
+ * Cambia el estado de un trabajador a "inactive" (borrado lógico),
+ * validando que el usuario tenga rol de admin.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con parámetro `id` en URL.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} Mensaje de éxito o error en permiso o eliminación.
+ */
+const DeleteWorker = async(req,res)=>{
+    const errorRole = AdmittedRoles(req,["admin"])
+    if (!errorRole.status) {
+        return res.status(401).send({
+            status:"error",
+            message:errorRole.message
+        })
+    }
+
+    const {id} = req.params
+
+    try {
+        const deleteOne = await WorkerModel.findOneAndUpdate({
+            "_id":mongoose.Types.ObjectId.createFromHexString(id)
+            },
+            {"worker_state":"inactive"}
+        )
+
+        if (!deleteOne) {
+            return res.status(404).send({
+                status:"error",
+                message:"No se encontró el empleado."
+            })
+        }
+        
+        return res.status(200).send({
+            status:"completed",
+            message:"Empleado eliminado correctamente!"
+        })
+
+    } catch (error) {
+        return res.status(400).send({
+            status:"error",
+            message:error.toString()
+        })
+    }
+}
+
+export const WorkersMethods = {
+    AllWorkers,
+    AllDoctors,
+    WorkerById,
+    InsertWorker,
+    UpdateWorker,
+    DeleteWorker
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AdmittedRoles">AdmittedRoles</a></li><li><a href="global.html#AllApointments">AllApointments</a></li><li><a href="global.html#AllDoctors">AllDoctors</a></li><li><a href="global.html#AllMedicalHistory">AllMedicalHistory</a></li><li><a href="global.html#AllSchedules">AllSchedules</a></li><li><a href="global.html#AllUsers">AllUsers</a></li><li><a href="global.html#AllWorkers">AllWorkers</a></li><li><a href="global.html#AppointmentById">AppointmentById</a></li><li><a href="global.html#AppointmentModel">AppointmentModel</a></li><li><a href="global.html#AppointmentsByDoctor">AppointmentsByDoctor</a></li><li><a href="global.html#AppointmentsByPatient">AppointmentsByPatient</a></li><li><a href="global.html#AuthorizationToken">AuthorizationToken</a></li><li><a href="global.html#ByPatientAndDoctor">ByPatientAndDoctor</a></li><li><a href="global.html#DeactivateAppointment">DeactivateAppointment</a></li><li><a href="global.html#DeactivateSchedule">DeactivateSchedule</a></li><li><a href="global.html#DeleteFormula">DeleteFormula</a></li><li><a href="global.html#DeleteItem">DeleteItem</a></li><li><a href="global.html#DeleteUser">DeleteUser</a></li><li><a href="global.html#DeleteWorker">DeleteWorker</a></li><li><a href="global.html#FormulaById">FormulaById</a></li><li><a href="global.html#GenToken">GenToken</a></li><li><a href="global.html#GetDoctorsWithMostAppointments">GetDoctorsWithMostAppointments</a></li><li><a href="global.html#GetItemById">GetItemById</a></li><li><a href="global.html#GetItems">GetItems</a></li><li><a href="global.html#GetItemsAndStock">GetItemsAndStock</a></li><li><a href="global.html#GetMonthlyPatients">GetMonthlyPatients</a></li><li><a href="global.html#HasCorrectStock">HasCorrectStock</a></li><li><a href="global.html#InsertAppointment">InsertAppointment</a></li><li><a href="global.html#InsertFormula">InsertFormula</a></li><li><a href="global.html#InsertItem">InsertItem</a></li><li><a href="global.html#InsertMedicalHistory">InsertMedicalHistory</a></li><li><a href="global.html#InsertSchedule">InsertSchedule</a></li><li><a href="global.html#InsertUser">InsertUser</a></li><li><a href="global.html#InsertWorker">InsertWorker</a></li><li><a href="global.html#IsDateValid">IsDateValid</a></li><li><a href="global.html#IsHourValid">IsHourValid</a></li><li><a href="global.html#IsLoggedIn">IsLoggedIn</a></li><li><a href="global.html#ItemsMethods">ItemsMethods</a></li><li><a href="global.html#LogIn">LogIn</a></li><li><a href="global.html#LogOut">LogOut</a></li><li><a href="global.html#MedicalHistoryById">MedicalHistoryById</a></li><li><a href="global.html#MedicalHistoryByPatient">MedicalHistoryByPatient</a></li><li><a href="global.html#MedicalMethods">MedicalMethods</a></li><li><a href="global.html#MongoDbConnection">MongoDbConnection</a></li><li><a href="global.html#RecoverPassword">RecoverPassword</a></li><li><a href="global.html#ScheduleByWorker">ScheduleByWorker</a></li><li><a href="global.html#ScheduleMethods">ScheduleMethods</a></li><li><a href="global.html#SendEmail">SendEmail</a></li><li><a href="global.html#SessionData">SessionData</a></li><li><a href="global.html#SessionMethods">SessionMethods</a></li><li><a href="global.html#UpdateAppointment">UpdateAppointment</a></li><li><a href="global.html#UpdateItem">UpdateItem</a></li><li><a href="global.html#UpdateSchedule">UpdateSchedule</a></li><li><a href="global.html#UpdateUser">UpdateUser</a></li><li><a href="global.html#UpdateWorker">UpdateWorker</a></li><li><a href="global.html#UserById">UserById</a></li><li><a href="global.html#UserMethods">UserMethods</a></li><li><a href="global.html#ValidateToken">ValidateToken</a></li><li><a href="global.html#WorkerById">WorkerById</a></li><li><a href="global.html#formulas">formulas</a></li><li><a href="global.html#lastMonthTotal">lastMonthTotal</a></li><li><a href="global.html#transporter">transporter</a></li><li><a href="global.html#validateAppointment">validateAppointment</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 08:45:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

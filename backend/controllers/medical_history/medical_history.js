@@ -4,6 +4,13 @@ import { UsersModel } from "../../models/user/user.js"
 import { WorkerModel } from "../../models/workers/workers.js"
 import { Types } from "mongoose"
 
+/**
+ * Obtiene todos los historiales médicos con estado "active".
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un array de historiales médicos.
+ */
 const AllMedicalHistory = async(req,res)=>{
     try {
         const findAll = await MedicalModel.find({"state":"active"})
@@ -20,6 +27,13 @@ const AllMedicalHistory = async(req,res)=>{
     }
 }
 
+/**
+ * Obtiene un historial médico por su ID, siempre que esté activo.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el parámetro `id`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y los datos del historial médico.
+ */
 const MedicalHistoryById = async(req,res)=>{
     const {id} = req.params
     try {
@@ -37,6 +51,13 @@ const MedicalHistoryById = async(req,res)=>{
     }
 }
 
+/**
+ * Obtiene todos los historiales médicos de un paciente específico.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el parámetro `patient_id`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un array de historiales médicos del paciente.
+ */
 const MedicalHistoryByPatient = async(req,res)=>{
     const {patient_id} = req.params
     try {
@@ -54,6 +75,13 @@ const MedicalHistoryByPatient = async(req,res)=>{
     }
 }
 
+/**
+ * Inserta un nuevo historial médico después de validar al paciente, al médico y actualizar la cita.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con los datos del historial en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un mensaje de confirmación o error.
+ */
 const InsertMedicalHistory = async(req,res)=>{
     const data = {
         patient_id:req.body.patient_id,
@@ -117,6 +145,9 @@ const InsertMedicalHistory = async(req,res)=>{
     }
 }
 
+/**
+ * Objeto que agrupa todos los métodos relacionados con el historial médico.
+ */
 export const MedicalMethods = {
     AllMedicalHistory,
     MedicalHistoryById,

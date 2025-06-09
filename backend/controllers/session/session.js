@@ -5,6 +5,13 @@ import jwt from 'jsonwebtoken'
 import { config } from "dotenv"
 config()
 
+/**
+ * Inicia sesión validando el correo y la contraseña, genera un JWT y lo guarda en cookies.
+ *
+ * @param {Request} req - Objeto de solicitud con `email` y `password` en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Devuelve estado de la sesión e información relevante.
+ */
 const LogIn = async(req,res) =>{
     const { email,password} = req.body
 
@@ -69,6 +76,13 @@ const LogIn = async(req,res) =>{
     }
 }
 
+/**
+ * Cierra la sesión eliminando la cookie `token`.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Estado de la operación.
+ */
 const LogOut = async(req,res) =>{
     try {
         res.clearCookie('token', {
@@ -90,6 +104,13 @@ const LogOut = async(req,res) =>{
 
 }
 
+/**
+ * Verifica si hay un token válido en las cookies para saber si el usuario ha iniciado sesión.
+ *
+ * @param {Request} req - Objeto de solicitud con cookies.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Estado de la sesión (activo o inválido).
+ */
 const IsLoggedIn = async(req,res)=>{
     const token = req.cookies.token
     if (!token) {
@@ -112,6 +133,13 @@ const IsLoggedIn = async(req,res)=>{
     })
 }
 
+/**
+ * Devuelve los datos del usuario decodificando el token presente en las cookies.
+ *
+ * @param {Request} req - Objeto de solicitud con cookie `token`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Información del usuario dentro del token.
+ */
 const SessionData = async(req,res)=>{
     const token = req.cookies.token
     try {
@@ -129,6 +157,13 @@ const SessionData = async(req,res)=>{
     }
 }
 
+/**
+ * Permite al usuario actualizar su contraseña si coincide la confirmación.
+ *
+ * @param {Request} req - Objeto de solicitud con `email`, `new_password` y `confirm_password`.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Response} - Estado de la operación (éxito o error).
+ */
 const RecoverPassword = async(req,res)=>{
     const {new_password,confirm_password,email} = req.body
     
@@ -184,7 +219,9 @@ const RecoverPassword = async(req,res)=>{
         })
     }
 }
-
+/**
+ * Exportación de métodos de sesión
+ */
 export const SessionMethods = {
     LogIn,
     LogOut,

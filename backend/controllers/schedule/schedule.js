@@ -3,6 +3,13 @@ import { ScheduleModel } from "../../models/schedule/schedule.js"
 import { WorkerModel } from "../../models/workers/workers.js"
 import { Validations } from "../../validations/index.js"
 
+/**
+ * Obtiene todos los horarios con estado "active".
+ *
+ * @param {Request} req - Objeto de solicitud HTTP.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un array de horarios activos.
+ */
 const AllSchedules = async(req,res)=>{
     try {
         const findAll = await ScheduleModel.find({"schedule_state":"active"})
@@ -18,6 +25,13 @@ const AllSchedules = async(req,res)=>{
     }
 }
 
+/**
+ * Obtiene los horarios asignados a un trabajador específico.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el parámetro `id` del trabajador.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y los horarios del trabajador.
+ */
 const ScheduleByWorker = async(req,res)=>{
     const {id} = req.params
 
@@ -47,6 +61,13 @@ const ScheduleByWorker = async(req,res)=>{
     }
 }
 
+/**
+ * Inserta un nuevo horario luego de validar las fechas, horas y la existencia del trabajador.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con los datos del horario en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un mensaje de confirmación o error.
+ */
 const InsertSchedule = async(req,res)=>{
     const data = {
         title:req.body.title,
@@ -108,6 +129,13 @@ const InsertSchedule = async(req,res)=>{
     }
 }
 
+/**
+ * Actualiza un horario existente luego de validar fechas, horas y trabajador.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el parámetro `id` del horario a actualizar y los nuevos datos en el cuerpo.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un mensaje de confirmación o error.
+ */
 const UpdateSchedule = async(req,res)=>{
     let {id} = req.params
     const data = {
@@ -175,6 +203,13 @@ const UpdateSchedule = async(req,res)=>{
     }
 }
 
+/**
+ * Desactiva un horario (cambio de estado a "inactive") según su ID.
+ *
+ * @param {Request} req - Objeto de solicitud HTTP con el parámetro `id` del horario.
+ * @param {Response} res - Objeto de respuesta HTTP.
+ * @returns {Object} JSON con el estado de la operación y un mensaje de confirmación o error.
+ */
 const DeactivateSchedule = async(req,res)=>{
     const {id} = req.params
 
@@ -203,6 +238,9 @@ const DeactivateSchedule = async(req,res)=>{
     }
 }
 
+/**
+ * Objeto que agrupa todos los métodos relacionados con los horarios.
+ */
 export const ScheduleMethods = {
     AllSchedules,
     ScheduleByWorker,

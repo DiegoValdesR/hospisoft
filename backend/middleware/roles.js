@@ -4,6 +4,7 @@ import { config } from "dotenv"
 config()
 
 /**
+ * Revisa que tenga el rol permitido para ciertas acciones.
  * @param {*} req Metodo request de express
  * @param {array} roles Array que recibe los roles permitidos para esa funcion, en strings,
  * ej: ["admin","secretaria"]

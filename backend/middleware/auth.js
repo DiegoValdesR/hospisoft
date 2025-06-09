@@ -3,13 +3,12 @@ import { config } from 'dotenv'
 config()
 
 /**
+ * Middleware que revisa que tenga una sesión abierta en el sitio.
  * @param {*} req Método request de express
  * @param {*} res Método response de express
  * @param {*} next Metodo de express, en este caso lo que hace es continuar el método más cercano si el token
  * no es inválido
- * @returns 
  */
-
 export const AuthorizationToken = (req,res,next)=>{
     // Extraemos el token desde las cookies
     const token = req.cookies.token;
