@@ -5,6 +5,16 @@ import { WorkerModel } from "../../models/workers/workers.js"
 import { Validations } from "../../validations/index.js"
 import moment from 'moment-timezone'
 
+/**
+ * Parametros generales de todo el proyecto.
+ * @param {*} req Parametro de la libreria express, recibe la petición hecha por el usuario .
+ * @param {*} res Parametro de la libreria express, se encarga de enviar una respuesta a la petición.
+ */
+
+/**
+ * Consigue todas las citas guardadas y activas.
+ * @returns {json} Json con un estado string y un array de objetos con todas las citas.
+ */
 const AllApointments = async(req,res)=>{
     try {
         const find = await AppointmentModel.find({"appointment_state":"active"})
@@ -21,6 +31,11 @@ const AllApointments = async(req,res)=>{
     }
 }
 
+/**
+ * Consigue una cita específica por medio del id.
+ * @property {string} id - Id de la cita que se recibe por el body de la petición.
+ * @returns {json} Json con un estado string y un json con una cita específica.
+ */
 const AppointmentById = async(req,res)=>{
     const {id} = req.params
 
@@ -48,6 +63,11 @@ const AppointmentById = async(req,res)=>{
     }
 }
 
+/**
+ * Consigue todas las citas asignadas a un médico por medio de su id.
+ * @property {string} id - Id del médico que se recibe por el body de la petición.
+ * @returns {json} Json con un estado string y un array de objetos con todas las citas.
+ */
 const AppointmentsByDoctor = async(req,res)=>{
     const {id} = req.params
 
@@ -70,6 +90,11 @@ const AppointmentsByDoctor = async(req,res)=>{
     }
 }
 
+/**
+ * Consigue todas las citas asignadas a un paciente por medio de su id.
+ * @property {string} patient_id - Id del paciente que se recibe por parametros de la petición (url).
+ * @returns {json} Json con un estado string y un array de objetos con todas las citas.
+ */
 const AppointmentsByPatient = async(req,res)=>{
     const {patient_id} = req.params
 
@@ -92,6 +117,12 @@ const AppointmentsByPatient = async(req,res)=>{
     }
 }
 
+/**
+ * Consigue todas las citas asignadas a un paciente y un médico especificos por medio de sus id.
+ * @property {string} patient_id - Id del paciente que se recibe por el body de la petición.
+ * @property {string} doctor_id - Id del médico que se recibe por el body de la petición.
+ * @returns {json} Json con un estado string y un array de objetos con todas las citas.
+ */
 const ByPatientAndDoctor = async(req,res)=>{
     const {patient_id,doctor_id} = req.body
     try {
@@ -117,6 +148,11 @@ const ByPatientAndDoctor = async(req,res)=>{
     } 
 }
 
+/**
+ * Inserta una cita.
+ * @property {object} data - Objeto recibido por el body de la petición con todos los datos necesarios.
+ * @returns {json} Json con un estado string y un mensaje (ya sea de error o confirmación).
+ */
 const InsertAppointment = async(req,res)=>{
     const data = {
         start_date:req.body.start_date,
@@ -206,6 +242,12 @@ const InsertAppointment = async(req,res)=>{
     }
 }
 
+/**
+ * Actualiza una cita por medio de su id.
+ * @property {string} id - Id de la cita recibido por parametros de la petición (url).
+ * @property {object} data - Objeto recibido por el body de la petición con todos los datos necesarios.
+ * @returns {json} Json con un estado string y un mensaje (ya sea de error o confirmación).
+ */
 const UpdateAppointment = async(req,res)=>{
     let {id} = req.params
     const data = {
@@ -295,6 +337,11 @@ const UpdateAppointment = async(req,res)=>{
     }
 }
 
+/**
+ * Desactiva una cita por medio de su id.
+ * @property {string} id - Id de la cita recibido por parametros de la petición (url).
+ * @returns {json} Json con un estado string y un mensaje (ya sea de error o confirmación).
+ */
 const DeactivateAppointment = async(req,res)=>{
     const {id} = req.params
 
@@ -315,6 +362,10 @@ const DeactivateAppointment = async(req,res)=>{
     }
 }
 
+/**
+ * Exportamos todas las funciones
+ * @var {object} AppointmentModel Objeto con todos los métodos.
+ */
 export const AppointmentsMethods = {
     AllApointments,
     AppointmentById,

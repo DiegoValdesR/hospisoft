@@ -1,6 +1,14 @@
 import { ItemsModel } from "../../models/item/item.js";
 import { AppointmentModel } from "../../models/appointments/appointments.js";
 
+/**
+ * Todos los métodos usados para las gráficas de sitio.
+ */
+
+/**
+ * Consigue el nombre y stock del medicamento con más stock.
+ * @returns {json} Json con un estado string y un objeto con la información solicitada.
+ */
 const GetItemsAndStock = async(req,res) =>{
     try {
         const findItems = await ItemsModel.findOne().sort({ item_stock: 1 }).select("item_name item_stock");
@@ -16,6 +24,19 @@ const GetItemsAndStock = async(req,res) =>{
     }
 }
 
+/**
+ * Consigue las ganancias del mes actual comparadas al mes anterior.
+ * @var {date} now - Fecha actual.
+ * @var {date} startOfCurrentMonth - Inicio del mes actual.
+ * @var {date} endOfCurrentMonth - Fin del mes actual.
+ * @var {date} startOfLastMonth - Inicio del mes anterior.
+ * @var {date} endOfLastMonth - Fin del mes anterior.
+ * @var {date} currentMonthResult - Resultado de una consulta que busca un resultado en las citas.
+ * @var {date} lastMonthResult - Resultado de una consulta que busca un resultado en las citas.
+ * @var {date} currentMonthTotal - Total de ganancias del mes actual.
+ * @var {date} lastMonthTotal - Total de ganancias del mes anterior.
+ * @returns {json} Json con un estado string y un mensaje (ya sea de error o confirmación), ademas de las ganancias del mes actual con la diferencia del mes anterior.
+ */
 const GetMonthlyBilling = async (req, res) => {
   try {
     const now = new Date();
@@ -69,15 +90,20 @@ const GetMonthlyBilling = async (req, res) => {
       status: "completed",
       data: currentMonthTotal,
       difference: differencePercentage.toFixed(2)
-    });
+    })
+
   } catch (error) {
     return res.status(500).send({
       status: "error",
       message: "Error al calcular la facturación mensual."
-    });
+    })
   }
-};
+}
 
+/**
+ * Consigue un listado de los médicos con mayor número de citas atendidas.
+ * @returns {json} Json con un estado string, un mensaje de error (si aplica) un objeto con la información solicitada.
+ */
 const GetDoctorsWithMostAppointments = async (req, res) => {
   try {
     const doctorsData = await AppointmentModel.aggregate([
@@ -144,8 +170,12 @@ const GetDoctorsWithMostAppointments = async (req, res) => {
       message: "Error al obtener los médicos con más citas."
     });
   }
-};
+}
 
+/**
+ * Consigue un listado de los pacientes de cada mes.
+ * @returns {json} Json con un estado string, un mensaje de error (si aplica) un objeto con la información solicitada.
+ */
 const GetMonthlyPatients = async (req, res) => {
   try {
     const currentYear = new Date().getFullYear();
@@ -181,12 +211,12 @@ const GetMonthlyPatients = async (req, res) => {
     const data = Array.from({ length: 12 }, (_, i) => {
       const monthData = monthlyPatients.find(mp => mp.month === i + 1);
       return monthData ? monthData.totalPatients : 0;
-    });
+    })
 
     return res.status(200).json({
       status: "completed",
       data
-    });
+    })
 
   } catch (error) {
     console.error("Error en GetMonthlyPatients:", error);
@@ -195,7 +225,7 @@ const GetMonthlyPatients = async (req, res) => {
       message: "Error al obtener la cantidad mensual de pacientes."
     });
   }
-};
+}
 
 export const DashMethods = {
     GetItemsAndStock,
